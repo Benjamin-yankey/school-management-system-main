@@ -1,0 +1,982 @@
+/* Role-specific Dashboard Styles */
+
+/* Notification Styles */
+.notification-channels {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.notification-channels h4 {
+  margin: 0 0 1rem 0;
+  color: #2d3748;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 0.875rem;
+  color: #718096;
+  margin-top: 0.25rem;
+}
+
+.notification-preview {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.notification-preview h4 {
+  margin: 0 0 1rem 0;
+  color: #2d3748;
+}
+
+.preview-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-message {
+  color: #4a5568;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.preview-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* Priority Badges */
+.priority-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.priority-low {
+  background-color: #e6fffa;
+  color: #234e52;
+}
+
+.priority-normal {
+  background-color: #ebf8ff;
+  color: #1a365d;
+}
+
+.priority-high {
+  background-color: #fff5f5;
+  color: #742a2a;
+}
+
+.priority-urgent {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
+/* Form Row for Date/Time */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+/* Checkbox Styles */
+.form-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+/* Attendance Filters */
+.attendance-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.attendance-summary h3 {
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.attendance-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.attendance-stat-card {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #4299e1;
+}
+
+.attendance-class-name {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.present-count {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.total-count {
+  color: #718096;
+}
+
+.attendance-percentage {
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.attendance-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: #4299e1;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #3182ce;
+}
+
+/* Child Selector */
+.child-selector {
+  margin-bottom: 1.5rem;
+}
+
+.child-selector .flex {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Classes List */
+.classes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.class-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border-left: 4px solid #10b981;
+  transition: all 0.2s ease;
+}
+
+.class-item:hover {
+  background: #edf2f7;
+  transform: translateX(4px);
+}
+
+.class-info h4 {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e1e5e9;
+  padding-bottom: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #718096;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #2d3748;
+  background-color: #f7fafc;
+  border-radius: 50%;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.form-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.form-actions button[type="button"] {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.form-actions button[type="button"]:hover {
+  background-color: #cbd5e0;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #4299e1;
+  color: white;
+}
+
+.form-actions button[type="submit"]:hover {
+  background-color: #3182ce;
+}
+
+.class-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.class-next {
+  text-align: right;
+}
+
+.next-time {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.5rem;
+}
+
+/* Schedule List */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.schedule-item:hover {
+  background: #edf2f7;
+}
+
+.schedule-time {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  min-width: 60px;
+}
+
+.schedule-details {
+  flex: 1;
+}
+
+.schedule-subject {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.schedule-room {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.schedule-status {
+  margin-left: auto;
+}
+
+/* Grades List */
+.grades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.grade-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.grade-item:hover {
+  background: #edf2f7;
+}
+
+.grade-info {
+  flex: 1;
+}
+
+.grade-student,
+.grade-assignment {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.grade-subject,
+.grade-date {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.grade-due {
+  text-align: right;
+}
+
+.due-text {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.25rem;
+}
+
+/* Meetings List */
+.meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meeting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.meeting-item:hover {
+  background: #edf2f7;
+}
+
+.meeting-info {
+  flex: 1;
+}
+
+.meeting-parent,
+.meeting-teacher {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.meeting-student,
+.meeting-subject {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.meeting-type {
+  font-size: 0.75rem;
+  color: #4a5568;
+  font-style: italic;
+}
+
+.meeting-time {
+  text-align: right;
+}
+
+.meeting-date {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.meeting-time-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* Subjects List */
+.subjects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.subject-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.subject-item:hover {
+  background: #edf2f7;
+}
+
+.subject-info {
+  flex: 1;
+}
+
+.subject-name {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.subject-teacher,
+.subject-next {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.subject-grade {
+  text-align: right;
+}
+
+.grade-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.125rem;
+}
+
+.grade-label {
+  font-size: 0.625rem;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Assignments List */
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.assignment-item:hover {
+  background: #edf2f7;
+}
+
+.assignment-info {
+  flex: 1;
+}
+
+.assignment-title {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.assignment-subject {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.assignment-points {
+  font-size: 0.75rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.assignment-due {
+  text-align: right;
+}
+
+/* Exam List */
+.exam-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.exam-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.exam-item:hover {
+  background: #edf2f7;
+}
+
+.exam-info {
+  flex: 1;
+}
+
+.exam-subject {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.exam-type {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.exam-room {
+  font-size: 0.75rem;
+  color: #4a5568;
+}
+
+.exam-time {
+  text-align: right;
+}
+
+.exam-date {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.exam-time-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* Announcements List */
+.announcements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.announcement-item {
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  border-left: 4px solid #8b5cf6;
+  transition: all 0.2s ease;
+}
+
+.announcement-item:hover {
+  background: #edf2f7;
+}
+
+.announcement-title {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.announcement-message {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.announcement-date {
+  font-size: 0.625rem;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Performance List */
+.performance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.performance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.performance-item:hover {
+  background: #edf2f7;
+}
+
+.performance-info {
+  flex: 1;
+}
+
+.performance-grade {
+  text-align: right;
+}
+
+.progress-bar {
+  width: 60px;
+  height: 4px;
+  background-color: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Attendance List */
+.attendance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attendance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.attendance-item:hover {
+  background: #edf2f7;
+}
+
+.attendance-info {
+  flex: 1;
+}
+
+.attendance-date {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.attendance-subject {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.attendance-teacher {
+  font-size: 0.75rem;
+  color: #4a5568;
+}
+
+.attendance-status {
+  margin-left: auto;
+}
+
+/* Fee List */
+.fee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fee-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.fee-item:hover {
+  background: #edf2f7;
+}
+
+.fee-info {
+  flex: 1;
+}
+
+.fee-month {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.fee-amount {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-bottom: 0.125rem;
+}
+
+.fee-due {
+  font-size: 0.75rem;
+  color: #4a5568;
+}
+
+.fee-status {
+  text-align: right;
+}
+
+.fee-paid {
+  font-size: 0.625rem;
+  color: #718096;
+  margin-top: 0.125rem;
+}
+
+/* Events List */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.event-item:hover {
+  background: #edf2f7;
+}
+
+.event-info {
+  flex: 1;
+}
+
+.event-title {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.event-type {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.event-time {
+  text-align: right;
+}
+
+.event-date {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.event-time-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .class-item,
+  .schedule-item,
+  .grade-item,
+  .meeting-item,
+  .subject-item,
+  .assignment-item,
+  .exam-item,
+  .performance-item,
+  .attendance-item,
+  .fee-item,
+  .event-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .class-next,
+  .grade-due,
+  .meeting-time,
+  .assignment-due,
+  .exam-time,
+  .performance-grade,
+  .attendance-status,
+  .fee-status,
+  .event-time {
+    text-align: left;
+    width: 100%;
+  }
+
+  .child-selector .flex {
+    flex-direction: column;
+  }
+}
