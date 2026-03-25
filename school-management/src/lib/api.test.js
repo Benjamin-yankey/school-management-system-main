@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { getAttendance, getStudents, saveAttendance, saveStudents } from './api'
+import {
+  getAttendance,
+  getStudents,
+  getTeachers,
+  saveAttendance,
+  saveStudents,
+  saveTeachers
+} from './api'
 
 describe('api storage helpers', () => {
   beforeEach(() => {
@@ -16,11 +23,34 @@ describe('api storage helpers', () => {
     await expect(getStudents()).resolves.toEqual(rows)
   })
 
-  it('saves and reads attendance by date', async () => {
-    const date = '2026-03-25'
-    const map = { '1': true, '2': false }
+  it('overwrites students when saving again', async () => {
+    await saveStudents([{ id: 1, name: 'Old Name' }])
+    await saveStudents([{ id: 2, name: 'New Name' }])
 
-    await saveAttendance(date, map)
-    await expect(getAttendance(date)).resolves.toEqual(map)
+    await expect(getStudents()).resolves.toEqual([{ id: 2, name: 'New Name' }])
+  })
+
+  it('saves and reads teachers', async () => {
+    const rows = [
+      { id: 1, name: 'Ms. Adu' },
+      { id: 2, name: 'Mr. Boateng' }
+    ]
+
+    await saveTeachers(rows)
+    await expect(getTeachers()).resolves.toEqual(rows)
+  })
+
+  it('keeps attendance isolated by date', async () => {
+    await saveAttendance('2026-03-25', { '1': true })
+    await saveAttendance('2026-03-26', { '1': false })
+
+    await expect(getAttendance('2026-03-25')).resolves.toEqual({ '1': true })
+    await expect(getAttendance('2026-03-26')).resolves.toEqual({ '1': false })
+  })
+
+  it('returns fallback when stored JSON is invalid', async () => {
+    localStorage.setItem('students', '{bad json')
+
+    await expect(getStudents()).resolves.toEqual([])
   })
 })
