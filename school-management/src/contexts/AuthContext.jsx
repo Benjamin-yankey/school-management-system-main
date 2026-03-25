@@ -83,10 +83,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("schoolsync_user");
   };
 
+  const updateProfile = (updates = {}) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const nextUser = { ...prev, ...updates };
+      localStorage.setItem("schoolsync_user", JSON.stringify(nextUser));
+      return nextUser;
+    });
+  };
+
   const value = {
     user,
     login,
     logout,
+    updateProfile,
     loading,
     isAuthenticated: !!user,
   };
