@@ -679,3 +679,80 @@
     grid-column: span 1;
   }
 }
+
+/* Dark Mode Overrides */
+body[data-theme="dark"] .dashboard {
+  background: radial-gradient(
+      120% 120% at 10% 0%,
+      #1f2a44 0%,
+      #0b1120 55%,
+      #070b16 100%
+    );
+  color: var(--text);
+}
+
+body[data-theme="dark"] .dashboard-header h2 {
+  color: #f8fafc;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body[data-theme="dark"] .dashboard-sub {
+  color: #94a3b8;
+}
+
+body[data-theme="dark"] .stat-card,
+body[data-theme="dark"] .panel {
+  background: var(--surface);
+  box-shadow: 0 16px 30px rgba(2, 6, 23, 0.35);
+}
+
+body[data-theme="dark"] .stat-card-title {
+  color: #cbd5f5;
+}
+
+body[data-theme="dark"] .stat-card-value {
+  color: #f8fafc;
+}
+
+body[data-theme="dark"] .stat-card-change.positive {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+body[data-theme="dark"] .stat-card-change.negative {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: #fca5a5;
+}
+
+body[data-theme="dark"] .panel h3 {
+  color: #e2e8f0;
+}
+
+body[data-theme="dark"] .panel h3::before {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+}
+
+body[data-theme="dark"] .recent-table thead {
+  background: #111827;
+}
+
+body[data-theme="dark"] .recent-table th {
+  color: #cbd5e1;
+  border-bottom-color: #1f2937;
+}
+
+body[data-theme="dark"] .recent-table td {
+  color: #e2e8f0;
+  border-bottom-color: #1f2937;
+}
+
+body[data-theme="dark"] .recent-table tbody tr:hover {
+  background-color: rgba(148, 163, 184, 0.08);
+}
+
+body[data-theme="dark"] .attendance-bar {
+  background: #1f2937;
+}

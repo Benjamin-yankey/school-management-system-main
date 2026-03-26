@@ -1,16 +1,54 @@
 import React, { useState, useEffect } from "react";
+import api from "../../lib/api";
+import { useAuth } from "../../contexts/AuthContext";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
 const ParentDashboard = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [selectedChild, setSelectedChild] = useState(0);
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false);
+      try {
+        setStats([
+          {
+            title: "Overall GPA",
+            value: "0.0",
+            change: 0,
+            color: "#f59e0b",
+            icon: "📊",
+          },
+          {
+            title: "Attendance",
+            value: "0%",
+            change: 0,
+            color: "#10b981",
+            icon: "✅",
+          },
+          {
+            title: "Pending Fees",
+            value: "$0",
+            change: 0,
+            color: "#ef4444",
+            icon: "💰",
+          },
+          {
+            title: "Upcoming Meetings",
+            value: 0,
+            change: 0,
+            color: "#8b5cf6",
+            icon: "👨‍👩‍👧‍👦",
+          },
+        ]);
+      } catch (err) {
+        console.error("Failed to load parent dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []);
@@ -199,7 +237,7 @@ const ParentDashboard = () => {
       <div className="dashboard-header">
         <h2>Parent Dashboard</h2>
         <div className="dashboard-sub">
-          Stay connected with your child's academic journey.
+          Welcome back, {user?.name || "Parent"}! Stay connected with your child's academic journey.
         </div>
       </div>
 
@@ -246,7 +284,7 @@ const ParentDashboard = () => {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        {parentStats.map((stat, index) => (
+        {stats.map((stat, index) => (
           <div
             key={index}
             className="stat-card"
