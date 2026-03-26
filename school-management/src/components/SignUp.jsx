@@ -56,9 +56,9 @@ const SignUp = () => {
 
     try {
       const result = await register(
-        fullName.trim(),
         email.trim(),
         password,
+        fullName.trim(),
         role,
       );
       if (result.success) {

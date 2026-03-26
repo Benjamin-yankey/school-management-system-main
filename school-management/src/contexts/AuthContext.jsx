@@ -68,12 +68,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password, name, role) => {
-    // The backend-fixed requires users to be created by superadmin or administration
-    // Self-registration is not supported
-    return {
-      success: false,
-      error: "User registration must be done by an administrator",
-    };
+    setLoading(true);
+    try {
+      const result = await api.register(email, password, name, role);
+      setLoading(false);
+      return { success: true, user: result };
+    } catch (error) {
+      setLoading(false);
+      return { success: false, error: error.message || "Registration failed" };
+    }
   };
 
   const logout = () => {

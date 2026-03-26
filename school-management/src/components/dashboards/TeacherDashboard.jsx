@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../../lib/api";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 import {
@@ -13,40 +14,52 @@ import {
 
 const TeacherDashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([]);
+  const [students, setStudents] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false);
+      try {
+        const [studentsData, statsData] = await Promise.all([
+          api.getStudents(),
+          api.getDashboardStats()
+        ]);
+        
+        setStudents(Array.isArray(studentsData) ? studentsData : []);
+        
+        setStats([
+          { title: "My Classes", value: 0, change: 0, color: "#10b981", icon: "📚" },
+          {
+            title: "Total Students",
+            value: studentsData.length || 0,
+            change: 0,
+            color: "#3b82f6",
+            icon: "👥",
+          },
+          {
+            title: "Pending Grades",
+            value: 0,
+            change: 0,
+            color: "#f59e0b",
+            icon: "📝",
+          },
+          {
+            title: "Upcoming Meetings",
+            value: 0,
+            change: 0,
+            color: "#8b5cf6",
+            icon: "👨‍👩‍👧‍👦",
+          },
+        ]);
+      } catch (err) {
+        console.error("Failed to load teacher dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []);
-
-  const teacherStats = [
-    { title: "My Classes", value: 4, change: 0, color: "#10b981", icon: "📚" },
-    {
-      title: "Total Students",
-      value: 127,
-      change: 3,
-      color: "#3b82f6",
-      icon: "👥",
-    },
-    {
-      title: "Pending Grades",
-      value: 23,
-      change: -5,
-      color: "#f59e0b",
-      icon: "📝",
-    },
-    {
-      title: "Upcoming Meetings",
-      value: 2,
-      change: 1,
-      color: "#8b5cf6",
-      icon: "👨‍👩‍👧‍👦",
-    },
-  ];
 
   const myClasses = [
     {
@@ -55,19 +68,6 @@ const TeacherDashboard = () => {
       attendance: 94,
       nextClass: "10:00 AM",
     },
-    {
-      name: "Physics 11-B",
-      students: 28,
-      attendance: 89,
-      nextClass: "11:30 AM",
-    },
-    {
-      name: "Calculus 12-C",
-      students: 25,
-      attendance: 96,
-      nextClass: "2:00 PM",
-    },
-    { name: "Algebra 9-D", students: 30, attendance: 91, nextClass: "3:30 PM" },
   ];
 
   const todaysSchedule = [
@@ -77,69 +77,10 @@ const TeacherDashboard = () => {
       room: "Room 101",
       duration: "50 min",
     },
-    {
-      time: "10:00",
-      subject: "Mathematics 10-A",
-      room: "Room 101",
-      duration: "50 min",
-    },
-    {
-      time: "11:30",
-      subject: "Physics 11-B",
-      room: "Lab 2",
-      duration: "50 min",
-    },
-    {
-      time: "14:00",
-      subject: "Calculus 12-C",
-      room: "Room 205",
-      duration: "50 min",
-    },
-    {
-      time: "15:30",
-      subject: "Algebra 9-D",
-      room: "Room 103",
-      duration: "50 min",
-    },
   ];
 
-  const pendingGrades = [
-    {
-      student: "Emma Wilson",
-      assignment: "Trigonometry Test",
-      subject: "Mathematics",
-      due: "Today",
-    },
-    {
-      student: "Liam Chen",
-      assignment: "Physics Lab Report",
-      subject: "Physics",
-      due: "Tomorrow",
-    },
-    {
-      student: "Sophia Kumar",
-      assignment: "Calculus Problem Set",
-      subject: "Calculus",
-      due: "2 days",
-    },
-  ];
-
-  const upcomingMeetings = [
-    {
-      parent: "Mrs. Johnson",
-      student: "Alex Johnson",
-      date: "Tomorrow",
-      time: "2:00 PM",
-      subject: "Mathematics",
-    },
-    {
-      parent: "Mr. Smith",
-      student: "Sarah Smith",
-      date: "Friday",
-      time: "3:30 PM",
-      subject: "Physics",
-    },
-  ];
+  const pendingGrades = [];
+  const upcomingMeetings = [];
 
   const quickActions = [
     { label: "Mark Attendance", icon: "✅", color: "#10b981" },
@@ -188,7 +129,7 @@ const TeacherDashboard = () => {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        {teacherStats.map((stat, index) => (
+        {stats.map((stat, index) => (
           <div
             key={index}
             className="stat-card"

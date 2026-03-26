@@ -1,5 +1,5 @@
-// API client that connects to the backend-fixed microservices
-const API_BASE_URL = "https://2e57-196-61-44-164.ngrok-free.app";
+// API client that connects to the backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://2e57-196-61-44-164.ngrok-free.app";
 
 const getToken = () => localStorage.getItem("token");
 
@@ -39,9 +39,17 @@ export async function login(email, password) {
 }
 
 export async function register(email, password, name, role = "student") {
-  // Registration is done via superadmin or administration endpoints
-  // For self-registration, we throw an error - users must be created by admin
-  throw new Error("User registration must be done by an administrator");
+  // Extract firstName and lastName from name
+  const nameParts = name.split(" ");
+  const firstName = nameParts[0];
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  const res = await fetch(`${API_BASE_URL}/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, firstName, lastName, role }),
+  });
+  return handleResponse(res);
 }
 
 export async function signout() {
@@ -103,8 +111,12 @@ export async function createStudent(studentData) {
 }
 
 export async function updateStudent(id, studentData) {
-  // Would need to use PATCH endpoint
-  throw new Error("Not implemented");
+  const res = await fetch(`${API_BASE_URL}/administration/update-user/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(studentData),
+  });
+  return handleResponse(res);
 }
 
 export async function deleteStudent(id) {
@@ -118,7 +130,7 @@ export async function deleteStudent(id) {
 export async function saveStudents(rows) {
   // Batch sync - create or update students
   for (const student of rows) {
-    if (student.id) {
+    if (student.id && typeof student.id === 'string' && student.id.length > 5) {
       await updateStudent(student.id, student);
     } else {
       await createStudent(student);
@@ -146,7 +158,12 @@ export async function createTeacher(teacherData) {
 }
 
 export async function updateTeacher(id, teacherData) {
-  throw new Error("Not implemented");
+  const res = await fetch(`${API_BASE_URL}/administration/update-user/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(teacherData),
+  });
+  return handleResponse(res);
 }
 
 export async function deleteTeacher(id) {
@@ -159,13 +176,31 @@ export async function deleteTeacher(id) {
 
 export async function saveTeachers(rows) {
   for (const teacher of rows) {
-    if (teacher.id) {
+    if (teacher.id && typeof teacher.id === 'string' && teacher.id.length > 5) {
       await updateTeacher(teacher.id, teacher);
     } else {
       await createTeacher(teacher);
     }
   }
   return rows;
+}
+
+// ==================== ATTENDANCE ====================
+
+export async function getAttendance(date) {
+  const res = await fetch(`${API_BASE_URL}/attendance?date=${date}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function saveAttendance(date, attendanceData) {
+  const res = await fetch(`${API_BASE_URL}/attendance`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ date, data: attendanceData }),
+  });
+  return handleResponse(res);
 }
 
 // ==================== SCHOOLS (Superadmin only) ====================
@@ -204,6 +239,8 @@ export default {
   saveStudents,
   getTeachers,
   saveTeachers,
+  getAttendance,
+  saveAttendance,
   login,
   register,
   logout,
