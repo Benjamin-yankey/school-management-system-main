@@ -1,0 +1,58 @@
+### Login (admin)
+POST https://2e57-196-61-44-164.ngrok-free.app/auth/signin
+Content-Type: application/json
+Origin: http://localhost:5173
+
+{
+  "email": "admin@accraacademy.com",
+  "password": "NewPassword123!"
+}
+
+### Login (superadmin)
+POST https://2e57-196-61-44-164.ngrok-free.app/auth/signin
+Content-Type: application/json
+Origin: http://localhost:5173
+
+{
+  "email": "superadmin@accraacademy.com",
+  "password": "SuperAdminPassword123!"
+}
+
+### Get Profile (replace YOUR_JWT_TOKEN)
+GET https://2e57-196-61-44-164.ngrok-free.app/profile/me
+Authorization: Bearer YOUR_JWT_TOKEN
+Origin: http://localhost:5173
+
+### List Administrations (superadmin only)
+GET https://2e57-196-61-44-164.ngrok-free.app/superadmin/administrations
+Authorization: Bearer YOUR_JWT_TOKEN
+Origin: http://localhost:5173
+
+### Create Administration (superadmin only)
+POST https://2e57-196-61-44-164.ngrok-free.app/superadmin/create-administration
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+Origin: http://localhost:5173
+
+{
+  "email": "newadmin@accraacademy.com",
+  "schoolId": "27b3c1df-f524-4cc6-b449-702b9facbecb"
+}
+
+### List Users (administration only)
+GET https://2e57-196-61-44-164.ngrok-free.app/administration/users
+Authorization: Bearer YOUR_JWT_TOKEN
+Origin: http://localhost:5173
+
+### Create User (administration only)
+POST https://2e57-196-61-44-164.ngrok-free.app/administration/create-user
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+Origin: http://localhost:5173
+
+{
+  "email": "teacher@accraacademy.com",
+  "role": "teacher",
+  "firstName": "John",
+  "lastName": "Doe"
+}
