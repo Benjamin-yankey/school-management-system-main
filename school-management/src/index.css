@@ -266,7 +266,7 @@ body[data-theme="dark"] {
   gap: 1rem;
   align-items: stretch;
 }
-.navbar {
+.shell .navbar {
   width: 220px;
   background: linear-gradient(180deg, #ffffff, #fbfdff);
   border-radius: 12px;
@@ -310,7 +310,7 @@ body[data-theme="dark"] {
 
 @media (max-width: 900px) {
   /* keep shell as row so sidebar stays at left; hide old .navbar rule if present */
-  .navbar {
+  .shell .navbar {
     display: none;
   }
 }

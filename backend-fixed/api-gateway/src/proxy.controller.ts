@@ -1,21 +1,15 @@
-import {
-  All,
-  Controller,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { MustResetGuard } from './common/guards/must-reset.guard';
-import { RolesGuard } from './common/guards/roles.guard';
-import { BlacklistGuard } from './common/guards/blacklist.guard';
-import { Roles } from './common/decorators/roles.decorator';
-import { Role } from './common/enums/role.enum';
-import * as http from 'http';
-import * as https from 'https';
-import { URL } from 'url';
+import { All, Controller, Req, Res, UseGuards } from "@nestjs/common";
+import { Request, Response } from "express";
+import { ConfigService } from "@nestjs/config";
+import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
+import { MustResetGuard } from "./common/guards/must-reset.guard";
+import { RolesGuard } from "./common/guards/roles.guard";
+import { BlacklistGuard } from "./common/guards/blacklist.guard";
+import { Roles } from "./common/decorators/roles.decorator";
+import { Role } from "./common/enums/role.enum";
+import * as http from "http";
+import * as https from "https";
+import { URL } from "url";
 
 @Controller()
 export class ProxyController {
@@ -23,75 +17,94 @@ export class ProxyController {
 
   constructor(private readonly config: ConfigService) {
     this.urls = {
-      auth:   this.config.get<string>('AUTH_SERVICE_URL'),
-      user:   this.config.get<string>('USER_SERVICE_URL'),
-      school: this.config.get<string>('SCHOOL_SERVICE_URL'),
+      auth: this.config.get<string>("AUTH_SERVICE_URL"),
+      user: this.config.get<string>("USER_SERVICE_URL"),
+      school: this.config.get<string>("SCHOOL_SERVICE_URL"),
     };
   }
 
   // ── Public ────────────────────────────────────────────────────────────────
 
-  @All('/auth/signin')
+  @All("/auth/signin")
   proxySignIn(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'auth');
+    // Handle CORS preflight for signin
+    if (req.method === "OPTIONS") {
+      return this.handleCorsPreflight(res);
+    }
+    return this.forward(req, res, "auth");
   }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard)
-  @All('/auth/*')
+  @All("/auth/*")
   proxyAuth(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'auth');
+    return this.forward(req, res, "auth");
   }
 
   // ── Superadmin ────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN)
-  @All('/superadmin/*')
+  @All("/superadmin/*")
   proxySuperadmin(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'user');
+    return this.forward(req, res, "user");
   }
 
   // ── Administration ────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.ADMINISTRATION)
-  @All('/administration/*')
+  @All("/administration/*")
   proxyAdministration(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'user');
+    return this.forward(req, res, "user");
   }
 
   // ── Profile ───────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard)
-  @All('/profile/*')
+  @All("/profile/*")
   proxyProfile(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'user');
+    return this.forward(req, res, "user");
   }
 
   // ── Schools ───────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN)
-  @All('/schools*')
+  @All("/schools*")
   proxySchools(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, 'school');
+    return this.forward(req, res, "school");
   }
 
   // ── Helper ────────────────────────────────────────────────────────────────
 
+  private handleCorsPreflight(res: Response): void {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
+    res.setHeader("Access-Control-Max-Age", "86400");
+    res.status(204).send();
+  }
+
   private forward(req: Request, res: Response, service: string): void {
     const base = this.urls[service];
     const parsed = new URL(base);
-    const isHttps = parsed.protocol === 'https:';
+    const isHttps = parsed.protocol === "https:";
     const transport = isHttps ? https : http;
 
     // NestJS body parser has already consumed the stream and put it on req.body.
     // We must re-serialize it — piping req directly will send nothing.
-    const bodyStr = req.body && Object.keys(req.body).length
-      ? JSON.stringify(req.body)
-      : null;
+    const bodyStr =
+      req.body && Object.keys(req.body).length
+        ? JSON.stringify(req.body)
+        : null;
 
     const headers: http.OutgoingHttpHeaders = {
       ...req.headers,
@@ -99,10 +112,10 @@ export class ProxyController {
     };
 
     if (bodyStr) {
-      headers['content-type'] = 'application/json';
-      headers['content-length'] = Buffer.byteLength(bodyStr).toString();
+      headers["content-type"] = "application/json";
+      headers["content-length"] = Buffer.byteLength(bodyStr).toString();
     } else {
-      delete headers['content-length'];
+      delete headers["content-length"];
     }
 
     const options: http.RequestOptions = {
@@ -121,9 +134,9 @@ export class ProxyController {
       proxyRes.pipe(res);
     });
 
-    proxyReq.on('error', (err) => {
+    proxyReq.on("error", (err) => {
       if (!res.headersSent) {
-        res.status(502).json({ message: 'Bad Gateway', error: err.message });
+        res.status(502).json({ message: "Bad Gateway", error: err.message });
       }
     });
 

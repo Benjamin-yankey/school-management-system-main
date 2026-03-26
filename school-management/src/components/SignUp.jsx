@@ -1,19 +1,23 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, Check } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 import "./Login.css";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const isValidEmail = useMemo(() => {
     const trimmed = email.trim();
@@ -31,6 +35,10 @@ const SignUp = () => {
     navigate("/signin");
   };
 
+  const handleHome = () => {
+    navigate("/");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -44,12 +52,26 @@ const SignUp = () => {
     }
 
     setIsLoading(true);
-    // Simulate signup - replace with actual API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
+    setError("");
 
-    // For demo, redirect to admin dashboard
-    navigate("/admin/dashboard");
+    try {
+      const result = await register(
+        email.trim(),
+        password,
+        fullName.trim(),
+        role,
+      );
+      if (result.success) {
+        // Registration successful, redirect to signin to login
+        navigate("/signin");
+      } else {
+        setError(result.error || "Registration failed. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Password strength calculation
@@ -245,6 +267,27 @@ const SignUp = () => {
               )}
             </div>
 
+            {/* Role Selection */}
+            {error && <div className="input-error" style={{marginBottom: '1rem'}}>{error}</div>}
+            <div className="form-group">
+              <label htmlFor="role" className="form-label">
+                Account Type
+              </label>
+              <div className="input-wrapper">
+                <select
+                  id="role"
+                  name="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="form-input"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="parent">Parent</option>
+                </select>
+              </div>
+            </div>
+
             {/* Terms Checkbox */}
             <div className="terms-checkbox">
               <label className="checkbox-label">
@@ -288,14 +331,25 @@ const SignUp = () => {
 
           {/* Footer Link */}
           <div className="signin-footer">
-            <span>Already have an account?</span>
-            <button
-              type="button"
-              className="signin-footer-link"
-              onClick={handleSignIn}
-            >
-              Sign In
-            </button>
+            <p className="signin-footer-text">
+              Already have an account?{" "}
+              <button
+                type="button"
+                className="signin-footer-link"
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
+            </p>
+            <p className="signin-footer-text">
+              <button
+                type="button"
+                className="signin-footer-link"
+                onClick={handleHome}
+              >
+                Back to Home
+              </button>
+            </p>
           </div>
         </div>
       </div>
