@@ -10,6 +10,7 @@ import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
+import SuperAdminDashboard from "./components/SuperAdminDashboard";
 import Home from "./Home";
 
 import AddStudent from "./pages/AddStudent";
@@ -20,11 +21,24 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-
           <Route path="/" element={<Home />} />
-
           <Route path="/login" element={<Login />} />
-         
+          
+          {/* Superadmin Dashboard - Full system access */}
+          <Route
+            path="/superadmin"
+            element={
+              <ProtectedRoute requiredRole="superadmin">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Superadmin as standalone (for development/testing) */}
+          <Route
+            path="/superadmin-dashboard"
+            element={<SuperAdminDashboard />}
+          />
 
           {/* Add Student Page (admin only) */}
           <Route
