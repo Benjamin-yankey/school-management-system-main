@@ -5,6 +5,7 @@ import './Home.css';
 const Home = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     parentName: '',
@@ -151,15 +152,20 @@ const Home = () => {
   return (
     <div className="home-page">
       {/* TopNavBar */}
-      <nav className="navbar">
+      <nav className={`navbar ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="navbar-brand">
-          <span className="logo-text">THE ACADEMY</span>
+          <Link to="/" className="logo-text">THE ACADEMY</Link>
+          <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+          </button>
+          
           <div className="navbar-links">
             {navLinks.map((link, index) => (
               <Link
                 key={index}
                 className={link.active ? 'nav-link active' : 'nav-link'}
                 to={link.to}
+                onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
               </Link>
@@ -170,9 +176,6 @@ const Home = () => {
           <div className="nav-auth-links">
             <Link className="nav-auth-link" to="/signin">
               Sign In
-            </Link>
-            <Link className="nav-auth-link nav-auth-link-emphasis" to="/signup">
-              Sign Up
             </Link>
           </div>
           <Link className="primary-btn" to="/admissions">

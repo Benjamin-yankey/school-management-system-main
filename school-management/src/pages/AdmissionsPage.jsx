@@ -37,6 +37,7 @@ const AdmissionsPage = () => {
   const [formData, setFormData] = useState(initialState);
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleChange = (event) => {
     const { name, type, checked, value } = event.target;
@@ -87,31 +88,34 @@ const AdmissionsPage = () => {
 
   return (
     <div className="academy-page">
-      <header className="academy-page-nav">
+      <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="academy-page-brand">
             The Academy
           </Link>
+          
+          <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+          </button>
+
           <nav className="academy-page-links" aria-label="Primary">
-            <Link to="/" className="academy-page-link">
+            <Link to="/" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
-            <Link to="/programs" className="academy-page-link">
+            <Link to="/programs" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Programs
             </Link>
-            <Link to="/campus" className="academy-page-link">
+            <Link to="/campus" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Campus
             </Link>
-            <Link to="/admissions" className="academy-page-link active">
+            <Link to="/admissions" className="academy-page-link active" onClick={() => setIsMenuOpen(false)}>
               Admissions
             </Link>
           </nav>
+
           <div className="academy-page-actions">
             <Link to="/signin" className="academy-page-auth">
               Sign In
-            </Link>
-            <Link to="/signup" className="academy-page-auth academy-page-auth-accent">
-              Sign Up
             </Link>
             <Link to="/admissions" className="academy-page-apply">
               Apply Now
