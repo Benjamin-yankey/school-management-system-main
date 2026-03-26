@@ -10,6 +10,7 @@ import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
+import Home from "./Home";
 
 import AddStudent from "./pages/AddStudent";
 
@@ -19,7 +20,11 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
+
+          <Route path="/" element={<Home />} />
+
           <Route path="/login" element={<Login />} />
+         
 
           {/* Add Student Page (admin only) */}
           <Route
