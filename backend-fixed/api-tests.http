@@ -20,7 +20,7 @@ Origin: http://localhost:5173
 
 ### Get Profile (replace YOUR_JWT_TOKEN)
 GET https://2e57-196-61-44-164.ngrok-free.app/profile/me
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MzQ3ODg4YS02N2UwLTRkYWItODhhNS1mNDRhNWVjYWY5OTQiLCJlbWFpbCI6ImFkbWluQGFjY3JhYWNhZGVteS5jb20iLCJyb2xlIjoiYWRtaW5pc3RyYXRpb24iLCJtdXN0UmVzZXRQYXNzd29yZCI6ZmFsc2UsImp0aSI6IjU2ODA1MzMzLTA3NWItNGEwNC05ODlmLWYyY2FlMGJmNDU0OSIsImlhdCI6MTc3NDUzNjcyOSwiZXhwIjoxNzc1MTQxNTI5fQ.vvh--9-wLCBQ63xMFsvUMynhJZZC4ZVNL0p9hYbMkk8
 Origin: http://localhost:5173
 
 ### List Administrations (superadmin only)
