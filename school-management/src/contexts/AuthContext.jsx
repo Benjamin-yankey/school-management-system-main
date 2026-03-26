@@ -35,6 +35,10 @@ export const AuthProvider = ({ children }) => {
         // Get full profile data
         const profile = await api.getProfile();
 
+        // Normalize role
+        let normalizedRole = (profile.role || selectedRole || "student").toLowerCase();
+        if (normalizedRole === "administrator") normalizedRole = "admin";
+
         const userData = {
           id: profile.id,
           email: profile.email,
@@ -45,7 +49,7 @@ export const AuthProvider = ({ children }) => {
           firstName: profile.firstName || "",
           lastName: profile.lastName || "",
           phone: profile.phone || "",
-          role: profile.role || selectedRole,
+          role: normalizedRole,
           schoolId: profile.schoolId,
           avatar:
             profile.firstName && profile.lastName
