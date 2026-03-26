@@ -1,9 +1,5 @@
 // API client that connects to the backend
- feature/styling
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://2e57-196-61-44-164.ngrok-free.app";
- main
 
 const getToken = () => localStorage.getItem("token");
 

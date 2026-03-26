@@ -35,13 +35,10 @@ export const AuthProvider = ({ children }) => {
         // Get full profile data
         const profile = await api.getProfile();
 
- feature/styling
         // Normalize role
         let normalizedRole = (profile.role || selectedRole || "student").toLowerCase();
         if (normalizedRole === "administrator") normalizedRole = "admin";
 
-
- main
         const userData = {
           id: profile.id,
           email: profile.email,
@@ -52,11 +49,7 @@ export const AuthProvider = ({ children }) => {
           firstName: profile.firstName || "",
           lastName: profile.lastName || "",
           phone: profile.phone || "",
-feature/styling
           role: normalizedRole,
-
-          role: profile.role || selectedRole,
- main
           schoolId: profile.schoolId,
           avatar:
             profile.firstName && profile.lastName
@@ -70,17 +63,10 @@ feature/styling
         return { success: true, user: userData };
       }
 
- feature/styling
       setLoading(false);
       return { success: false, error: "Login failed - no token received" };
     } catch (error) {
       setLoading(false);
-
-      setLoading(false);
-      return { success: false, error: "Login failed - no token received" };
-    } catch (error) {
-      setLoading(false);
- main
       return { success: false, error: error.message || "Invalid credentials" };
     }
   };

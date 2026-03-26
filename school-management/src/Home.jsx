@@ -165,10 +165,7 @@ const Home = () => {
                 key={index}
                 className={link.active ? 'nav-link active' : 'nav-link'}
                 to={link.to}
- feature/styling
                 onClick={() => setIsMenuOpen(false)}
-
- main
               >
                 {link.label}
               </Link>
@@ -180,12 +177,9 @@ const Home = () => {
             <Link className="nav-auth-link" to="/signin">
               Sign In
             </Link>
- feature/styling
-
             <Link className="nav-auth-link nav-auth-link-emphasis" to="/signup">
               Sign Up
             </Link>
- main
           </div>
           <Link className="primary-btn" to="/admissions">
             Apply Now
@@ -443,9 +437,6 @@ const Home = () => {
             </div>
           </div>
         </section>
-feature/styling
-
-
         {/* Join the Future CTA */}
         <section className="cta-section">
           <div className="cta-bg">
@@ -469,7 +460,6 @@ feature/styling
             </Link>
           </div>
         </section>
- main
       </main>
 
       <footer className="footer">

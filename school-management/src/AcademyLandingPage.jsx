@@ -218,7 +218,6 @@ const AcademyLandingPage = () => {
       {/* Navigation */}
       <nav className={`navbar-modern ${isMobileMenuOpen ? 'mobile-active' : ''}`}>
         <div className="nav-container">
- feature/styling
           <Link to="/" className="nav-logo">
             <span className="logo-icon">A</span>
             <span className="logo-text">THE ACADEMY</span>
@@ -228,16 +227,6 @@ const AcademyLandingPage = () => {
             <span className="material-symbols-outlined">
               {isMobileMenuOpen ? 'close' : 'menu'}
             </span>
-
-          <div className="nav-left">
-            <Link to="/" className="logo">THE ACADEMY</Link>
-            <div className="desktop-menu">
-              <Link to="/original" className="nav-link active">Original</Link>
-              <Link to="/" className="nav-link">Home</Link>
-              <Link to="/signin" className="nav-link">Sign In</Link>
-              <Link to="/signup" className="nav-link">Sign Up</Link>
-            </div>
- main
           </div>
           
           <ul className="nav-links-modern">
@@ -252,7 +241,7 @@ const AcademyLandingPage = () => {
             <button className="cta-button-nav" onClick={() => { openModal(); setIsMobileMenuOpen(false); }}>Apply Now</button>
           </div>
         </div>
- feature/styling
+      </nav>
 
         {isMobileMenuOpen && (
           <div className="mobile-menu">
@@ -262,9 +251,6 @@ const AcademyLandingPage = () => {
             <Link to="/signup" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
           </div>
         )}
- main
-      </nav>
-
       <main className="main-content-modern">
         {/* Hero Section */}
         <section className="hero-modern">
