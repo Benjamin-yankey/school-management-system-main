@@ -1,9 +1,6 @@
 import React from "react";
-import { generateNotifications } from "../lib/dashboardData";
 
-const Notifications = () => {
-  const notifications = generateNotifications();
-
+const Notifications = ({ notifications = [] }) => {
   const getNotificationIcon = (type) => {
     const icons = {
       info: "🔵",
@@ -38,32 +35,36 @@ const Notifications = () => {
     <div className="panel">
       <h3>Recent Notifications</h3>
       <div className="notifications-list">
-        {notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="notification"
-            style={{
-              borderLeftColor: getNotificationBorderColor(notification.type),
-              backgroundColor: getNotificationBgColor(notification.type),
-            }}
-          >
+        {notifications.length > 0 ? (
+          notifications.map((notification) => (
             <div
-              className="notification-icon"
+              key={notification.id}
+              className="notification"
               style={{
-                backgroundColor: `${getNotificationBorderColor(
-                  notification.type
-                )}20`,
+                borderLeftColor: getNotificationBorderColor(notification.type),
+                backgroundColor: getNotificationBgColor(notification.type),
               }}
             >
-              {getNotificationIcon(notification.type)}
+              <div
+                className="notification-icon"
+                style={{
+                  backgroundColor: `${getNotificationBorderColor(
+                    notification.type
+                  )}20`,
+                }}
+              >
+                {getNotificationIcon(notification.type)}
+              </div>
+              <div className="notification-content">
+                <div className="notification-title">{notification.title}</div>
+                <div className="notification-message">{notification.message}</div>
+                <div className="notification-time">{notification.time}</div>
+              </div>
             </div>
-            <div className="notification-content">
-              <div className="notification-title">{notification.title}</div>
-              <div className="notification-message">{notification.message}</div>
-              <div className="notification-time">{notification.time}</div>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="empty-state">No new notifications</div>
+        )}
       </div>
     </div>
   );

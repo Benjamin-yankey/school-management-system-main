@@ -4,14 +4,24 @@ import { AuthProvider } from "./contexts/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
-import Login from "./components/Login";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 
 import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
+ homepage
 import SuperAdminDashboard from "./components/SuperAdminDashboard";
+
+import AcademyLandingPage from "./AcademyLandingPage";
+ main
 import Home from "./Home";
+import ProgramsPage from "./pages/ProgramsPage";
+import CampusPage from "./pages/CampusPage";
+import AdmissionsPage from "./pages/AdmissionsPage";
 
 import AddStudent from "./pages/AddStudent";
 
@@ -22,6 +32,7 @@ export default function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+homepage
           <Route path="/login" element={<Login />} />
           
           {/* Superadmin Dashboard - Full system access */}
@@ -39,6 +50,19 @@ export default function App() {
             path="/superadmin-dashboard"
             element={<SuperAdminDashboard />}
           />
+
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="/original" element={<AcademyLandingPage />} />
+          <Route path="/programs" element={<ProgramsPage />} />
+          <Route path="/campus" element={<CampusPage />} />
+          <Route path="/admissions" element={<AdmissionsPage />} />
+
+          <Route path="/login" element={<Navigate to="/signin" replace />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+ main
 
           {/* Add Student Page (admin only) */}
           <Route
@@ -105,11 +129,8 @@ export default function App() {
             }
           />
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-
           {/* Catch-all redirect */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

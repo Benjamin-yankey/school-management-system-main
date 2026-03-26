@@ -1,11 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --bg: #f6f8fb;
   --text: #0f1724;
   --accent: #2563eb;
+  --surface: #ffffff;
+  --surface-muted: #f7fafc;
+  --border: #e2e8f0;
+  --header-bg: rgba(255, 255, 255, 0.95);
+  --header-border: #e5e7eb;
+  --header-text: #111827;
+  --header-muted: #6b7280;
+  --header-hover: #f3f4f6;
+  --header-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
 }
 
 * {
@@ -21,6 +29,22 @@ body {
   font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+}
+
+body[data-theme="dark"] {
+  --bg: #0b1120;
+  --text: #e2e8f0;
+  --surface: #111827;
+  --surface-muted: #0f172a;
+  --border: #1f2937;
+  --header-bg: rgba(15, 23, 42, 0.9);
+  --header-border: #1f2937;
+  --header-text: #f8fafc;
+  --header-muted: #94a3b8;
+  --header-hover: #1f2937;
+  --header-shadow: 0 12px 32px rgba(2, 6, 23, 0.35);
+  --danger: #f87171;
+  --danger-bg: rgba(127, 29, 29, 0.6);
 }
 /* App shell */
 .app {
@@ -242,7 +266,7 @@ body {
   gap: 1rem;
   align-items: stretch;
 }
-.navbar {
+.shell .navbar {
   width: 220px;
   background: linear-gradient(180deg, #ffffff, #fbfdff);
   border-radius: 12px;
@@ -286,7 +310,7 @@ body {
 
 @media (max-width: 900px) {
   /* keep shell as row so sidebar stays at left; hide old .navbar rule if present */
-  .navbar {
+  .shell .navbar {
     display: none;
   }
 }
