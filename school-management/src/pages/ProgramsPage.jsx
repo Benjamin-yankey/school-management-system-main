@@ -57,14 +57,21 @@ const programs = [
 ];
 
 const ProgramsPage = () => {
+feature/styling
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
     <div className="academy-page">
       <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
+
+  return (
+    <div className="academy-page">
+      <header className="academy-page-nav">
+ main
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="academy-page-brand">
             The Academy
           </Link>
+feature/styling
           <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
           </button>
@@ -79,6 +86,19 @@ const ProgramsPage = () => {
               Campus
             </Link>
             <Link to="/admissions" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
+
+          <nav className="academy-page-links" aria-label="Primary">
+            <Link to="/" className="academy-page-link">
+              Home
+            </Link>
+            <Link to="/programs" className="academy-page-link active">
+              Programs
+            </Link>
+            <Link to="/campus" className="academy-page-link">
+              Campus
+            </Link>
+            <Link to="/admissions" className="academy-page-link">
+ main
               Admissions
             </Link>
           </nav>
@@ -86,6 +106,12 @@ const ProgramsPage = () => {
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
+feature/styling
+
+            <Link to="/signup" className="academy-page-auth academy-page-auth-accent">
+              Sign Up
+            </Link>
+main
             <Link to="/admissions" className="academy-page-apply">
               Apply Now
             </Link>

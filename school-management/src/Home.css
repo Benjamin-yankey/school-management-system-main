@@ -146,6 +146,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+ feature/styling
 .mobile-menu-toggle {
   display: flex;
   background: none;
@@ -160,6 +161,16 @@
   .mobile-menu-toggle {
     display: none;
   }
+
+@media (min-width: 768px) {
+  .home-page .navbar {
+    padding: 1rem 2rem;
+  }
+}
+
+.home-page .navbar.scrolled {
+  background: rgba(9, 14, 28, 0.98);
+main
 }
 
 .home-page .navbar-brand {
@@ -171,8 +182,11 @@
 
 @media (min-width: 768px) {
   .home-page .navbar-brand {
+ feature/styling
     width: auto;
     justify-content: flex-start;
+
+main
     gap: 3rem;
   }
 }

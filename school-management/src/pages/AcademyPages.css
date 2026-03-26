@@ -30,6 +30,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+feature/styling
   position: relative;
   width: 100%;
 }
@@ -48,6 +49,9 @@
   .mobile-menu-toggle {
     display: none;
   }
+
+  gap: 1rem;
+ main
 }
 
 .academy-page-brand {
@@ -62,6 +66,7 @@
 }
 
 .academy-page-links {
+feature/styling
   position: absolute;
   top: 100%;
   left: 0;
@@ -92,6 +97,12 @@
     z-index: 1;
     gap: 0.9rem;
   }
+
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+main
 }
 
 .academy-page-link {
@@ -113,6 +124,7 @@
 }
 
 .academy-page-actions {
+feature/styling
   display: none;
 }
 
@@ -122,6 +134,11 @@
     align-items: center;
     gap: 0.55rem;
   }
+
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+ main
 }
 
 .academy-page-auth {

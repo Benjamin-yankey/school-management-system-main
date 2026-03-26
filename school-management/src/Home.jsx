@@ -165,7 +165,10 @@ const Home = () => {
                 key={index}
                 className={link.active ? 'nav-link active' : 'nav-link'}
                 to={link.to}
+ feature/styling
                 onClick={() => setIsMenuOpen(false)}
+
+ main
               >
                 {link.label}
               </Link>
@@ -177,6 +180,12 @@ const Home = () => {
             <Link className="nav-auth-link" to="/signin">
               Sign In
             </Link>
+ feature/styling
+
+            <Link className="nav-auth-link nav-auth-link-emphasis" to="/signup">
+              Sign Up
+            </Link>
+ main
           </div>
           <Link className="primary-btn" to="/admissions">
             Apply Now
@@ -434,6 +443,33 @@ const Home = () => {
             </div>
           </div>
         </section>
+feature/styling
+
+
+        {/* Join the Future CTA */}
+        <section className="cta-section">
+          <div className="cta-bg">
+            <img
+              alt="Futuristic Tech"
+              className="cta-bg-image"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbpJZIFMTlPxbDcY4BcL4x8OctejjcDM_1xv0sX16_DZEJjpRPy6e9SX5xm7JCn8aZAWHXNPS4b878iw-ll1aFV5CPlubVvmC24kfFZu4FEpaZkOp2FRh4bg43DYPBM0Jqen8U1iqNLAohWbT7KlDBVFt8PpbgiwmDVJUKaBeLrfRIoualL--K--cSQGhGe0VFbEIo0mWLBw--PPjDBuk5mM3epPHalCBADLI_Nhe4cIwRotmVObNvcMDHI1V-Nmx5JrDnWnn80xBD"
+            />
+            <div className="cta-overlay"></div>
+          </div>
+          <div className="cta-content">
+            <h2 className="cta-title">
+              READY TO ENTER THE <br />
+              <span className="text-secondary">SANCTUARY?</span>
+            </h2>
+            <p className="cta-description">
+              The next evolution of academic brilliance starts here. Secure your place in the most innovative community on the planet.
+            </p>
+            <Link className="primary-btn primary-btn-lg primary-btn-neon" to="/admissions">
+              Apply for 2024 Intake
+            </Link>
+          </div>
+        </section>
+ main
       </main>
 
       <footer className="footer">
