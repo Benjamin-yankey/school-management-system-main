@@ -56,6 +56,10 @@ const SignIn = () => {
     navigate("/signup");
   };
 
+  const handleHome = () => {
+    navigate("/");
+  };
+
   const emailError = touched.email && !!trimmedEmail && !isValidEmail;
   const passwordError = touched.password && !!password && !isValidPassword;
 
@@ -221,6 +225,15 @@ const SignIn = () => {
                 onClick={handleSignUp}
               >
                 Sign Up
+              </button>
+            </p>
+            <p className="signin-footer-text">
+              <button
+                type="button"
+                className="signin-footer-link"
+                onClick={handleHome}
+              >
+                Back to Home
               </button>
             </p>
           </div>

@@ -1,4 +1,5 @@
 import React,{ useState, useEffect, useRef } from 'react';
+import { Link } from "react-router-dom";
 import './Home.css';
 
 const Home = () => {
@@ -22,10 +23,10 @@ const Home = () => {
   const galleryRef = useRef(null);
 
   const navLinks = [
-    { label: 'Home', href: '#', active: true },
-    { label: 'Programs', href: '#', active: false },
-    { label: 'Campus', href: '#', active: false },
-    { label: 'Admissions', href: '#', active: false },
+    { label: 'Home', to: '/', active: true },
+    { label: 'Programs', to: '/programs', active: false },
+    { label: 'Campus', to: '/campus', active: false },
+    { label: 'Admissions', to: '/admissions', active: false },
   ];
 
   const stats = [
@@ -63,7 +64,7 @@ const Home = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const navbar = document.querySelector('.navbar');
+      const navbar = document.querySelector('.home-page .navbar');
       if (navbar) {
         if (window.scrollY > 50) {
           navbar.classList.add('scrolled');
@@ -193,32 +194,29 @@ const Home = () => {
         <div className="navbar-brand">
           <span className="logo-text">THE ACADEMY</span>
           <div className="navbar-links">
-
-        
             {navLinks.map((link, index) => (
-              <a
+              <Link
                 key={index}
                 className={link.active ? 'nav-link active' : 'nav-link'}
-                href={link.href}
+                to={link.to}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-
-<div className="nav-actions">
-          <div className="nav-icons">
-            <span className="material-symbols-outlined icon-btn">notifications</span>
-            <span className="material-symbols-outlined icon-btn">account_circle</span>
           </div>
-          <button className="primary-btn" onClick={openModal}>
-            Apply Now
-          </button>
         </div>
-
-
-
-
+        <div className="nav-actions">
+          <div className="nav-auth-links">
+            <Link className="nav-auth-link" to="/signin">
+              Sign In
+            </Link>
+            <Link className="nav-auth-link nav-auth-link-emphasis" to="/signup">
+              Sign Up
+            </Link>
           </div>
+          <Link className="primary-btn" to="/admissions">
+            Apply Now
+          </Link>
         </div>
       </nav>
       <main className="main-content">
@@ -242,12 +240,12 @@ const Home = () => {
               Step into a sanctuary designed for the next generation of thinkers, creators, and innovators. Where tradition meets hyper-modernity.
             </p>
             <div className="hero-buttons">
-              <button className="primary-btn primary-btn-lg" onClick={openModal}>
+              <Link className="primary-btn primary-btn-lg" to="/admissions">
                 Apply for 2024
-              </button>
-              <button className="secondary-btn secondary-btn-lg">
-                Explore Curriculum
-              </button>
+              </Link>
+              <Link className="secondary-btn secondary-btn-lg" to="/signin">
+                Go to Portal
+              </Link>
             </div>
           </div>
         </section>
@@ -540,9 +538,9 @@ const Home = () => {
             <p className="cta-description">
               The next evolution of academic brilliance starts here. Secure your place in the most innovative community on the planet.
             </p>
-            <button className="primary-btn primary-btn-lg primary-btn-neon" onClick={openModal}>
+            <Link className="primary-btn primary-btn-lg primary-btn-neon" to="/admissions">
               Apply for 2024 Intake
-            </button>
+            </Link>
           </div>
         </section>
       </main>

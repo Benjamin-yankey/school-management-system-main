@@ -103,6 +103,7 @@ body {
   font-weight: 800;
   letter-spacing: -0.05em;
   text-transform: uppercase;
+  text-decoration: none;
   color: #e1e4fa;
   white-space: nowrap;
   background: linear-gradient(135deg, #fff, #85adff);

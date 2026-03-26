@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from "react-router-dom";
 import './AcademyLandingPage.css';
 
 const AcademyLandingPage = () => {
@@ -234,12 +235,12 @@ const AcademyLandingPage = () => {
       <nav className="navbar">
         <div className="nav-container">
           <div className="nav-left">
-            <span className="logo">THE ACADEMY</span>
+            <Link to="/" className="logo">THE ACADEMY</Link>
             <div className="desktop-menu">
-              <a href="#" className="nav-link active">link</a>
-              <a href="#" className="nav-link">link</a>
-              <a href="#" className="nav-link">link</a>
-              <a href="#" className="nav-link">link</a>
+              <Link to="/original" className="nav-link active">Original</Link>
+              <Link to="/" className="nav-link">Home</Link>
+              <Link to="/signin" className="nav-link">Sign In</Link>
+              <Link to="/signup" className="nav-link">Sign Up</Link>
             </div>
           </div>
           <div className="nav-right">
@@ -255,10 +256,10 @@ const AcademyLandingPage = () => {
         </div>
         {isMobileMenuOpen && (
           <div className="mobile-menu">
-            <a href="#" className="mobile-nav-link active">link</a>
-            <a href="#" className="mobile-nav-link">link</a>
-            <a href="#" className="mobile-nav-link">link</a>
-            <a href="#" className="mobile-nav-link">link</a>
+            <Link to="/original" className="mobile-nav-link active" onClick={() => setIsMobileMenuOpen(false)}>Original</Link>
+            <Link to="/" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+            <Link to="/signup" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
           </div>
         )}
       </nav>

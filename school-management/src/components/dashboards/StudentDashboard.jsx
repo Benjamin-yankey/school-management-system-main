@@ -1,49 +1,58 @@
 import React, { useState, useEffect } from "react";
+import api from "../../lib/api";
+import { useAuth } from "../../contexts/AuthContext";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
 const StudentDashboard = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false);
+      try {
+        // In a real app, we'd fetch specific student stats
+        // For now, we use the user info and some default values
+        setStats([
+          {
+            title: "Current GPA",
+            value: "0.0",
+            change: 0,
+            color: "#8b5cf6",
+            icon: "📊",
+          },
+          {
+            title: "Attendance",
+            value: "0%",
+            change: 0,
+            color: "#10b981",
+            icon: "✅",
+          },
+          {
+            title: "Assignments Due",
+            value: 0,
+            change: 0,
+            color: "#f59e0b",
+            icon: "📝",
+          },
+          {
+            title: "Upcoming Exams",
+            value: 0,
+            change: 0,
+            color: "#ef4444",
+            icon: "📚",
+          },
+        ]);
+      } catch (err) {
+        console.error("Failed to load student dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []);
-
-  const studentStats = [
-    {
-      title: "Current GPA",
-      value: "3.8",
-      change: 0.2,
-      color: "#8b5cf6",
-      icon: "📊",
-    },
-    {
-      title: "Attendance",
-      value: "94%",
-      change: 2,
-      color: "#10b981",
-      icon: "✅",
-    },
-    {
-      title: "Assignments Due",
-      value: 3,
-      change: -1,
-      color: "#f59e0b",
-      icon: "📝",
-    },
-    {
-      title: "Upcoming Exams",
-      value: 2,
-      change: 0,
-      color: "#ef4444",
-      icon: "📚",
-    },
-  ];
 
   const mySubjects = [
     {
@@ -201,7 +210,7 @@ const StudentDashboard = () => {
       <div className="dashboard-header">
         <h2>Student Dashboard</h2>
         <div className="dashboard-sub">
-          Welcome back! Track your academic progress and stay organized.
+          Welcome back, {user?.name || "Student"}! Track your academic progress and stay organized.
         </div>
       </div>
 
@@ -222,7 +231,7 @@ const StudentDashboard = () => {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        {studentStats.map((stat, index) => (
+        {stats.map((stat, index) => (
           <div
             key={index}
             className="stat-card"
