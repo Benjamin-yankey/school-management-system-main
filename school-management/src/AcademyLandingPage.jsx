@@ -149,14 +149,6 @@ const AcademyLandingPage = () => {
       showToast('Please select a program of interest.', 'error');
       return;
     }
-    if (!formData.qualification) {
-      showToast('Please select your highest qualification.', 'error');
-      return;
-    }
-    if (!formData.statement) {
-      showToast('Please write your personal statement.', 'error');
-      return;
-    }
     if (!formData.termsAgreed) {
       showToast('Please agree to the terms and conditions.', 'error');
       return;
@@ -166,7 +158,10 @@ const AcademyLandingPage = () => {
     
     // Simulate API call
     setTimeout(() => {
-      showToast('✓ Application submitted successfully! Check your email for confirmation.', 'success');
+      setIsSubmitting(false);
+      showToast('✓ Your inquiry has been submitted successfully! We will contact you soon.');
+      
+      // Reset form
       setFormData({
         fullName: '',
         parentName: '',
@@ -180,536 +175,397 @@ const AcademyLandingPage = () => {
         referral: '',
         termsAgreed: false
       });
-      setIsSubmitting(false);
-      setTimeout(closeModal, 1500);
-    }, 800);
+      
+      // Close modal after delay
+      setTimeout(() => {
+        closeModal();
+      }, 2000);
+    }, 1500);
+  };
+  
+  // Handle filter change
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter);
   };
   
   // Scroll gallery
   const scrollGallery = (direction) => {
     if (galleryRef.current) {
-      const scrollAmount = direction === 'left' ? -320 : 320;
-      galleryRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const { scrollLeft, clientWidth } = galleryRef.current;
+      const scrollTo = direction === 'left' 
+        ? scrollLeft - clientWidth / 2 
+        : scrollLeft + clientWidth / 2;
+      
+      galleryRef.current.scrollTo({
+        left: scrollTo,
+        behavior: 'smooth'
+      });
     }
   };
   
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   // Filter events
   const filteredEvents = activeFilter === 'all' 
     ? eventCards 
     : eventCards.filter(event => event.category === activeFilter);
-  
-  // Set date input constraints
-  useEffect(() => {
-    const dobInput = document.getElementById('dob');
-    if (dobInput) {
-      const today = new Date();
-      const maxYear = today.getFullYear() - 16;
-      const minYear = today.getFullYear() - 100;
-      dobInput.max = `${maxYear}-12-31`;
-      dobInput.min = `${minYear}-01-01`;
-    }
-  }, []);
-  
-  // Close modal on escape key
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape' && isModalOpen) {
-        closeModal();
-      }
-    };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [isModalOpen]);
-  
+
   return (
-    <div className="academy-container">
-      {/* Toast Notification */}
-      {toast.show && (
-        <div className={`toast-notification ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`}>
-          <span className="material-symbols-outlined">{toast.type === 'success' ? 'check_circle' : 'error'}</span>
-          <span>{toast.message}</span>
-        </div>
-      )}
-      
+    <div className="academy-landing">
       {/* Navigation */}
-      <nav className="navbar">
+      <nav className={`navbar-modern ${isMobileMenuOpen ? 'mobile-active' : ''}`}>
         <div className="nav-container">
-          <div className="nav-left">
-            <Link to="/" className="logo">THE ACADEMY</Link>
-            <div className="desktop-menu">
-              <Link to="/original" className="nav-link active">Original</Link>
-              <Link to="/" className="nav-link">Home</Link>
-              <Link to="/signin" className="nav-link">Sign In</Link>
-              <Link to="/signup" className="nav-link">Sign Up</Link>
-            </div>
+          <Link to="/" className="nav-logo">
+            <span className="logo-icon">A</span>
+            <span className="logo-text">THE ACADEMY</span>
+          </Link>
+          
+          <div className="nav-toggle" onClick={toggleMobileMenu}>
+            <span className="material-symbols-outlined">
+              {isMobileMenuOpen ? 'close' : 'menu'}
+            </span>
           </div>
-          <div className="nav-right">
-            <div className="nav-icons">
-              <span className="material-symbols-outlined icon-btn">notifications</span>
-              <span className="material-symbols-outlined icon-btn">account_circle</span>
-            </div>
-            <button className="apply-btn" onClick={openModal}>Apply Now</button>
-            <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              <span className="material-symbols-outlined">menu</span>
-            </button>
+          
+          <ul className="nav-links-modern">
+            <li><Link to="/home" onClick={() => setIsMobileMenuOpen(false)}>Experience</Link></li>
+            <li><Link to="/programs" onClick={() => setIsMobileMenuOpen(false)}>Curriculum</Link></li>
+            <li><Link to="/campus" onClick={() => setIsMobileMenuOpen(false)}>Sanctuary</Link></li>
+            <li><Link to="/admissions" onClick={() => setIsMobileMenuOpen(false)}>Join Us</Link></li>
+          </ul>
+          
+          <div className="nav-actions-modern">
+            <Link to="/signin" className="portal-link">Portal</Link>
+            <button className="cta-button-nav" onClick={() => { openModal(); setIsMobileMenuOpen(false); }}>Apply Now</button>
           </div>
         </div>
-        {isMobileMenuOpen && (
-          <div className="mobile-menu">
-            <Link to="/original" className="mobile-nav-link active" onClick={() => setIsMobileMenuOpen(false)}>Original</Link>
-            <Link to="/" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-            <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
-            <Link to="/signup" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-          </div>
-        )}
       </nav>
-      
-      <main>
+
+      <main className="main-content-modern">
         {/* Hero Section */}
-        <section className="hero">
-          <div className="hero-image-wrapper">
-            <img alt="Campus Architecture" className="hero-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQzjrgtnRd05hN4zW2f8_TcmY-yW1v5p0owBUOCcKDfouChAMHqBhusBJ8SzDnzftwIuj8U8HfhyeZqCO5QUEZ3vhgjVIKvsbl3k9ZlgulGSWVHkQWA2Z_I3RM8yQQDs38N_Yl2RWoQ8WRJTZRZK7b-aB86H7eNmavldwXQKDwQ_RyTN8nEgVUujdKf8adSsnSZ8VRRp029JjeSkdxpNe-0nuvbWeFvKux0RpZMNPSmKtk7tEkE3sw8ZQN9wRuzFzxfw1pVshSbjtx" />
-            <div className="hero-gradient"></div>
+        <section className="hero-modern">
+          <div className="hero-video-container">
+            <div className="hero-overlay-gradient"></div>
+            <img 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQzjrgtnRd05hN4zW2f8_TcmY-yW1v5p0owBUOCcKDfouChAMHqBhusBJ8SzDnzftwIuj8U8HfhyeZqCO5QUEZ3vhgjVIKvsbl3k9ZlgulGSWVHkQWA2Z_I3RM8yQQDs38N_Yl2RWoQ8WRJTZRZK7b-aB86H7eNmavldwXQKDwQ_RyTN8nEgVUujdKf8adSsnSZ8VRRp029JjeSkdxpNe-0nuvbWeFvKux0RpZMNPSmKtk7tEkE3sw8ZQN9wRuzFzxfw1pVshSbjtx" 
+              alt="Academy Architecture" 
+              className="hero-fallback-image"
+            />
           </div>
-          <div className="hero-content">
-            <span className="hero-badge">Enrollment Open</span>
-            <h1 className="hero-title">
-              The Future of <br />
-              <span className="hero-title-gradient">Academic Excellence</span>
+          
+          <div className="hero-content-modern">
+            <div className="hero-badge-modern animate-fade-in">
+              <span className="material-symbols-outlined">auto_awesome</span>
+              <span>Enrollment Phase 2024 Now Active</span>
+            </div>
+            <h1 className="hero-title-modern animate-slide-up">
+              Architecting the <br />
+              <span className="neon-text">Future Mind</span>
             </h1>
-            <p className="hero-description">
-              Step into a sanctuary designed for the next generation of thinkers, creators, and innovators. Where tradition meets hyper-modernity.
+            <p className="hero-subtitle-modern animate-slide-up delay-1">
+              Welcome to a sanctuary of radical innovation and classical wisdom. Where we don't just teach the future—we build it.
             </p>
-            <div className="hero-buttons">
-              <button className="btn-primary" onClick={openModal}>Apply for 2024</button>
-              <button className="btn-secondary">Explore Curriculum</button>
+            <div className="hero-buttons-modern animate-slide-up delay-2">
+              <button className="primary-cta" onClick={openModal}>Start Your Application</button>
+              <Link to="/home" className="secondary-cta">Explore the Campus</Link>
+            </div>
+          </div>
+          
+          <div className="scroll-indicator">
+            <div className="mouse">
+              <div className="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="stats-section-modern">
+          <div className="stats-container-modern">
+            <div className="stat-item-modern">
+              <span className="stat-value-modern">98%</span>
+              <span className="stat-label-modern">Placement at Global Tech Hubs</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item-modern">
+              <span className="stat-value-modern">45+</span>
+              <span className="stat-label-modern">International Partnerships</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item-modern">
+              <span className="stat-value-modern">1:8</span>
+              <span className="stat-label-modern">Faculty to Student Ratio</span>
             </div>
           </div>
         </section>
-        
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-number">98<span className="stat-percent">%</span></div>
-            <p className="stat-label">Graduate Placement</p>
-            <p className="stat-description">Securing positions within Fortune 500 companies and elite research labs within 6 months.</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">Top 1<span className="stat-percent">%</span></div>
-            <p className="stat-label">Research Output</p>
-            <p className="stat-description">Globally recognized contributions to Artificial Intelligence, Bio-Engineering, and FinTech.</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">50<span className="stat-plus">+</span></div>
-            <p className="stat-label">Global Partnerships</p>
-            <p className="stat-description">Collaborative academic ventures with Ivy League and leading technological institutes.</p>
-          </div>
-        </div>
-        
-        {/* Mission & Vision Section */}
-        <section className="mission-section">
-          <div className="mission-bg-blur top-right"></div>
-          <div className="mission-bg-blur bottom-left"></div>
-          <div className="mission-container">
-            <div className="mission-grid">
-              <div className="vision-card">
-                <div className="vision-icon">
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+
+        {/* Vision Section */}
+        <section className="vision-section-modern">
+          <div className="vision-container-modern">
+            <div className="vision-grid-modern">
+              <div className="vision-text-modern">
+                <h2 className="vision-title-modern">The Neon Sanctuary</h2>
+                <p className="vision-paragraph-modern">
+                  The Academy is more than an institution; it's a meticulously designed ecosystem for intellectual and creative expansion. We blend centuries of pedagogical wisdom with cutting-edge environmental psychology and cognitive science.
+                </p>
+                <div className="vision-features-modern">
+                  <div className="v-feature">
+                    <div className="v-icon-box"><span className="material-symbols-outlined">neurology</span></div>
+                    <div>
+                      <h4>Neural-Adaptive Learning</h4>
+                      <p>Curriculums that evolve with your unique cognitive profile.</p>
+                    </div>
+                  </div>
+                  <div className="v-feature">
+                    <div className="v-icon-box"><span className="material-symbols-outlined">diamond</span></div>
+                    <div>
+                      <h4>The Elite Network</h4>
+                      <p>Connect with industry titans and visionary researchers globally.</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="vision-title">A Global Standard in Elite Education</h3>
-                <p className="vision-text">We envision a world where education transcends traditional boundaries, integrating high-stakes technology with the timeless pursuit of human wisdom. Our vision is to define the global benchmark for excellence.</p>
-                <div className="vision-link">
-                  <span>Learn about our Roadmap</span>
-                  <span className="material-symbols-outlined">arrow_forward</span>
+              </div>
+              <div className="vision-visual-modern">
+                <div className="floating-card glass-card-modern">
+                  <img 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtg9Fsc-fF3vE7z61T98GvN6M8qj-0zT1f8m58_fK3V0Wp_O8n7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8" 
+                    alt="Innovation Lab" 
+                  />
+                  <div className="floating-badge">
+                    <span className="material-symbols-outlined">bolt</span>
+                    <span>Hyper-Labs Active</span>
+                  </div>
                 </div>
               </div>
-              <div className="campus-card">
-                <img alt="Modern architecture" className="campus-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqZqo6ZO1gdzYs8Wrtov6l1ksBZDjOFkQE7cikar9jtVmk_baybE5Udf5tFWBBalaSWj2oKSFBZi8u-LrtLA1owgNzaRulbPW_JD4X8yUGe95pMtRCh99UdUf3mRQJBdcDYsebp-IQrPusOjOSKvq6VbhcOcmdCZ2mpMKBhGwqBX0jC0B06_l8QzQDbms_ZCw1Tb87aPQWkPnl3hH5NZn2aPfrnTQV5EVdP7kpMKWiBw7fMEuc-lpGq997pQ3zclnxn2Gh3jw7vkcY" />
-                <div className="campus-overlay"></div>
-                <div className="campus-info">
-                  <h3 className="campus-title">The Sanctuary Campus</h3>
-                  <p className="campus-location">Zurich, Switzerland</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Gallery Section */}
+        <section className="gallery-section-modern">
+          <div className="section-header-modern">
+            <h2 className="section-title-modern">Campus Life</h2>
+            <div className="gallery-nav-modern">
+              <button className="g-nav-btn" onClick={() => scrollGallery('left')}><span className="material-symbols-outlined">west</span></button>
+              <button className="g-nav-btn" onClick={() => scrollGallery('right')}><span className="material-symbols-outlined">east</span></button>
+            </div>
+          </div>
+          <div className="gallery-container-modern" ref={galleryRef}>
+            {galleryImages.map((item, idx) => (
+              <div key={idx} className="gallery-card-modern">
+                <img src={item.image} alt={item.title} />
+                <div className="gallery-overlay-modern">
+                  <h3>{item.title}</h3>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Academic Excellence Bento Grid */}
-        <section className="bento-section">
-          <div className="bento-grid">
-            <div className="bento-item bento-large">
-              <div className="bento-icon">
-                <span className="material-symbols-outlined">biotech</span>
-              </div>
-              <h3 className="bento-title">Deep Focus Research</h3>
-              <p className="bento-text">Our laboratories provide an environment for undisturbed cognitive breakthroughs in quantum computing and bio-ethics.</p>
-            </div>
-            <div className="bento-item bento-medium">
-              <span className="bento-icon-large material-symbols-outlined">public</span>
-              <h3 className="bento-title">Global Innovation Hub</h3>
-              <p className="bento-text">Connecting our scholars with 40+ international partners and industry giants.</p>
-            </div>
-            <div className="bento-item bento-small">
-              <span className="material-symbols-outlined bento-icon-secondary">psychology</span>
-              <h3 className="bento-title">AI-Driven Curriculum</h3>
-              <p className="bento-text">Personalized learning paths powered by state-of-the-art neural engines.</p>
-            </div>
-            <div className="bento-item bento-horizontal">
-              <div className="bento-image-wrapper">
-                <img alt="Technology Lab" className="bento-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwE7rqJKqQBK31VMlWu4EixeDfxp4pClYVTi52xxr-n0sPPZfV2xoi09t1cFahzHPcdoDl9gC3xMI0-PmDv8jHeTkGs2uKZEBTDMQ1CR3pJ2o-w-9DrpztZ1h0Q_NNISMhDsGLMt1GzY7s2D4yGFD4zFQlrULXgzFP7_i3U6jE59IetJEM1uHxmJSo3pCIjBxCrYJ18A0OK2cdtUTYeM5BPKQX0goC3qsuCy2fv29uxisw4oDr6PS54_2Yiw7ZxKdZhuh5XOo07QXw" />
-              </div>
-              <div className="bento-content">
-                <h3 className="bento-title">Robotics & Synergy</h3>
-                <p className="bento-text">Exploring the frontier of human-machine interaction in our dedicated robotics wing.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Legacy Section */}
-        <section className="legacy-section">
-          <div className="legacy-container">
-            <div className="legacy-image-wrapper">
-              <div className="legacy-blur"></div>
-              <div className="legacy-image-card">
-                <img alt="Legacy Image" className="legacy-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKsQZVc_WWJDMdmasyABl0BQwJOsBGsLwNUU_V0rLFRB1R2KZlvyWgBJ0DPcpEAV9KLQ0xdwiN2S6zBgMXQM-2LDtGwUlz8bOcop_zQKrRRIcmHutk16HAQVJsjgZdcihjFlunk33e_uXyPYKEjpacb15prUgFUrmKQ6o68YHzFKookDDkfMIZzxLVmw84Vvx6GlgEYe8rVJ6rPQBL85vK3cU2zDTLx8zPmIb2rQHiF0mWrskdLzJrslHXapkCjE3F41RCS6ydljt7" />
-              </div>
-              <div className="legacy-badge">
-                <div className="legacy-year">1924</div>
-                <div className="legacy-label">The Foundation</div>
-              </div>
-            </div>
-            <div className="legacy-content">
-              <h2 className="legacy-title">The Evolution of Excellence</h2>
-              <p className="legacy-text">What began a century ago as a quiet sanctuary for classical scholars has been fundamentally re-engineered for the digital frontier. We have preserved the sanctity of deep thought while integrating the boundless potential of the metaverse and neural-link research.</p>
-              <p className="legacy-text">Today, The Academy stands as a "Neon Sanctuary"—a place where silence is respected, but innovation is constant. We don't just teach history; we provide the tools to write the next chapter of human civilization.</p>
-              <a href="#" className="legacy-link">Read the Full Manifesto <span className="material-symbols-outlined">arrow_forward</span></a>
-            </div>
-          </div>
-        </section>
-        
-        {/* Campus Life Gallery */}
-        <section className="gallery-section">
-          <div className="gallery-header">
-            <div>
-              <h2 className="gallery-title">Campus Life</h2>
-              <p className="gallery-subtitle">A sanctuary for the soul and the mind.</p>
-            </div>
-            <div className="gallery-controls">
-              <button className="gallery-btn" onClick={() => scrollGallery('left')}>
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
-              <button className="gallery-btn" onClick={() => scrollGallery('right')}>
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-          <div className="gallery-scroll" ref={galleryRef}>
-            {galleryImages.map((item, index) => (
-              <div key={index} className="gallery-item">
-                <img alt={item.title} className="gallery-image" src={item.image} />
-                <div className="gallery-overlay"></div>
-                <h4 className="gallery-item-title">{item.title}</h4>
               </div>
             ))}
           </div>
         </section>
-        
-        {/* Event Calendar */}
-        <section className="calendar-section">
-          <div className="calendar-container">
-            <div className="calendar-header">
-              <div>
-                <h2 className="calendar-title">Upcoming Calendar</h2>
-                <p className="calendar-subtitle">Curated explorations for the inquisitive mind.</p>
-              </div>
-              <div className="calendar-filters">
-                <button className={`filter-btn ${activeFilter === 'all' ? 'filter-active' : ''}`} onClick={() => setActiveFilter('all')}>All</button>
-                <button className={`filter-btn ${activeFilter === 'academic' ? 'filter-active' : ''}`} onClick={() => setActiveFilter('academic')}>Academic</button>
-                <button className={`filter-btn ${activeFilter === 'social' ? 'filter-active' : ''}`} onClick={() => setActiveFilter('social')}>Social</button>
-                <button className={`filter-btn ${activeFilter === 'wellness' ? 'filter-active' : ''}`} onClick={() => setActiveFilter('wellness')}>Wellness</button>
+
+        {/* Calendar Section */}
+        <section className="calendar-section-modern">
+          <div className="calendar-container-modern">
+            <div className="calendar-sidebar">
+              <h2 className="section-title-modern">Upcoming explorations</h2>
+              <div className="filter-list-modern">
+                {['all', 'academic', 'social', 'wellness'].map(filter => (
+                  <button 
+                    key={filter}
+                    className={`filter-link-modern ${activeFilter === filter ? 'active' : ''}`}
+                    onClick={() => handleFilterClick(filter)}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
-            <div className="events-grid">
-              {filteredEvents.map(event => (
-                <div key={event.id} className="event-card">
-                  <div className="event-image-wrapper">
-                    <img alt={event.title} className="event-image" src={event.image} />
-                    <div className={`event-badge event-badge-${event.category}`}>{event.category}</div>
-                  </div>
-                  <div className="event-content">
-                    <div className="event-info">
-                      <div>
-                        <h3 className="event-title">{event.title}</h3>
-                        <p className="event-description">{event.description}</p>
+            
+            <div className="calendar-main">
+              <div className="event-stack-modern">
+                {filteredEvents.map(event => (
+                  <div key={event.id} className="event-card-modern glass-card-modern">
+                    <div className="event-image-modern">
+                      <img src={event.image} alt={event.title} />
+                    </div>
+                    <div className="event-content">
+                      <div className="event-info">
+                        <div>
+                          <h3 className="event-title">{event.title}</h3>
+                          <p className="event-description">{event.description}</p>
+                        </div>
+                        <div className="event-date">
+                          <div className="event-day">{event.date}</div>
+                          <div className="event-month">{event.month}</div>
+                        </div>
                       </div>
-                      <div className="event-date">
-                        <div className="event-day">{event.date}</div>
-                        <div className="event-month">{event.month}</div>
+                      <div className="event-footer">
+                        <span className="event-time">
+                          <span className="material-symbols-outlined">schedule</span> {event.time}
+                        </span>
+                        <button className="event-add-btn" onClick={() => alert('📅 Event added to your calendar (demo)')}>
+                          Add to Calendar <span className="material-symbols-outlined">add</span>
+                        </button>
                       </div>
                     </div>
-                    <div className="event-footer">
-                      <span className="event-time">
-                        <span className="material-symbols-outlined">schedule</span> {event.time}
-                      </span>
-                      <button className="event-add-btn" onClick={() => alert('📅 Event added to your calendar (demo)')}>
-                        Add to Calendar <span className="material-symbols-outlined">add</span>
-                      </button>
-                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
-        
+
         {/* Faculty Section */}
         <section className="faculty-section">
           <div className="faculty-container">
             <div className="faculty-header">
               <h2 className="faculty-title">Visionary Minds</h2>
-              <p className="faculty-subtitle">Guided by world-class curators and leading educators.</p>
+              <p className="faculty-subtitle">Our mentors are world-renowned researchers and creators.</p>
             </div>
             <div className="faculty-grid">
-              {faculty.map((member, index) => (
-                <div key={index} className="faculty-card">
-                  <div className="faculty-image-wrapper">
-                    <img alt={member.name} className="faculty-image" src={member.image} />
+              {faculty.map((member, idx) => (
+                <div key={idx} className="faculty-card-modern">
+                  <div className="faculty-img-wrapper">
+                    <img src={member.image} alt={member.name} />
                   </div>
-                  <h4 className="faculty-name">{member.name}</h4>
-                  <p className="faculty-role">{member.role}</p>
+                  <div className="faculty-info-modern">
+                    <h3>{member.name}</h3>
+                    <p>{member.role}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
-        
-        {/* Achievement Section */}
-        <section className="achievement-section">
-          <div className="achievement-container">
-            <div className="achievement-grid">
-              <div className="achievement-main">
-                <img alt="Academic award ceremony" className="achievement-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw1xWgPoTWt10PdUPju8YdEo3pJG54vbGBC8pw7-jzDJqe_fyU79BPmI1FzS-kBv47aMwzxr9g3uOzgQAT5CbA3bbYNp6j3cKXz1lx0x1_EOF6GdC9eg9AXMT374QQR9XVunbMl0hcdbTCZKtzO5uarPEiY0PX0IfdTJ-JPyY6cjBr1_zY6qSjAWVWGJ2sFTPvshLOvXw5QxVuqL617R3C0-W349dW5l45EjpBBiZNuoOJLxg9aHCwE46yXMc-_SUYBtHTehGbskiu" />
-                <div className="achievement-overlay"></div>
-                <div className="achievement-content">
-                  <span className="achievement-badge">Major Milestone</span>
-                  <h3 className="achievement-title">Voted #1 Private Academy for Technological Integration</h3>
-                  <p className="achievement-text">Three consecutive years of global leadership in education tech.</p>
-                </div>
-              </div>
-              <div className="achievement-card patent-card">
-                <div className="patent-icon">
-                  <span className="material-symbols-outlined">psychology</span>
-                </div>
-                <div>
-                  <h4 className="patent-title">Patent Hub</h4>
-                  <p className="patent-text">Over 120 patents filed by students and faculty in 2023 alone.</p>
-                </div>
-              </div>
-              <div className="achievement-card alumni-card">
-                <h4 className="alumni-number">10k+</h4>
-                <p className="alumni-label">Alumni Network</p>
-              </div>
-              <div className="achievement-card join-card">
-                <h4 className="join-title">Join the Elite</h4>
-                <p className="join-text">Admissions for 2025 are now open for select candidates.</p>
-                <span className="join-icon material-symbols-outlined">arrow_outward</span>
-              </div>
+
+        {/* CTA Banner */}
+        <section className="cta-banner-modern">
+          <div className="cta-card-modern">
+            <div className="cta-blur-blob"></div>
+            <h2 className="cta-title-modern">Ready to Architect Your Future?</h2>
+            <p className="cta-text-modern">Secure your place in the next academic cycle. Limited slots available for the Innovation Cohort.</p>
+            <div className="cta-actions-modern">
+              <button className="cta-btn-primary" onClick={openModal}>Book a Private Consultation</button>
+              <Link to="/admissions" className="cta-btn-secondary">View Admissions Roadmap</Link>
             </div>
-          </div>
-        </section>
-        
-        {/* CTA Section */}
-        <section className="cta-section">
-          <div className="cta-bg">
-            <img alt="Futuristic Tech" className="cta-bg-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbpJZIFMTlPxbDcY4BcL4x8OctejjcDM_1xv0sX16_DZEJjpRPy6e9SX5xm7JCn8aZAWHXNPS4b878iw-ll1aFV5CPlubVvmC24kfFZu4FEpaZkOp2FRh4bg43DYPBM0Jqen8U1iqNLAohWbT7KlDBVFt8PpbgiwmDVJUKaBeLrfRIoualL--K--cSQGhGe0VFbEIo0mWLBw--PPjDBuk5mM3epPHalCBADLI_Nhe4cIwRotmVObNvcMDHI1V-Nmx5JrDnWnn80xBD" />
-            <div className="cta-gradient"></div>
-          </div>
-          <div className="cta-content">
-            <h2 className="cta-title">READY TO ENTER THE <br /><span className="cta-highlight">SANCTUARY?</span></h2>
-            <p className="cta-text">The next evolution of academic brilliance starts here. Secure your place in the most innovative community on the planet.</p>
-            <button className="cta-btn" onClick={openModal}>Apply for 2024 Intake</button>
           </div>
         </section>
       </main>
-      
+
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
+      <footer className="footer-modern">
+        <div className="footer-container-modern">
           <div className="footer-top">
-            <span className="footer-logo">THE ACADEMY</span>
-            <div className="footer-links">
-              <a href="#" className="footer-link">Privacy Policy</a>
-              <a href="#" className="footer-link">Terms of Service</a>
-              <a href="#" className="footer-link">Contact Us</a>
-              <a href="#" className="footer-link">Careers</a>
+            <div className="footer-brand-modern">
+              <span className="logo-text">THE ACADEMY</span>
+              <p>A Century of Excellence, Re-engineered for the Digital Frontier.</p>
+            </div>
+            <div className="footer-nav-modern">
+              <div className="footer-col">
+                <h4>Experience</h4>
+                <Link to="/home">Campus Life</Link>
+                <Link to="/programs">Curriculum</Link>
+                <Link to="/admissions">Admissions</Link>
+              </div>
+              <div className="footer-col">
+                <h4>Resources</h4>
+                <Link to="/signin">Student Portal</Link>
+                <Link to="/signin">Faculty Access</Link>
+                <Link to="/signin">Parent Portal</Link>
+              </div>
+              <div className="footer-col">
+                <h4>Connect</h4>
+                <a href="#">X / Twitter</a>
+                <a href="#">Instagram</a>
+                <a href="#">LinkedIn</a>
+              </div>
             </div>
           </div>
-          <div className="footer-divider"></div>
-          <div className="footer-bottom">
-            <p className="footer-copyright">© 2024 The Academy at The Sanctuary. All rights reserved.</p>
+          <div className="footer-bottom-modern">
+            <p>© 2024 The Academy. All Rights Reserved.</p>
+            <div className="footer-legal">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>
-      
-      {/* Admission Modal */}
+
+      {/* Application Modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content-wrapper">
-              <div className="modal-header">
-                <button className="modal-close" onClick={closeModal}>
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-                <div className="modal-header-content">
-                  <span className="material-symbols-outlined modal-icon">school</span>
-                  <h3 className="modal-title">The Academy Admissions</h3>
-                </div>
-                <p className="modal-subtitle">Begin your journey to academic excellence</p>
-              </div>
-              
-              <div className="modal-body">
-                <form onSubmit={handleSubmit} className="modal-form">
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">badge</span>
-                      Full Name
-                    </label>
-                    <input type="text" id="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Johnathan M. Sterling" className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">badge</span>
-                      Parent/guardian name
-                    </label>
-                    <input type="text" id="parentName" value={formData.parentName} onChange={handleInputChange} required placeholder="Parent/Guardian Name" className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">mail</span>
-                      Email Address
-                    </label>
-                    <input type="email" id="email" value={formData.email} onChange={handleInputChange} required placeholder="applicant@theacademy.edu" className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">call</span>
-                      Phone Number
-                    </label>
-                    <input type="tel" id="phone" value={formData.phone} onChange={handleInputChange} required placeholder="+1 (555) 000-0000" className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">call</span>
-                      Parent/guardian phone number
-                    </label>
-                    <input type="tel" id="parentPhone" value={formData.parentPhone} onChange={handleInputChange} required placeholder="+1 (555) 000-0000" className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">cake</span>
-                      Date of Birth
-                    </label>
-                    <input type="date" id="dob" value={formData.dob} onChange={handleInputChange} required className="form-input" />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">menu_book</span>
-                      Program of Interest
-                    </label>
-                    <select id="program" value={formData.program} onChange={handleInputChange} required className="form-select">
-                      <option value="" disabled>Select a program</option>
-                      <option value="ai-ml">Artificial Intelligence & Machine Learning</option>
-                      <option value="quantum">Quantum Computing</option>
-                      <option value="bioengineering">Bio-Engineering & Ethics</option>
-                      <option value="fintech">FinTech & Digital Economics</option>
-                      <option value="creative-tech">Creative Technology & Design</option>
-                      <option value="leadership">Global Leadership & Innovation</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">history_edu</span>
-                      Highest Qualification
-                    </label>
-                    <select id="qualification" value={formData.qualification} onChange={handleInputChange} required className="form-select">
-                      <option value="" disabled>Select qualification</option>
-                      <option value="highschool">High School Diploma</option>
-                      <option value="bachelor">Bachelor's Degree</option>
-                      <option value="master">Master's Degree</option>
-                      <option value="phd">PhD / Doctorate</option>
-                      <option value="other">Other / Equivalent</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">description</span>
-                      Personal Statement / Motivation
-                    </label>
-                    <textarea id="statement" rows="4" value={formData.statement} onChange={handleInputChange} required placeholder="Tell us why you want to join The Academy and what drives your passion for innovation..." className="form-textarea"></textarea>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">
-                      <span className="material-symbols-outlined form-icon">share</span>
-                      How did you hear about us?
-                    </label>
-                    <select id="referral" value={formData.referral} onChange={handleInputChange} className="form-select">
-                      <option value="" disabled>Select an option</option>
-                      <option value="social">Social Media</option>
-                      <option value="alumni">Alumni Referral</option>
-                      <option value="event">Educational Event</option>
-                      <option value="search">Search Engine</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-checkbox">
-                    <input type="checkbox" id="termsAgree" checked={formData.termsAgreed} onChange={handleInputChange} required />
-                    <label htmlFor="termsAgree" className="checkbox-label">
-                      I confirm that the information provided is accurate and I agree to the 
-                      <a href="#" className="checkbox-link">Terms of Admission</a> and 
-                      <a href="#" className="checkbox-link">Privacy Policy</a>.
-                    </label>
-                  </div>
-                  
-                  <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                    <span className="material-symbols-outlined">send</span>
-                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                  </button>
-                </form>
-                
-                <div className="modal-info">
-                  <span className="material-symbols-outlined modal-info-icon">info</span>
-                  <p className="modal-info-text">
-                    Your application will be reviewed by our admissions committee. You will receive a confirmation email within 48 hours.
-                    <span className="info-highlight">Early decision deadline: December 15, 2024</span>
-                  </p>
-                </div>
-              </div>
-              
-              <div className="modal-footer">
-                <p className="modal-footer-text">
-                  <span className="material-symbols-outlined">security</span> Secure submission
-                </p>
-                <p className="modal-footer-text">⭐ The Academy Admissions 2024</p>
-              </div>
+        <div className="modal-overlay-modern" onClick={closeModal}>
+          <div className="modal-card-modern glass-card-modern" onClick={e => e.stopPropagation()}>
+            <button className="modal-close-modern" onClick={closeModal}>
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="modal-header-modern">
+              <h2>Join the Cohort</h2>
+              <p>Please provide your academic details for a personalized evaluation.</p>
             </div>
+            
+            <form className="modal-form-modern" onSubmit={handleSubmit}>
+              <div className="form-grid-modern">
+                <div className="form-group-modern">
+                  <label htmlFor="fullName">Full Name</label>
+                  <input type="text" id="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Candidate's name" required />
+                </div>
+                <div className="form-group-modern">
+                  <label htmlFor="email">Email Address</label>
+                  <input type="email" id="email" value={formData.email} onChange={handleInputChange} placeholder="email@example.com" required />
+                </div>
+                <div className="form-group-modern">
+                  <label htmlFor="phone">Phone Number</label>
+                  <input type="tel" id="phone" value={formData.phone} onChange={handleInputChange} placeholder="+1 (555) 000-0000" required />
+                </div>
+                <div className="form-group-modern">
+                  <label htmlFor="dob">Date of Birth</label>
+                  <input type="date" id="dob" value={formData.dob} onChange={handleInputChange} required />
+                </div>
+                <div className="form-group-modern">
+                  <label htmlFor="program">Program of Interest</label>
+                  <select id="program" value={formData.program} onChange={handleInputChange} required>
+                    <option value="">Select a track</option>
+                    <option value="innovation">Innovation & Tech</option>
+                    <option value="humanities">Classical Humanities</option>
+                    <option value="science">Applied Sciences</option>
+                  </select>
+                </div>
+                <div className="form-group-modern">
+                  <label htmlFor="qualification">Current Level</label>
+                  <input type="text" id="qualification" value={formData.qualification} onChange={handleInputChange} placeholder="e.g. Grade 12" />
+                </div>
+              </div>
+              
+              <div className="form-group-modern full-width">
+                <label htmlFor="statement">Aspirations (Optional)</label>
+                <textarea id="statement" value={formData.statement} onChange={handleInputChange} placeholder="Briefly describe your vision..." rows="3"></textarea>
+              </div>
+              
+              <div className="form-checkbox-modern">
+                <input type="checkbox" id="termsAgreed" checked={formData.termsAgreed} onChange={handleInputChange} required />
+                <label htmlFor="termsAgreed">I agree to the privacy policy and data processing terms.</label>
+              </div>
+              
+              <button type="submit" className="submit-btn-modern" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <span className="loader-dots">Processing<span>.</span><span>.</span><span>.</span></span>
+                ) : 'Submit Inquiry'}
+              </button>
+            </form>
           </div>
         </div>
       )}
-      
-      
-        
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`toast-modern ${toast.type}`}>
+          <span className="material-symbols-outlined">
+            {toast.type === 'success' ? 'check_circle' : 'error'}
+          </span>
+          <p>{toast.message}</p>
+        </div>
+      )}
     </div>
   );
 };
