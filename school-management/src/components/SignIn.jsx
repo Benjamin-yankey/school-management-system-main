@@ -4,7 +4,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, UserRound } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import "./Login.css";
 
-const Login = () => {
+const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("admin");
@@ -230,4 +230,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignIn;
