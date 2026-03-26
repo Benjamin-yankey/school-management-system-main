@@ -35,6 +35,10 @@ const ForgotPassword = () => {
     navigate("/signin");
   };
 
+  const handleHome = () => {
+    navigate("/");
+  };
+
   const handleChange = (event) => {
     setEmail(event.target.value);
     setError("");
@@ -171,6 +175,13 @@ const ForgotPassword = () => {
                   onClick={handleSignIn}
                 >
                   Sign In
+                </button>
+                <button
+                  type="button"
+                  className="text-link"
+                  onClick={handleHome}
+                >
+                  Home
                 </button>
               </div>
             </>
