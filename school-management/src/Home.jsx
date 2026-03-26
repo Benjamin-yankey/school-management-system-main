@@ -230,6 +230,9 @@ const Home = () => {
           ))}
         </div>
 
+
+        
+ 
         {/* Mission & Vision Section */}
         <section className="mission-section">
           <div className="blur-circle blur-circle-top"></div>
