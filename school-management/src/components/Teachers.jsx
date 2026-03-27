@@ -1,12 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import api from '../lib/api'
 
-const initial = [
-  { id: 1, name: 'Mr. Ahmed', subject: 'Math', className: '5A', phone: '555-0101' },
-  { id: 2, name: 'Ms. Fatima', subject: 'English', className: '8B', phone: '555-0102' },
-  { id: 3, name: 'Mr. Joseph', subject: 'Science', className: '10C', phone: '555-0103' }
-]
-
 export default function Teachers() {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -15,18 +9,13 @@ export default function Teachers() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState({ name: '', subject: '', className: '', phone: '' })
 
-  const subjects = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.subject)))], [rows])
+  const subjects = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.subject || 'Unknown')))], [rows])
 
   useEffect(() => {
     let mounted = true
     api.getTeachers().then((data) => {
       if (!mounted) return
-      if (!data || data.length === 0) {
-        api.saveTeachers(initial)
-        setRows(initial)
-      } else {
-        setRows(data)
-      }
+      setRows(Array.isArray(data) ? data : [])
       setLoading(false)
     })
     return () => { mounted = false }

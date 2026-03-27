@@ -30,7 +30,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  position: relative;
+  width: 100%;
+}
+
+.mobile-menu-toggle {
+  display: flex;
+  background: none;
+  border: none;
+  color: #f4f8ff;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+}
+
+@media (min-width: 981px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
 }
 
 .academy-page-brand {
@@ -45,10 +62,39 @@
 }
 
 .academy-page-links {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: rgba(7, 12, 25, 0.98);
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1.25rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  transform: translateY(-150%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  flex-wrap: wrap;
+  z-index: -1;
+}
+
+.academy-page-nav.mobile-active .academy-page-links {
+  transform: translateY(0);
+}
+
+@media (min-width: 981px) {
+  .academy-page-links {
+    position: static;
+    background: none;
+    flex-direction: row;
+    padding: 0;
+    width: auto;
+    transform: none;
+    z-index: 1;
+    gap: 0.9rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 }
 
 .academy-page-link {
@@ -70,9 +116,15 @@
 }
 
 .academy-page-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
+  display: none;
+}
+
+@media (min-width: 981px) {
+  .academy-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
 }
 
 .academy-page-auth {

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, UserRound } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,7 +14,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const trimmedEmail = email.trim();
@@ -37,7 +37,8 @@ const Login = () => {
     try {
       const result = await login(trimmedEmail, password, role);
       if (result.success) {
-        navigate(`/${role}/dashboard`);
+        // Redirection should be based on the role from result.user
+        navigate(`/${result.user.role}/dashboard`);
         return;
       }
       setError(result.error || "Invalid credentials.");

@@ -22,24 +22,28 @@ const campusFeatures = [
 ];
 
 const CampusPage = () => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
     <div className="academy-page">
-      <header className="academy-page-nav">
+      <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="academy-page-brand">
             The Academy
           </Link>
+          <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+          </button>
           <nav className="academy-page-links" aria-label="Primary">
-            <Link to="/" className="academy-page-link">
+            <Link to="/" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
-            <Link to="/programs" className="academy-page-link">
+            <Link to="/programs" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Programs
             </Link>
-            <Link to="/campus" className="academy-page-link active">
+            <Link to="/campus" className="academy-page-link active" onClick={() => setIsMenuOpen(false)}>
               Campus
             </Link>
-            <Link to="/admissions" className="academy-page-link">
+            <Link to="/admissions" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
               Admissions
             </Link>
           </nav>

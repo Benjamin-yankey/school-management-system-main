@@ -1,13 +1,5 @@
-import React, { useState, useMemo } from 'react'
-
-const sampleStudents = [
-  { id: 1, name: 'Aisha Khan', className: '5A' },
-  { id: 2, name: 'Rahul Mehta', className: '8B' },
-  { id: 3, name: 'Sara Ali', className: '10C' },
-  { id: 4, name: 'Tom Brown', className: '1A' },
-  { id: 5, name: 'Lina Gomez', className: '5A' },
-  { id: 6, name: 'Omar Faruk', className: '8B' }
-]
+import React, { useState, useMemo, useEffect } from 'react'
+import api from '../lib/api'
 
 function formatDate(d) {
   return d.toISOString().slice(0, 10)
@@ -16,29 +8,50 @@ function formatDate(d) {
 export default function Attendance() {
   const [date, setDate] = useState(formatDate(new Date()))
   const [classFilter, setClassFilter] = useState('All')
-  const [attendance, setAttendance] = useState(() => {
-    const map = new Map()
-    for (const s of sampleStudents) map.set(s.id, true)
-    return map
-  })
+  const [students, setStudents] = useState([])
+  const [attendance, setAttendance] = useState(new Map())
+  const [loading, setLoading] = useState(true)
 
-  const classes = useMemo(() => {
-    const set = new Set(sampleStudents.map((s) => s.className))
-    return ['All', ...Array.from(set).sort()]
+  useEffect(() => {
+    api.getStudents().then(data => {
+      setStudents(Array.isArray(data) ? data : [])
+    })
   }, [])
 
-  const visible = sampleStudents.filter((s) => classFilter === 'All' || s.className === classFilter)
+  useEffect(() => {
+    setLoading(true)
+    api.getAttendance(date).then(data => {
+      const map = new Map()
+      // Assume data is an object { studentId: boolean }
+      if (data && typeof data === 'object') {
+        Object.entries(data).forEach(([id, status]) => {
+          map.set(isNaN(id) ? id : Number(id), !!status)
+        })
+      }
+      setAttendance(map)
+      setLoading(false)
+    })
+  }, [date])
+
+  const classes = useMemo(() => {
+    const set = new Set(students.map((s) => s.className || 'Unknown'))
+    return ['All', ...Array.from(set).sort()]
+  }, [students])
+
+  const visible = students.filter((s) => classFilter === 'All' || s.className === classFilter)
 
   function toggle(id) {
-    setAttendance((prev) => new Map(prev).set(id, !prev.get(id)))
+    const next = new Map(attendance)
+    next.set(id, !next.get(id))
+    setAttendance(next)
+    api.saveAttendance(date, Object.fromEntries(next))
   }
 
   function bulkSet(value) {
-    setAttendance((prev) => {
-      const next = new Map(prev)
-      for (const s of visible) next.set(s.id, value)
-      return next
-    })
+    const next = new Map(attendance)
+    for (const s of visible) next.set(s.id, value)
+    setAttendance(next)
+    api.saveAttendance(date, Object.fromEntries(next))
   }
 
   function exportCSV() {
