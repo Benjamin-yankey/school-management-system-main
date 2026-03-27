@@ -37,10 +37,10 @@ const Home = () => {
   ];
 
   const galleryItems = [
-    { title: 'High-tech Labs', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSYA_9sHZey0gDZ1pwIzP8CCrWurKkz5uA0M2KqB-R_eCdFmG4oWa6iszC9loatt0I3V67RnQWxTeOS_MzQYx15Td9Wh2-AOiTgT9zQksPV0penjQoLUitNE7S15euPJzj-F-JdeyX1K0ojK8VSk1XyFuBKltMJGLoYfwh9wgpzw-cb7KxvGYSHpujNlTlcaYTrMAa-MpWDEvYpCFjFrw7cqya5VnQf8g1GOtTiGrUI9uofP1rYQ3-sBk_IV5r3j-O8VNLnO_2cuUn' },
-    { title: 'Rooftop Libraries', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuACSzuFHnTguXDCIp70SzHgIEFHEo1UzytA8X6bbRrKH5Ey7KyAFZkddiVQ48P4_4gMwWG6f7mQfB1sTxqmZn_4zl7C89qBwb8Bw5uV7l5N4PSlr1zw1f8AsTrXPzlfjeygK3dMVcQdHhBISfQDZSgojl_naILx_haB2fGNjFi1jBkS5-f5PHOhGvbeCKPkGZZd5TuT0-TmaikvpIn-9XPtqgxGXZ9RQSoDke-sYOQZ0tp4OyocCEAoZRu-4YnjpwxeT0exBwfxZsCX' },
-    { title: 'Creative Studios', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB4lVNQyIe80GjGtne6uU1dAU3pDsFasFSJiprZaSR4YFkMXlISVPk0qw8GzF3t8lI3Bjmn88_lBzbNFOy88Im6LTJPH5t2x9oeCn30irG9jOoANp8odToZv3lY8IPlNcIHreUZtR9-jTMeLUz1_9_KKEYHu7FYRJrbhDQzKRAHt_s8QndbO16Bj73KkXjf1SHWY1D5WtwX5VwTO5k-xVqInbnVcPb_NOeZaF2f3iHxDCuxIxp6Mp1kKN2mGLqczO8Tl01V-cvHCtT1' },
-    { title: 'Collaboration Zones', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHGAPYDx_2R8yALjbiA-GexxRVhGp0MY_oavvUaqA5HAnqz8ux7HsbBG9fJ6NpEyMVwjMuKdh71qnmhB3uiaANV-fhKNoKKBY6MMr-mEhzD57Yqq7RUAHgFGeSPerdKHnoqe7ajizxbVIveho9BsygsODuNGrzrj3F8tznERDw5C4PBeoahBp51Emkvd5cKiX8Vf63Pf7rMWQG2dtYnjGZGM7DoaAEuy_xCfoBl8P-Slj7iGjsjfkbJMvmECQzGEun8Q3QMqVDOihX' },
+    { title: 'High-tech Labs', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSYA_9sHZey0gDZ1pwIzP8CCrWurKkz5uA0M2KqB-R_eCdFmG4oWa6iszC9loatt0I3V67RnQWxTeOS_MzQYx15Td9Wh2-AOiTgT9zQksPV0penjQoLUitNE7S15euPJzj-F-JdeyX1K0ojK8VSk1XyFuBKltMJGLoYfwh9wgpzw-cb7KxvGYSHpujNlTlcaYTrMAa-MpWDEvYpCFjFrw7cqya5VnQf8g1GOtTiGrUI9uofP1rYQ3-sBk_IV5r3j-O8VNLnO_2cuUn', description: 'State-of-the-art laboratories equipped with cutting-edge technology for hands-on learning and research.' },
+    { title: 'Rooftop Libraries', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuACSzuFHnTguXDCIp70SzHgIEFHEo1UzytA8X6bbRrKH5Ey7KyAFZkddiVQ48P4_4gMwWG6f7mQfB1sTxqmZn_4zl7C89qBwb8Bw5uV7l5N4PSlr1zw1f8AsTrXPzlfjeygK3dMVcQdHhBISfQDZSgojl_naILx_haB2fGNjFi1jBkS5-f5PHOhGvbeCKPkGZZd5TuT0-TmaikvpIn-9XPtqgxGXZ9RQSoDke-sYOQZ0tp4OyocCEAoZRu-4YnjpwxeT0exBwfxZsCX', description: 'Serene study spaces with panoramic views, perfect for focused reading and academic exploration.' },
+    { title: 'Creative Studios', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB4lVNQyIe80GjGtne6uU1dAU3pDsFasFSJiprZaSR4YFkMXlISVPk0qw8GzF3t8lI3Bjmn88_lBzbNFOy88Im6LTJPH5t2x9oeCn30irG9jOoANp8odToZv3lY8IPlNcIHreUZtR9-jTMeLUz1_9_KKEYHu7FYRJrbhDQzKRAHt_s8QndbO16Bj73KkXjf1SHWY1D5WtwX5VwTO5k-xVqInbnVcPb_NOeZaF2f3iHxDCuxIxp6Mp1kKN2mGLqczO8Tl01V-cvHCtT1', description: 'Inspiring spaces designed for artistic expression, innovation, and creative collaboration.' },
+    { title: 'Collaboration Zones', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHGAPYDx_2R8yALjbiA-GexxRVhGp0MY_oavvUaqA5HAnqz8ux7HsbBG9fJ6NpEyMVwjMuKdh71qnmhB3uiaANV-fhKNoKKBY6MMr-mEhzD57Yqq7RUAHgFGeSPerdKHnoqe7ajizxbVIveho9BsygsODuNGrzrj3F8tznERDw5C4PBeoahBp51Emkvd5cKiX8Vf63Pf7rMWQG2dtYnjGZGM7DoaAEuy_xCfoBl8P-Slj7iGjsjfkbJMvmECQzGEun8Q3QMqVDOihX', description: 'Dynamic environments that foster teamwork, communication, and collaborative problem-solving.' },
   ];
 
   const allEvents = [
@@ -154,7 +154,16 @@ const Home = () => {
       {/* TopNavBar */}
       <nav className={`navbar ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="navbar-brand">
-          <Link to="/" className="logo-text">THE ACADEMY</Link>
+          <Link to="/" className="logo-link">
+            <div className="logo-container">
+              <img
+                src="https://res.cloudinary.com/dj6hpfbdr/image/upload/v1774652911/WhatsApp_Image_2026-03-27_at_8.38.37_AM_gi3o6b.jpg"
+                alt="The Academy Logo"
+                className="logo-image"
+              />
+              <span className="logo-text">Geoziie International School</span>
+            </div>
+          </Link>
           <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
           </button>
@@ -198,109 +207,32 @@ const Home = () => {
             <div className="hero-gradient-overlay"></div>
           </div>
           <div className="hero-content">
-            <span className="hero-badge">Enrollment Open</span>
+            <span className="hero-badge">Enrollment Open for 2024</span>
             <h1 className="hero-title">
-              The Future of <br />
-              <span className="gradient-text">Academic Excellence</span>
+              Nurturing Tomorrow's <br />
+              <span className="gradient-text">Leaders Today</span>
             </h1>
             <p className="hero-description">
-              Step into a sanctuary designed for the next generation of thinkers, creators, and innovators. Where tradition meets hyper-modernity.
+              Welcome to Geoziie International School, where we provide a world-class education in a supportive and stimulating environment. Our dedicated faculty and state-of-the-art facilities ensure every student reaches their full potential.
             </p>
             <div className="hero-buttons">
               <Link className="primary-btn primary-btn-lg" to="/admissions">
-                Apply for 2024
+                Apply Now
               </Link>
               <Link className="secondary-btn secondary-btn-lg" to="/signin">
-                Go to Portal
+                Parent Portal
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div key={index} className="stat-card">
-              <div className="stat-value">
-                {stat.value}<span className="stat-suffix">{stat.suffix}</span>
-              </div>
-              <p className="stat-label">{stat.label}</p>
-              <p className="stat-description">{stat.description}</p>
-            </div>
-          ))}
-        </div>
-
+         
 
         
  
-        {/* Mission & Vision Section */}
-        <section className="mission-section">
-          <div className="blur-circle blur-circle-top"></div>
-          <div className="mission-container">
-            <div className="mission-copy">
-              <h2 className="section-title">Re-imagining the <br /><span className="text-secondary">Scholastic Sanctuary</span></h2>
-              <p className="section-text">
-                The Academy is more than an institution; it's a meticulously designed ecosystem for intellectual and creative expansion. We blend centuries of pedagogical wisdom with cutting-edge environmental psychology and cognitive science.
-              </p>
-              <div className="feature-list">
-                <div className="feature-item">
-                  <div className="feature-icon"><span className="material-symbols-outlined">science</span></div>
-                  <div>
-                    <h4 className="feature-title">Hyper-Labs</h4>
-                    <p className="feature-description">Quantum-ready facilities for breakthrough research.</p>
-                  </div>
-                </div>
-                <div className="feature-item">
-                  <div className="feature-icon"><span className="material-symbols-outlined">palette</span></div>
-                  <div>
-                    <h4 className="feature-title">Meta-Studios</h4>
-                    <p className="feature-description">Where digital and physical art forms converge.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mission-visual">
-              <div className="visual-frame glass-card">
-                <img
-                  alt="Students in Lab"
-                  className="visual-image"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtg9Fsc-fF3vE7z61T98GvN6M8qj-0zT1f8m58_fK3V0Wp_O8n7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+         
 
-        {/* BENTO GRID OF CORE PILLARS */}
-        <section className="pillars-section">
-          <div className="pillars-grid">
-            <div className="bento-card bento-card-large glass-card">
-              <span className="material-symbols-outlined text-primary text-4xl">diversity_3</span>
-              <h3 className="bento-card-title">Global Ethos</h3>
-              <p className="bento-card-text">Our student body represents 45 nations, creating a rich tapestry of perspectives and cultural intelligence.</p>
-            </div>
-            <div className="bento-card bento-card-medium">
-              <span className="material-symbols-outlined text-secondary text-3xl">psychology</span>
-              <div>
-                <h3 className="bento-card-title">AI-Driven Curriculum</h3>
-                <p className="bento-card-text">Personalized learning paths powered by state-of-the-art neural engines.</p>
-              </div>
-            </div>
-            <div className="bento-card bento-card-wide glass-card">
-              <div className="bento-card-image-wrapper">
-                <img
-                  alt="Technology Lab"
-                  className="bento-card-image"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwE7rqJKqQBK31VMlWu4EixeDfxp4pClYVTi52xxr-n0sPPZfV2xoi09t1cFahzHPcdoDl9gC3xMI0-PmDv8jHeTkGs2uKZEBTDMQ1CR3pJ2o-w-9DrpztZ1h0Q_NNISMhDsGLMt1GzY7s2D4yGFD4zFQlrULXgzFP7_i3U6jE59IetJEM1uHxmJSo3pCIjBxCrYJ18A0OK2cdtUTYeM5BPKQX0goC3qsuCy2fv29uxisw4oDr6PS54_2Yiw7ZxKdZhuh5XOo07QXw"
-                />
-              </div>
-              <div className="bento-card-text-wrapper">
-                <h3 className="bento-card-title">Robotics & Synergy</h3>
-                <p className="bento-card-text">Exploring the frontier of human-machine interaction in our dedicated robotics wing.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+         
 
         {/* Our Legacy & Future */}
         <section className="legacy-section">
@@ -315,21 +247,21 @@ const Home = () => {
                 />
               </div>
               <div className="year-badge glass-card">
-                <div className="year-badge-value">1924</div>
-                <div className="year-badge-label">The Foundation</div>
+                <div className="year-badge-value">2008</div>
+                <div className="year-badge-label">Founded</div>
               </div>
             </div>
             <div className="legacy-content">
-              <h2 className="section-title">The Evolution of Excellence</h2>
+              <h2 className="section-title">Our Heritage & Vision</h2>
               <p className="section-text">
-                What began a century ago as a quiet sanctuary for classical scholars has been fundamentally re-engineered for the digital frontier. We have preserved the sanctity of deep thought while integrating the boundless potential of the metaverse and neural-link research.
+                Founded with a commitment to academic excellence, Geoziie International School has grown from a small institution into a leading private school. We honor our rich heritage while embracing innovative teaching methods that prepare students for the challenges of tomorrow.
               </p>
               <p className="section-text">
-                Today, The Academy stands as a "Neon Sanctuary"—a place where silence is respected, but innovation is constant. We don't just teach history; we provide the tools to write the next chapter of human civilization.
+                Our school is a place where tradition meets innovation—a nurturing environment where students are encouraged to explore, question, and grow. We don't just educate; we inspire lifelong learners and responsible global citizens.
               </p>
               <div className="legacy-link-wrapper">
                 <a className="text-link" href="#">
-                  Read the Full Manifesto
+                  Learn More About Us
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </a>
               </div>
@@ -337,109 +269,300 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Campus Life Gallery */}
-        <section className="gallery-section">
-          <div className="gallery-header">
-            <div>
-              <h2 className="section-title-lg">Campus Life</h2>
-              <p className="section-subtitle">A sanctuary for the soul and the mind.</p>
+        {/* About Us Section */}
+        <section className="about-us-section">
+          <div className="about-us-container">
+            <div className="about-us-header">
+              <h2 className="section-title">About Geoziie International School</h2>
+              <p className="section-subtitle">Where tradition meets innovation</p>
             </div>
-            <div className="gallery-nav">
-              <button className="nav-btn" onClick={() => scrollGallery('left')}>
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
-              <button className="nav-btn" onClick={() => scrollGallery('right')}>
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-          <div ref={galleryRef} className="gallery-scroll">
-            {galleryItems.map((item, index) => (
-              <div key={index} className="gallery-item">
-                <img alt={item.title} className="gallery-item-image" src={item.image} />
-                <div className="gallery-item-overlay"></div>
-                <div className="gallery-item-content">
-                  <h4 className="gallery-item-title">{item.title}</h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Interactive Event Calendar */}
-        <section className="events-section">
-          <div className="events-container">
-            <div className="events-header">
-              <div>
-                <h2 className="section-title-lg">Upcoming Calendar</h2>
-                <p className="section-subtitle">Curated explorations for the inquisitive mind.</p>
-              </div>
-              <div className="filter-tabs">
-                {filters.map((filter) => (
-                  <button
-                    key={filter}
-                    className={`filter-btn ${activeFilter === filter ? 'filter-btn-active' : ''}`}
-                    onClick={() => handleFilterClick(filter)}
-                  >
-                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="events-grid">
-              {filteredEvents.map((event, index) => (
-                <div key={index} className="event-card-horizontal glass-card">
-                  <div className="event-card-image">
-                    <img alt={event.title} src={event.image} />
-                    <div className="event-date-badge">
-                      <span className="day">{event.date}</span>
-                      <span className="month">{event.month}</span>
-                    </div>
+            <div className="about-us-content">
+              <div className="about-us-grid">
+                <div className="about-us-card glass-card">
+                  <div className="about-us-icon">
+                    <span className="material-symbols-outlined">school</span>
                   </div>
-                  <div className="event-card-content">
-                    <div className="event-card-top">
-                      <span className={`category-tag tag-${event.category}`}>{event.category}</span>
-                      <span className="event-time">{event.time}</span>
-                    </div>
-                    <h3 className="event-card-title">{event.title}</h3>
-                    <p className="event-card-description">{event.description}</p>
-                    <button className="text-link">Register Interest</button>
+                  <h3>Our Mission</h3>
+                  <p>
+                    To provide a nurturing and challenging educational environment that empowers students to achieve academic excellence, develop strong character, and become responsible global citizens prepared for success in an ever-changing world.
+                  </p>
+                </div>
+                <div className="about-us-card glass-card">
+                  <div className="about-us-icon">
+                    <span className="material-symbols-outlined">visibility</span>
+                  </div>
+                  <h3>Our Vision</h3>
+                  <p>
+                    To be recognized as a premier private school that inspires a love of learning, fosters creativity and innovation, and develops well-rounded individuals who make meaningful contributions to society.
+                  </p>
+                </div>
+                <div className="about-us-card glass-card">
+                  <div className="about-us-icon">
+                    <span className="material-symbols-outlined">psychology</span>
+                  </div>
+                  <h3>Our Approach</h3>
+                  <p>
+                    We combine rigorous academic standards with personalized attention, innovative teaching methods, and a supportive community to ensure every student thrives academically, socially, and emotionally.
+                  </p>
+                </div>
+              </div>
+              <div className="about-us-stats">
+                <div className="about-us-stat">
+                  <div className="stat-number">15+</div>
+                  <div className="stat-label">Years of Excellence</div>
+                </div>
+                <div className="about-us-stat">
+                  <div className="stat-number">500+</div>
+                  <div className="stat-label">Students Enrolled</div>
+                </div>
+                <div className="about-us-stat">
+                  <div className="stat-number">50+</div>
+                  <div className="stat-label">Qualified Teachers</div>
+                </div>
+                <div className="about-us-stat">
+                  <div className="stat-number">98%</div>
+                  <div className="stat-label">Parent Satisfaction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Achievements Section */}
+        <section className="achievements-section">
+          <div className="achievements-container">
+            <div className="achievements-header">
+              <h2 className="section-title">Our Achievements</h2>
+              <p className="section-subtitle">Celebrating excellence and success</p>
+            </div>
+            <div className="achievements-grid">
+              <div className="achievement-card">
+                <div className="achievement-image-wrapper">
+                  <img
+                    alt="Academic Excellence Award"
+                    className="achievement-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSYA_9sHZey0gDZ1pwIzP8CCrWurKkz5uA0M2KqB-R_eCdFmG4oWa6iszC9loatt0I3V67RnQWxTeOS_MzQYx15Td9Wh2-AOiTgT9zQksPV0penjQoLUitNE7S15euPJzj-F-JdeyX1K0ojK8VSk1XyFuBKltMJGLoYfwh9wgpzw-cb7KxvGYSHpujNlTlcaYTrMAa-MpWDEvYpCFjFrw7cqya5VnQf8g1GOtTiGrUI9uofP1rYQ3-sBk_IV5r3j-O8VNLnO_2cuUn"
+                  />
+                  <div className="achievement-overlay">
+                    <span className="material-symbols-outlined">emoji_events</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Faculty Spotlight */}
-        <section className="faculty-section">
-          <h2 className="section-title-lg text-center">Visionary Minds</h2>
-          <div className="faculty-grid">
-            {faculty.map((member, index) => (
-              <div key={index} className="faculty-card glass-card">
-                <div className="faculty-image-wrapper">
-                  <img alt={member.name} className="faculty-image" src={member.image} />
+                <div className="achievement-content">
+                  <h3>Academic Excellence Award</h3>
+                  <p>
+                    Recognized for outstanding academic performance and innovative teaching methodologies that consistently produce top-performing students.
+                  </p>
+                  <div className="achievement-badge">
+                    <span className="material-symbols-outlined">verified</span>
+                    <span>2023 Winner</span>
+                  </div>
                 </div>
-                <h4 className="faculty-name">{member.name}</h4>
-                <p className="faculty-role">{member.role}</p>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* Call to Action */}
-        <section className="cta-section">
-          <div className="cta-card glass-card">
-            <div className="cta-content">
-              <h2 className="cta-title">Begin Your Journey</h2>
-              <p className="cta-text">Applications for the next academic cycle are now being reviewed. Secure your place in the future of education.</p>
-              <div className="cta-buttons">
-                <button className="primary-btn primary-btn-lg" onClick={openModal}>Book a Private Tour</button>
-                <Link className="secondary-btn secondary-btn-lg" to="/admissions">View Admissions Process</Link>
+              <div className="achievement-card">
+                <div className="achievement-image-wrapper">
+                  <img
+                    alt="Sports Championship"
+                    className="achievement-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuACSzuFHnTguXDCIp70SzHgIEFHEo1UzytA8X6bbRrKH5Ey7KyAFZkddiVQ48P4_4gMwWG6f7mQfB1sTxqmZn_4zl7C89qBwb8Bw5uV7l5N4PSlr1zw1f8AsTrXPzlfjeygK3dMVcQdHhBISfQDZSgojl_naILx_haB2fGNjFi1jBkS5-f5PHOhGvbeCKPkGZZd5TuT0-TmaikvpIn-9XPtqgxGXZ9RQSoDke-sYOQZ0tp4OyocCEAoZRu-4YnjpwxeT0exBwfxZsCX"
+                  />
+                  <div className="achievement-overlay">
+                    <span className="material-symbols-outlined">sports_soccer</span>
+                  </div>
+                </div>
+                <div className="achievement-content">
+                  <h3>Regional Sports Champions</h3>
+                  <p>
+                    Our athletes have consistently demonstrated excellence, winning multiple regional championships and fostering a culture of sportsmanship.
+                  </p>
+                  <div className="achievement-badge">
+                    <span className="material-symbols-outlined">verified</span>
+                    <span>15+ Trophies</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="achievement-card">
+                <div className="achievement-image-wrapper">
+                  <img
+                    alt="Community Service Award"
+                    className="achievement-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4lVNQyIe80GjGtne6uU1dAU3pDsFasFSJiprZaSR4YFkMXlISVPk0qw8GzF3t8lI3Bjmn88_lBzbNFOy88Im6LTJPH5t2x9oeCn30irG9jOoANp8odToZv3lY8IPlNcIHreUZtR9-jTMeLUz1_9_KKEYHu7FYRJrbhDQzKRAHt_s8QndbO16Bj73KkXjf1SHWY1D5WtwX5VwTO5k-xVqInbnVcPb_NOeZaF2f3iHxDCuxIxp6Mp1kKN2mGLqczO8Tl01V-cvHCtT1"
+                  />
+                  <div className="achievement-overlay">
+                    <span className="material-symbols-outlined">volunteer_activism</span>
+                  </div>
+                </div>
+                <div className="achievement-content">
+                  <h3>Community Service Award</h3>
+                  <p>
+                    Honored for our commitment to community engagement and social responsibility,培养学生 who are not just academically优秀 but also socially conscious.
+                  </p>
+                  <div className="achievement-badge">
+                    <span className="material-symbols-outlined">verified</span>
+                    <span>2024 Recipient</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="achievement-card">
+                <div className="achievement-image-wrapper">
+                  <img
+                    alt="Arts & Culture Festival"
+                    className="achievement-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHGAPYDx_2R8yALjbiA-GexxRVhGp0MY_oavvUaqA5HAnqz8ux7HsbBG9fJ6NpEyMVwjMuKdh71qnmhB3uiaANV-fhKNoKKBY6MMr-mEhzD57Yqq7RUAHgFGeSPerdKHnoqe7ajizxbVIveho9BsygsODuNGrzrj3F8tznERDw5C4PBeoahBp51Emkvd5cKiX8Vf63Pf7rMWQG2dtYnjGZGM7DoaAEuy_xCfoBl8P-Slj7iGjsjfkbJMvmECQzGEun8Q3QMqVDOihX"
+                  />
+                  <div className="achievement-overlay">
+                    <span className="material-symbols-outlined">palette</span>
+                  </div>
+                </div>
+                <div className="achievement-content">
+                  <h3>Arts & Culture Festival</h3>
+                  <p>
+                    Our students showcase their creative talents through annual arts festivals, exhibitions, and performances that celebrate diversity and artistic expression.
+                  </p>
+                  <div className="achievement-badge">
+                    <span className="material-symbols-outlined">verified</span>
+                    <span>Annual Event</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
+         
+        {/* Academic Programs Section */}
+        <section className="programs-section">
+          <div className="programs-container">
+            <div className="programs-header">
+              <h2 className="section-title">Academic Programs</h2>
+              <p className="section-subtitle">Discover pathways to excellence</p>
+            </div>
+            <div className="programs-grid">
+              <div className="program-card">
+                <div className="program-image-wrapper">
+                  <img
+                    alt="Innovation & Technology"
+                    className="program-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSYA_9sHZey0gDZ1pwIzP8CCrWurKkz5uA0M2KqB-R_eCdFmG4oWa6iszC9loatt0I3V67RnQWxTeOS_MzQYx15Td9Wh2-AOiTgT9zQksPV0penjQoLUitNE7S15euPJzj-F-JdeyX1K0ojK8VSk1XyFuBKltMJGLoYfwh9wgpzw-cb7KxvGYSHpujNlTlcaYTrMAa-MpWDEvYpCFjFrw7cqya5VnQf8g1GOtTiGrUI9uofP1rYQ3-sBk_IV5r3j-O8VNLnO_2cuUn"
+                  />
+                  <div className="program-overlay">
+                    <span className="material-symbols-outlined">computer</span>
+                  </div>
+                </div>
+                <div className="program-content">
+                  <h3>STEM Excellence</h3>
+                  <p>
+                    Our comprehensive STEM program develops critical thinking and problem-solving skills through hands-on learning in science, technology, engineering, and mathematics.
+                  </p>
+                  <div className="program-features">
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Robotics & Coding
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Science Labs
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Mathematics Excellence
+                    </span>
+                  </div>
+                  <Link to="/programs" className="program-link">
+                    Learn More
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="program-card">
+                <div className="program-image-wrapper">
+                  <img
+                    alt="Classical Humanities"
+                    className="program-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuACSzuFHnTguXDCIp70SzHgIEFHEo1UzytA8X6bbRrKH5Ey7KyAFZkddiVQ48P4_4gMwWG6f7mQfB1sTxqmZn_4zl7C89qBwb8Bw5uV7l5N4PSlr1zw1f8AsTrXPzlfjeygK3dMVcQdHhBISfQDZSgojl_naILx_haB2fGNjFi1jBkS5-f5PHOhGvbeCKPkGZZd5TuT0-TmaikvpIn-9XPtqgxGXZ9RQSoDke-sYOQZ0tp4OyocCEAoZRu-4YnjpwxeT0exBwfxZsCX"
+                  />
+                  <div className="program-overlay">
+                    <span className="material-symbols-outlined">menu_book</span>
+                  </div>
+                </div>
+                <div className="program-content">
+                  <h3>Arts & Humanities</h3>
+                  <p>
+                    Our arts and humanities program nurtures creativity, critical thinking, and cultural awareness through literature, history, visual arts, and performing arts.
+                  </p>
+                  <div className="program-features">
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Visual & Performing Arts
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Literature & Writing
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      History & Social Studies
+                    </span>
+                  </div>
+                  <Link to="/programs" className="program-link">
+                    Learn More
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="program-card">
+                <div className="program-image-wrapper">
+                  <img
+                    alt="Applied Sciences"
+                    className="program-image"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4lVNQyIe80GjGtne6uU1dAU3pDsFasFSJiprZaSR4YFkMXlISVPk0qw8GzF3t8lI3Bjmn88_lBzbNFOy88Im6LTJPH5t2x9oeCn30irG9jOoANp8odToZv3lY8IPlNcIHreUZtR9-jTMeLUz1_9_KKEYHu7FYRJrbhDQzKRAHt_s8QndbO16Bj73KkXjf1SHWY1D5WtwX5VwTO5k-xVqInbnVcPb_NOeZaF2f3iHxDCuxIxp6Mp1kKN2mGLqczO8Tl01V-cvHCtT1"
+                  />
+                  <div className="program-overlay">
+                    <span className="material-symbols-outlined">science</span>
+                  </div>
+                </div>
+                <div className="program-content">
+                  <h3>Languages & Communication</h3>
+                  <p>
+                    Our language program develops strong communication skills through comprehensive instruction in multiple languages, literature, and effective writing.
+                  </p>
+                  <div className="program-features">
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Multiple Languages
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Creative Writing
+                    </span>
+                    <span className="program-feature">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Public Speaking
+                    </span>
+                  </div>
+                  <Link to="/programs" className="program-link">
+                    Learn More
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="programs-cta">
+              <Link className="primary-btn primary-btn-lg" to="/programs">
+                Explore Our Curriculum
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        
+        
+
+         
         {/* Join the Future CTA */}
         <section className="cta-section">
           <div className="cta-bg">
@@ -452,14 +575,14 @@ const Home = () => {
           </div>
           <div className="cta-content">
             <h2 className="cta-title">
-              READY TO ENTER THE <br />
-              <span className="text-secondary">SANCTUARY?</span>
+              JOIN OUR <br />
+              <span className="text-secondary">COMMUNITY</span>
             </h2>
             <p className="cta-description">
-              The next evolution of academic brilliance starts here. Secure your place in the most innovative community on the planet.
+              Give your child the advantage of a world-class private education. Schedule a campus tour or apply for admission today.
             </p>
             <Link className="primary-btn primary-btn-lg primary-btn-neon" to="/admissions">
-              Apply for 2024 Intake
+              Apply Now
             </Link>
           </div>
         </section>
@@ -468,8 +591,15 @@ const Home = () => {
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-brand">
-            <span className="logo-text">THE ACADEMY</span>
-            <p className="footer-copy">A Century of Excellence, Re-engineered.</p>
+            <div className="footer-logo-container">
+              <img
+                src="https://res.cloudinary.com/dj6hpfbdr/image/upload/v1774652911/WhatsApp_Image_2026-03-27_at_8.38.37_AM_gi3o6b.jpg"
+                alt="The Academy Logo"
+                className="footer-logo-image"
+              />
+              <span className="logo-text">THE ACADEMY</span>
+            </div>
+            <p className="footer-copy">Nurturing Excellence, Building Character.</p>
           </div>
           <div className="footer-links-grid">
             <div className="footer-column">
