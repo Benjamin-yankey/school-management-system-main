@@ -13,15 +13,18 @@ import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
- homepage
+ 
 import SuperAdminDashboard from "./components/SuperAdminDashboard";
 
 import AcademyLandingPage from "./AcademyLandingPage";
- main
+ 
 import Home from "./Home";
 import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
+
+import Login from "./components/Login";
+
 
 import AddStudent from "./pages/AddStudent";
 
@@ -32,7 +35,6 @@ export default function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-homepage
           <Route path="/login" element={<Login />} />
           
           {/* Superadmin Dashboard - Full system access */}
