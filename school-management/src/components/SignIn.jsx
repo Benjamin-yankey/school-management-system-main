@@ -37,7 +37,11 @@ const SignIn = () => {
     try {
       const result = await login(trimmedEmail, password, role);
       if (result.success) {
-        navigate(`/${role}/dashboard`);
+        if (result.user.mustResetPassword) {
+          navigate("/force-reset");
+        } else {
+          navigate(`/${role}/dashboard`);
+        }
         return;
       }
       setError(result.error || "Invalid credentials.");

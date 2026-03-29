@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolSync Pro — Super Admin</title>
+  <meta name="description" content="Super Admin control panel for SchoolSync Pro school management system" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════ LOGIN SCREEN ═══════════ -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-bg-orb login-bg-orb--1"></div>
+    <div class="login-bg-orb login-bg-orb--2"></div>
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#g1)" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24">
+              <stop stop-color="#818cf8" />
+              <stop offset="1" stop-color="#c084fc" />
+            </linearGradient>
+          </defs>
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+        <h1>SchoolSync <span>Pro</span></h1>
+      </div>
+      <p class="login-subtitle">Super Admin Control Panel</p>
+      <form id="login-form" autocomplete="off">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" placeholder="admin@yourdomain.com" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••••" required />
+        </div>
+        <button type="submit" class="btn btn--primary btn--full" id="login-btn">
+          <span>Sign In</span>
+          <svg class="btn-spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20" />
+          </svg>
+        </button>
+        <p id="login-error" class="form-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════ MAIN APP SHELL ═══════════ -->
+  <div id="app-shell" class="app-shell hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#g2)" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="g2" x1="0" y1="0" x2="24" y2="24">
+              <stop stop-color="#818cf8" />
+              <stop offset="1" stop-color="#c084fc" />
+            </linearGradient>
+          </defs>
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+        <span>SchoolSync SuperAdmin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard" id="nav-dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-page="schools" id="nav-schools">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <span>Schools</span>
+        </button>
+        <button class="nav-item" data-page="admins" id="nav-admins">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <span>Administrations</span>
+        </button>
+        <button class="nav-item" data-page="profile" id="nav-profile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>Profile</span>
+        </button>
+        <button class="nav-item" data-page="settings" id="nav-settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+      <button class="nav-item nav-item--logout" id="logout-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Sign Out</span>
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <h2 id="page-title">Dashboard</h2>
+        <div class="topbar-right">
+          <span id="user-email" class="user-email"></span>
+          <div class="avatar" id="user-avatar">SA</div>
+        </div>
+      </header>
+
+      <!-- ── Dashboard Page ── -->
+      <section class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card stat-card--purple">
+            <div class="stat-icon">🏫</div>
+            <div class="stat-info"><span class="stat-value" id="stat-schools">—</span><span
+                class="stat-label">Schools</span></div>
+          </div>
+          <div class="stat-card stat-card--blue">
+            <div class="stat-icon">👤</div>
+            <div class="stat-info"><span class="stat-value" id="stat-admins">—</span><span
+                class="stat-label">Administrators</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div class="quick-actions">
+            <button class="btn btn--outline" onclick="navigateTo('schools')">➕ Add School</button>
+            <button class="btn btn--outline" onclick="navigateTo('admins')">➕ Add Administration</button>
+            <button class="btn btn--outline" onclick="navigateTo('settings')">🔑 Change Password</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Schools Page ── -->
+      <section class="page" id="page-schools">
+        <div class="page-header">
+          <h3>Schools</h3>
+          <button class="btn btn--primary" id="btn-add-school">+ Add School</button>
+        </div>
+        <div class="card" id="school-form-card" style="display:none">
+          <h4 id="school-form-title">Create School</h4>
+          <form id="school-form">
+            <input type="hidden" id="school-edit-id" />
+            <div class="form-row">
+              <div class="form-group"><label>School Name</label><input id="school-name" type="text"
+                  placeholder="Springfield Elementary" required /></div>
+              <div class="form-group"><label>Address</label><input id="school-address" type="text"
+                  placeholder="123 Main St" required /></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary">Save</button>
+              <button type="button" class="btn btn--ghost" id="btn-cancel-school">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="card table-card">
+          <div class="table-wrap">
+            <table id="schools-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Address</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="schools-tbody">
+                <tr>
+                  <td colspan="5" class="empty-row">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Admins Page ── -->
+      <section class="page" id="page-admins">
+        <div class="page-header">
+          <h3>Administration Accounts</h3>
+          <button class="btn btn--primary" id="btn-add-admin">+ Create Administration</button>
+        </div>
+        <div class="card" id="admin-form-card" style="display:none">
+          <h4>Create Administration Account</h4>
+          <form id="admin-form">
+            <div class="form-row">
+              <div class="form-group"><label>Email</label><input id="admin-email" type="email"
+                  placeholder="admin@school.com" required /></div>
+              <div class="form-group"><label>School</label><select id="admin-school" required>
+                  <option value="">Select a school…</option>
+                </select></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary">Create</button>
+              <button type="button" class="btn btn--ghost" id="btn-cancel-admin">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="card table-card">
+          <div class="table-wrap">
+            <table id="admins-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>School ID</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admins-tbody">
+                <tr>
+                  <td colspan="5" class="empty-row">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Profile Page ── -->
+      <section class="page" id="page-profile">
+        <div class="card" style="max-width:560px">
+          <h3>My Profile</h3>
+          <form id="profile-form">
+            <div class="form-group"><label>First Name</label><input id="profile-first" type="text" placeholder="John" />
+            </div>
+            <div class="form-group"><label>Last Name</label><input id="profile-last" type="text" placeholder="Doe" />
+            </div>
+            <div class="form-group"><label>Phone</label><input id="profile-phone" type="text"
+                placeholder="+1234567890" /></div>
+            <button type="submit" class="btn btn--primary">Update Profile</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ── Settings Page ── -->
+      <section class="page" id="page-settings">
+        <div class="settings-grid">
+          <div class="card">
+            <h3>Change Password</h3>
+            <form id="password-form">
+              <div class="form-group"><label>Current Password</label><input id="pw-current" type="password" required />
+              </div>
+              <div class="form-group"><label>New Password</label><input id="pw-new" type="password" required /></div>
+              <button type="submit" class="btn btn--primary">Update Password</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Update Credentials</h3>
+            <form id="credentials-form">
+              <div class="form-group"><label>Current Password</label><input id="cred-current" type="password"
+                  required /></div>
+              <div class="form-group"><label>New Email (optional)</label><input id="cred-email" type="email" /></div>
+              <div class="form-group"><label>New Password (optional)</label><input id="cred-password" type="password" />
+              </div>
+              <button type="submit" class="btn btn--primary">Update Credentials</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Confirm modal -->
+  <div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 id="confirm-title">Confirm</h3>
+      <p id="confirm-message">Are you sure?</p>
+      <div class="form-actions">
+        <button class="btn btn--danger" id="confirm-yes">Confirm</button>
+        <button class="btn btn--ghost" id="confirm-no">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

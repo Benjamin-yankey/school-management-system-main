@@ -24,6 +24,14 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const decodeJWT = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
+    }
+  };
+
   const login = async (email, password, selectedRole) => {
     setLoading(true);
 
@@ -32,26 +40,45 @@ export const AuthProvider = ({ children }) => {
       const result = await api.login(email, password);
 
       if (result.accessToken) {
-        // Get full profile data
-        const profile = await api.getProfile();
+        // Decode token to see if we MUST reset password
+        const payload = decodeJWT(result.accessToken);
+        const mustResetPassword = payload?.mustResetPassword || false;
 
-        const userData = {
-          id: profile.id,
-          email: profile.email,
-          name:
-            profile.firstName && profile.lastName
-              ? `${profile.firstName} ${profile.lastName}`
-              : profile.email.split("@")[0],
-          firstName: profile.firstName || "",
-          lastName: profile.lastName || "",
-          phone: profile.phone || "",
-          role: profile.role || selectedRole,
-          schoolId: profile.schoolId,
-          avatar:
-            profile.firstName && profile.lastName
-              ? `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase()
-              : profile.email[0].toUpperCase(),
-        };
+        let userData;
+
+        if (mustResetPassword) {
+          // Skip profile fetch to avoid 403. Build skeletal user from JWT.
+          userData = {
+            id: payload?.sub,
+            email: payload?.email,
+            name: payload?.email?.split("@")[0],
+            role: payload?.role || selectedRole,
+            mustResetPassword: true,
+            avatar: payload?.email?.[0].toUpperCase() || "U",
+          };
+        } else {
+          // Get full profile data for normal users
+          const profile = await api.getProfile();
+
+          userData = {
+            id: profile.id,
+            email: profile.email,
+            name:
+              profile.firstName && profile.lastName
+                ? `${profile.firstName} ${profile.lastName}`
+                : profile.email.split("@")[0],
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            phone: profile.phone || "",
+            role: profile.role || selectedRole,
+            schoolId: profile.schoolId,
+            mustResetPassword: false,
+            avatar:
+              profile.firstName && profile.lastName
+                ? `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase()
+                : profile.email[0].toUpperCase(),
+          };
+        }
 
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));

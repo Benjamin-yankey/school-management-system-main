@@ -12,16 +12,12 @@
   --danger: #ff6464;
   min-height: 100vh;
   background:
-    radial-gradient(
-      520px 360px at 12% 12%,
+    radial-gradient(520px 360px at 12% 12%,
       rgba(0, 230, 118, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      420px 320px at 88% 20%,
+      transparent 60%),
+    radial-gradient(420px 320px at 88% 20%,
       rgba(0, 255, 163, 0.12),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(180deg, #0b0e13 0%, #0d0f14 100%);
   color: var(--text);
   display: flex;
@@ -38,20 +34,16 @@
   position: absolute;
   inset: 0;
   background:
-    repeating-linear-gradient(
-      120deg,
+    repeating-linear-gradient(120deg,
       rgba(255, 255, 255, 0.05),
       rgba(255, 255, 255, 0.05) 1px,
       transparent 1px,
-      transparent 12px
-    ),
-    repeating-linear-gradient(
-      60deg,
+      transparent 12px),
+    repeating-linear-gradient(60deg,
       rgba(255, 255, 255, 0.03),
       rgba(255, 255, 255, 0.03) 1px,
       transparent 1px,
-      transparent 10px
-    );
+      transparent 10px);
   opacity: 0.2;
   pointer-events: none;
 }
@@ -76,6 +68,7 @@
     opacity: 0;
     transform: translateY(18px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -564,7 +557,7 @@
   transition: all 0.2s ease;
 }
 
-.checkbox-label input:checked + .checkbox-custom {
+.checkbox-label input:checked+.checkbox-custom {
   background: var(--accent);
   border-color: var(--accent);
   color: #000;
@@ -810,11 +803,13 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     transform: scale(1);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 1;

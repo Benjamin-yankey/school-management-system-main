@@ -8,6 +8,7 @@ import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
+import ForceResetPassword from "./components/ForceResetPassword";
 
 import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/force-reset" element={<ForceResetPassword />} />
 
           {/* Add Student Page (admin only) */}
           <Route

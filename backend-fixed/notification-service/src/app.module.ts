@@ -26,13 +26,17 @@ import { NotificationModule } from './notification/notification.module';
         transport: {
           host: config.get('MAIL_HOST'),
           port: config.get<number>('MAIL_PORT'),
+          secure: true,
           auth: {
             user: config.get('MAIL_USER'),
             pass: config.get('MAIL_PASS'),
           },
+          tls: {
+            rejectUnauthorized: false,
+          },
         },
         defaults: {
-          from: config.get('MAIL_FROM'),
+          from: `"School Management" <${config.get('MAIL_FROM')}>`,
         },
       }),
     }),

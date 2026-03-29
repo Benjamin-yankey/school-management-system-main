@@ -1,5 +1,5 @@
 // API client that connects to the backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://2e57-196-61-44-164.ngrok-free.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const getToken = () => localStorage.getItem("token");
 
@@ -221,6 +221,15 @@ export async function createSchool(schoolData) {
   return handleResponse(res);
 }
 
+export async function forceResetPassword(currentPassword, newPassword) {
+  const res = await fetch(`${API_BASE_URL}/auth/first-login-reset`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  return handleResponse(res);
+}
+
 // ==================== DASHBOARD ====================
 
 export async function getDashboardStats() {
@@ -244,6 +253,7 @@ export default {
   login,
   register,
   logout,
+  forceResetPassword,
   getCurrentUser,
   getProfile,
   updateProfile,
