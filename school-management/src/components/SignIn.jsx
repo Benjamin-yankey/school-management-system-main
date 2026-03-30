@@ -7,7 +7,7 @@ import "./Login.css";
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("admin");
+  const [role, setRole] = useState("student");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -33,20 +33,25 @@ const SignIn = () => {
 
     setIsLoading(true);
     setError("");
-
     try {
       const result = await login(trimmedEmail, password, role);
-      if (result.success) {
+      if (result.success && result.user && result.user.role) {
+        const userRole = result.user.role;
+        
         if (result.user.mustResetPassword) {
           navigate("/force-reset");
+        } else if (userRole === "superadmin") {
+          navigate("/superadmin");
         } else {
-          navigate(`/${role}/dashboard`);
+          // Map administration to admin dashboard
+          const dashboardPrefix = userRole === "administration" ? "admin" : userRole;
+          navigate(`/${dashboardPrefix}/dashboard`);
         }
         return;
       }
-      setError(result.error || "Invalid credentials.");
+      setError(result.error || "Login failed - please check your credentials and role.");
     } catch (loginError) {
-      setError("We could not sign you in. Please try again.");
+      setError("An error occurred during sign in. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -176,10 +181,11 @@ const SignIn = () => {
                   onChange={(event) => setRole(event.target.value)}
                   className="signin-select"
                 >
-                  <option value="admin">Administrator</option>
+                  <option value="administration">School Administrator</option>
                   <option value="teacher">Teacher</option>
                   <option value="student">Student</option>
                   <option value="parent">Parent</option>
+                  <option value="superadmin">Super Administrator</option>
                 </select>
               </div>
             </div>

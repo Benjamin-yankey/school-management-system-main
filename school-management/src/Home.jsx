@@ -1,5 +1,6 @@
 import React,{ useState, useEffect, useRef } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import './Home.css';
 
 const Home = () => {
@@ -22,6 +23,9 @@ const Home = () => {
   const [toast, setToast] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const galleryRef = useRef(null);
+
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = [
     { label: 'Home', to: '/', active: true },
