@@ -27,8 +27,15 @@ const CampusPage = () => {
     <div className="academy-page">
       <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
-          <Link to="/" className="academy-page-brand">
-            The Academy
+          <Link to="/" className="school-logo-container">
+            <img
+              src="/images/schoolLogo.jpeg"
+              alt="School Logo"
+              className="school-logo-img"
+            />
+            <span className="school-logo-text">
+              GEOZIIE INTERNATIONAL SCHOOL
+            </span>
           </Link>
           <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>

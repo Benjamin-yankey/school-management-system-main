@@ -1261,8 +1261,11 @@ export default function SuperAdminDashboard() {
     <div className="superadmin-dashboard">
       <div className="superadmin-header">
         <div className="header-content">
+          <div className="school-logo-container">
+            <img src="/images/schoolLogo.jpeg" alt="School Logo" className="school-logo-img" />
+            <span className="school-logo-text" style={{color: 'white'}}>GEOZIIE INTERNATIONAL SCHOOL</span>
+          </div>
           <div className="header-title">
-            <h1>🏛️ Superadmin Control Center</h1>
             <p>Comprehensive system management and oversight</p>
           </div>
           <div className="header-actions">
