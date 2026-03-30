@@ -30,6 +30,16 @@ export class ProxyController {
     return this.forward(req, res, "auth");
   }
 
+  @All("/admissions/current")
+  proxyAdmissionsCurrent(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @All("/admissions/apply")
+  proxyAdmissionsApply(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
   // ── Auth ──────────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard)
@@ -67,9 +77,87 @@ export class ProxyController {
   // ── Schools ───────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
   @All("/schools*")
   proxySchools(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/admissions/*")
+  proxyAdmissionsProtected(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/academic-years*")
+  proxyAcademicYears(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/classes*")
+  proxyClasses(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/sections*")
+  proxySections(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/students*")
+  proxyStudents(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/promotions*")
+  proxyPromotions(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Teacher management (administration assigns teachers to sections) ───────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/teachers*")
+  proxyTeacherManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Teacher self-service ──────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.TEACHER)
+  @All("/teacher/*")
+  proxyTeacher(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Student portal (student views own record) ─────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @All("/student-portal/*")
+  proxyStudentPortal(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Parent portal ─────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.PARENT)
+  @All("/parent/*")
+  proxyParent(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 

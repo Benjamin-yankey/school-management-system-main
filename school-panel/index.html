@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolSync Pro | School Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="overlay active">
+        <div class="modal login-modal">
+            <div class="modal-header">
+                <h2>School Login</h2>
+                <p>Access school administration features</p>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" placeholder="admin@school.com" value="vshxrdev@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" value="MyNewPassword123!">
+                </div>
+                <button id="btn-login" class="btn-primary full-width">Sign In</button>
+                <div id="login-error" class="error-msg hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div id="app-container" class="hidden">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <span>SchoolSync <strong>Pro</strong></span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+
+                <!-- Admin & Staff Section -->
+                <div class="nav-group" data-role="superadmin,administration">MANAGEMENT</div>
+                <a href="#" class="nav-item" data-view="admissions" data-role="superadmin,administration">
+                    <span class="icon">📝</span> Admission Years
+                </a>
+                <a href="#" class="nav-item" data-view="applications" data-role="superadmin,administration">
+                    <span class="icon">📁</span> Current Applications
+                </a>
+                <a href="#" class="nav-item" data-view="academic" data-role="superadmin,administration">
+                    <span class="icon">📅</span> Academic Years
+                </a>
+                <a href="#" class="nav-item" data-view="curriculum" data-role="superadmin,administration">
+                    <span class="icon">🏫</span> Classes & Sections
+                </a>
+                <a href="#" class="nav-item" data-view="students" data-role="superadmin,administration">
+                    <span class="icon">🎓</span> Students
+                </a>
+                <a href="#" class="nav-item" data-view="promotions" data-role="superadmin,administration">
+                    <span class="icon">🚀</span> Promotions
+                </a>
+
+                <!-- Teacher Portal -->
+                <div class="nav-group" data-role="teacher">TEACHER PORTAL</div>
+                <a href="#" class="nav-item" data-view="teacher-sections" data-role="teacher">
+                    <span class="icon">📚</span> My Classes
+                </a>
+                <a href="#" class="nav-item" data-view="teacher-students" data-role="teacher">
+                    <span class="icon">👤</span> My Students
+                </a>
+
+                <!-- Student Portal -->
+                <div class="nav-group" data-role="student">STUDENT PORTAL</div>
+                <a href="#" class="nav-item" data-view="student-profile" data-role="student">
+                    <span class="icon">🆔</span> My Record
+                </a>
+                <a href="#" class="nav-item" data-view="student-history" data-role="student">
+                    <span class="icon">📜</span> Enrollment History
+                </a>
+
+                <!-- Parent Portal -->
+                <div class="nav-group" data-role="parent">PARENT PORTAL</div>
+                <a href="#" class="nav-item" data-view="parent-children" data-role="parent">
+                    <span class="icon">👨‍👩‍👧‍👦</span> My Children
+                </a>
+                <div class="nav-spacer"></div>
+                <a href="#" id="btn-logout" class="nav-item logout">
+                    <span class="icon">🚪</span> Sign Out
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h1 id="view-title">Dashboard</h1>
+                <div class="user-profile">
+                    <span id="user-email">...</span>
+                    <div class="avatar" id="user-avatar">?</div>
+                </div>
+            </header>
+
+            <div id="content-area" class="content-view fade-in">
+                <!-- Views dynamically rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-container" class="overlay hidden">
+        <!-- Content injected dynamically -->
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

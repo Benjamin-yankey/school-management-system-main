@@ -392,3 +392,76 @@ Content-Type: application/json
   "sectionId": "<sectionId>",
   "isRepeating": false
 }
+
+# ==================== TEACHER MANAGEMENT (Administration) ====================
+
+### 51. Assign Teacher to Section
+# Replace <teacherUserId> and <sectionId> with valid UUIDs
+POST {{baseUrl}}/administration/teachers/<teacherUserId>/sections
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "sectionId": "<sectionId>"
+}
+
+### 52. List Teachers Assigned to a Section
+# Replace <sectionId> with a valid UUID
+GET {{baseUrl}}/administration/sections/<sectionId>/teachers
+Authorization: Bearer {{authToken}}
+
+### 53. Unassign Teacher from Section
+# Replace <teacherUserId> and <sectionId> with valid UUIDs
+DELETE {{baseUrl}}/administration/teachers/<teacherUserId>/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+
+# ==================== TEACHER PORTAL (sign in as teacher first) ====================
+
+### 54. Get My Assigned Sections
+GET {{baseUrl}}/teacher/sections
+Authorization: Bearer {{authToken}}
+
+### 55. Get All My Students (across all my sections)
+GET {{baseUrl}}/teacher/students
+Authorization: Bearer {{authToken}}
+
+### 56. Get Students in a Specific Section
+# Replace <sectionId> with a valid UUID you are assigned to
+GET {{baseUrl}}/teacher/sections/<sectionId>/students
+Authorization: Bearer {{authToken}}
+
+# ==================== STUDENT PORTAL (sign in as student first) ====================
+
+### 57. Get My Student Record
+GET {{baseUrl}}/student-portal/me
+Authorization: Bearer {{authToken}}
+
+### 58. Get My Enrollment History
+GET {{baseUrl}}/student-portal/enrollments
+Authorization: Bearer {{authToken}}
+
+# ==================== PARENT PORTAL (sign in as parent first) ====================
+
+### 59. Link a Student to My Account
+POST {{baseUrl}}/parent/children
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "studentId": "<studentId>",
+  "relationship": "mother"
+}
+
+### 60. List My Linked Children
+GET {{baseUrl}}/parent/children
+Authorization: Bearer {{authToken}}
+
+### 61. Get a Specific Child's Detail
+# Replace <studentId> with a valid UUID you have linked
+GET {{baseUrl}}/parent/children/<studentId>
+Authorization: Bearer {{authToken}}
+
+### 62. Unlink a Student from My Account
+# Replace <studentId> with a valid UUID
+DELETE {{baseUrl}}/parent/children/<studentId>
+Authorization: Bearer {{authToken}}

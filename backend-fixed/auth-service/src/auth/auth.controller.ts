@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
@@ -17,22 +17,28 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('signout')
-  signOut(@Req() req: Request) {
+  @HttpCode(200)
+  async signOut(@Req() req: Request) {
     const token = req.headers.authorization?.split(' ')[1];
-    return this.authService.signOut(token);
+    await this.authService.signOut(token);
+    return { message: 'Logged out successfully' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('first-login-reset')
-  firstLoginReset(@CurrentUser() user: any, @Req() req: Request, @Body() dto: ChangePasswordDto) {
+  @HttpCode(200)
+  async firstLoginReset(@CurrentUser() user: any, @Req() req: Request, @Body() dto: ChangePasswordDto) {
     const token = req.headers.authorization?.split(' ')[1];
-    return this.authService.firstLoginReset(user.id, token, dto);
+    await this.authService.firstLoginReset(user.id, token, dto);
+    return { message: 'Password reset successful' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('change-password')
-  changePassword(@CurrentUser() user: any, @Req() req: Request, @Body() dto: ChangePasswordDto) {
+  @HttpCode(200)
+  async changePassword(@CurrentUser() user: any, @Req() req: Request, @Body() dto: ChangePasswordDto) {
     const token = req.headers.authorization?.split(' ')[1];
-    return this.authService.changePassword(user.id, token, dto);
+    await this.authService.changePassword(user.id, token, dto);
+    return { message: 'Password changed successfully' };
   }
 }
