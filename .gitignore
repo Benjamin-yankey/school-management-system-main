@@ -1,6 +1,3 @@
-# Root project files
-package.json
-package-lock.json
 
 # Dependencies
 node_modules/
