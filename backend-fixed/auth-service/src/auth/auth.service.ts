@@ -33,23 +33,41 @@ export class AuthService implements OnModuleInit {
   }
 
   async signIn(dto: SignInDto): Promise<{ accessToken: string }> {
+    const email = dto.email.toLowerCase();
+    console.log(`[AuthService] Attempting signIn for: ${email}`);
+
     const user = await this.kafkaClient
-      .send('user.find-by-email', { email: dto.email })
+      .send('user.find-by-email', { email })
       .pipe(timeout(15000))
       .toPromise()
       .catch((err) => {
+        console.error(`[AuthService] user-service lookup failed for ${email}:`, err);
         if (err.name === 'TimeoutError') throw new ServiceUnavailableException();
         throw err;
       });
 
-    if (!user || !user.isActive) throw new UnauthorizedException();
+    if (!user) {
+      console.warn(`[AuthService] User not found: ${email}`);
+      throw new UnauthorizedException();
+    }
+    if (!user.isActive) {
+      console.warn(`[AuthService] User inactive: ${email}`);
+      throw new UnauthorizedException();
+    }
 
     const credential = await this.credentialRepo.findOneBy({ userId: user.id });
-    if (!credential) throw new UnauthorizedException();
+    if (!credential) {
+      console.error(`[AuthService] Credentials missing for userId: ${user.id}`);
+      throw new UnauthorizedException();
+    }
 
     const valid = await bcrypt.compare(dto.password, credential.hashedPassword);
-    if (!valid) throw new UnauthorizedException();
+    if (!valid) {
+      console.warn(`[AuthService] Password mismatch for: ${email}`);
+      throw new UnauthorizedException();
+    }
 
+    console.log(`[AuthService] Successful login for: ${email}`);
     const accessToken = this.jwtService.sign({
       sub: user.id,
       email: user.email,

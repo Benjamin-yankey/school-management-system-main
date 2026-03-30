@@ -183,7 +183,7 @@ export class UserService implements OnModuleInit {
   // ── Kafka: find by email (consumed by Auth Service) ────────────────────────
 
   async findByEmail(email: string) {
-    const user = await this.userRepo.findOneBy({ email });
+    const user = await this.userRepo.findOneBy({ email: email.toLowerCase() });
     if (!user) return null;
     return {
       id: user.id,
