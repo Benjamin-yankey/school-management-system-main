@@ -12,12 +12,17 @@ import { Section } from './classes/section.entity';
 import { AcademicYear } from './classes/academic-year.entity';
 import { Student } from './student/student.entity';
 import { StudentEnrollment } from './student/student-enrollment.entity';
+import { TeacherSection } from './teacher/teacher-section.entity';
+import { ParentStudent } from './parent/parent-student.entity';
 
 import { SchoolModule } from './school/school.module';
 import { AdmissionModule } from './admission/admission.module';
 import { ClassesModule } from './classes/classes.module';
 import { StudentModule } from './student/student.module';
 import { PromotionModule } from './promotion/promotion.module';
+import { TeacherModule } from './teacher/teacher.module';
+import { StudentPortalModule } from './student-portal/student-portal.module';
+import { ParentModule } from './parent/parent.module';
 
 @Module({
   imports: [
@@ -38,6 +43,8 @@ import { PromotionModule } from './promotion/promotion.module';
           AcademicYear,
           Student,
           StudentEnrollment,
+          TeacherSection,
+          ParentStudent,
         ],
         synchronize: true,
       }),
@@ -51,6 +58,9 @@ import { PromotionModule } from './promotion/promotion.module';
     ClassesModule,
     StudentModule,
     PromotionModule,
+    TeacherModule,
+    StudentPortalModule,
+    ParentModule,
   ],
 })
 export class AppModule {}
