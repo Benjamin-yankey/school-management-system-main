@@ -125,6 +125,42 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
+  // ── Teacher management (administration assigns teachers to sections) ───────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/teachers*")
+  proxyTeacherManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Teacher self-service ──────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.TEACHER)
+  @All("/teacher/*")
+  proxyTeacher(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Student portal (student views own record) ─────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @All("/student-portal/*")
+  proxyStudentPortal(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Parent portal ─────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.PARENT)
+  @All("/parent/*")
+  proxyParent(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
   // ── Helper ────────────────────────────────────────────────────────────────
 
 
