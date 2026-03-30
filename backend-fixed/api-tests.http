@@ -165,8 +165,8 @@ Content-Type: application/json
   "firstName": "Kofi",
   "lastName": "Mensah",
   "middleName": "Agyei",
-  "email": "vshxrdev@gmail.com",
-  "phoneNumber": "+233241234567",
+  "email": "vshxr@gmail.com",
+  "phoneNumber": "+233241234566",
   "dateOfBirth": "2010-05-15",
   "areaOfInterest": "Sciences"
 }
