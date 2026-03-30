@@ -61,10 +61,6 @@ const SignIn = () => {
     navigate("/forgot-password");
   };
 
-  const handleSignUp = () => {
-    navigate("/signup");
-  };
-
   const handleHome = () => {
     navigate("/");
   };
@@ -227,16 +223,6 @@ const SignIn = () => {
           </form>
 
           <div className="signin-footer">
-            <p className="signin-footer-text">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                className="signin-footer-link"
-                onClick={handleSignUp}
-              >
-                Sign Up
-              </button>
-            </p>
             <p className="signin-footer-text">
               <button
                 type="button"

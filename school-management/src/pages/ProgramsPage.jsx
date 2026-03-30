@@ -86,8 +86,8 @@ const ProgramsPage = () => {
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
-            <Link to="/signup" className="academy-page-auth academy-page-auth-accent">
-              Sign Up
+            <Link to="/signin" className="academy-page-auth academy-page-auth-accent">
+              Portal Access
             </Link>
             <Link to="/admissions" className="academy-page-apply">
               Apply Now

@@ -5,7 +5,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import SignIn from "./components/SignIn";
-import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import ForceResetPassword from "./components/ForceResetPassword";
@@ -56,7 +55,7 @@ export default function App() {
           <Route path="/admissions" element={<AdmissionsPage />} />
           <Route path="/login" element={<Navigate to="/signin" replace />} />
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup" element={<Navigate to="/signin" replace />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/force-reset" element={<ForceResetPassword />} />

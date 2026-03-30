@@ -181,9 +181,6 @@ const Home = () => {
             <Link className="nav-auth-link" to="/signin">
               Sign In
             </Link>
-            <Link className="nav-auth-link nav-auth-link-emphasis" to="/signup">
-              Sign Up
-            </Link>
           </div>
           <Link className="primary-btn" to="/admissions">
             Apply Now

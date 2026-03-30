@@ -248,7 +248,7 @@ const AcademyLandingPage = () => {
             <Link to="/original" className="mobile-nav-link active" onClick={() => setIsMobileMenuOpen(false)}>Original</Link>
             <Link to="/" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
             <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
-            <Link to="/signup" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
+            <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
           </div>
         )}
       <main className="main-content-modern">
