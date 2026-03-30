@@ -3,8 +3,16 @@
 .academy-page {
   min-height: 100vh;
   background:
-    radial-gradient(1200px 520px at 12% -12%, rgba(0, 227, 253, 0.18), transparent 60%),
-    radial-gradient(1000px 420px at 92% -4%, rgba(144, 147, 255, 0.22), transparent 58%),
+    radial-gradient(
+      1200px 520px at 12% -12%,
+      rgba(0, 227, 253, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 420px at 92% -4%,
+      rgba(144, 147, 255, 0.22),
+      transparent 58%
+    ),
     linear-gradient(180deg, #060b18 0%, #090f1f 100%);
   color: #e8eefc;
   font-family: "Manrope", sans-serif;
@@ -209,8 +217,11 @@
   border-radius: 18px;
   padding: 1.2rem;
   border: 1px solid rgba(148, 163, 184, 0.22);
-  background:
-    linear-gradient(160deg, rgba(16, 25, 48, 0.9), rgba(10, 16, 35, 0.78));
+  background: linear-gradient(
+    160deg,
+    rgba(16, 25, 48, 0.9),
+    rgba(10, 16, 35, 0.78)
+  );
   box-shadow: 0 18px 32px -24px rgba(4, 9, 20, 0.85);
 }
 
@@ -310,7 +321,11 @@
 .admissions-form-card {
   border-radius: 20px;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  background: linear-gradient(160deg, rgba(16, 25, 48, 0.9), rgba(10, 16, 35, 0.82));
+  background: linear-gradient(
+    160deg,
+    rgba(16, 25, 48, 0.9),
+    rgba(10, 16, 35, 0.82)
+  );
   box-shadow: 0 22px 40px -26px rgba(4, 9, 20, 0.85);
 }
 
@@ -532,284 +547,299 @@
 
 /* --- Cohoes Child Development Center Form Specific Styles --- */
 .cohoes-registration-form {
-    --color-surface-tint: #85adff;
-    --color-surface-container: #13192b;
-    --color-surface: #090e1c;
-    --color-on-surface: #e1e4fa;
-    --color-on-secondary: #004d57;
-    --color-tertiary-dim: #6063ee;
-    --color-surface-container-low: #0d1323;
-    --color-primary-dim: #0070eb;
-    --color-secondary-dim: #00d4ec;
-    --color-on-secondary-container: #e8fbff;
-    --color-surface-container-high: #181f33;
-    --color-surface-variant: #1e253b;
-    --color-outline: #707588;
-    --color-outline-variant: #434759;
-    --color-surface-container-highest: #1e253b;
-    --color-primary: #85adff;
-    --color-secondary: #00e3fd;
-    --color-secondary-fixed: #26e6ff;
-    --color-tertiary: #9093ff;
-    --color-on-primary-fixed: #000000;
-    --color-primary-container: #6c9fff;
-    --color-secondary-container: #006875;
-    --font-headline: 'Plus Jakarta Sans', sans-serif;
-    --font-body: 'Plus Jakarta Sans', sans-serif;
-    --font-label: 'Plus Jakarta Sans', sans-serif;
-    
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    padding: 2rem;
-    border-radius: 1rem;
-    margin-top: 2rem;
+  --color-surface-tint: #85adff;
+  --color-surface-container: #13192b;
+  --color-surface: #090e1c;
+  --color-on-surface: #e1e4fa;
+  --color-on-secondary: #004d57;
+  --color-tertiary-dim: #6063ee;
+  --color-surface-container-low: #0d1323;
+  --color-primary-dim: #0070eb;
+  --color-secondary-dim: #00d4ec;
+  --color-on-secondary-container: #e8fbff;
+  --color-surface-container-high: #181f33;
+  --color-surface-variant: #1e253b;
+  --color-outline: #707588;
+  --color-outline-variant: #434759;
+  --color-surface-container-highest: #1e253b;
+  --color-primary: #85adff;
+  --color-secondary: #00e3fd;
+  --color-secondary-fixed: #26e6ff;
+  --color-tertiary: #9093ff;
+  --color-on-primary-fixed: #000000;
+  --color-primary-container: #6c9fff;
+  --color-secondary-container: #006875;
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Plus Jakarta Sans", sans-serif;
+  --font-label: "Plus Jakarta Sans", sans-serif;
+
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-top: 2rem;
 }
 
 .cohoes-registration-form .form-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: var(--color-surface-container-high);
-    border-radius: 0.75rem;
-    border: 1px solid rgba(67, 71, 89, 0.2);
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--color-surface-container-high);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(67, 71, 89, 0.2);
 }
 
 .cohoes-registration-form .form-title {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    color: var(--color-on-surface);
-    font-family: var(--font-headline);
-    margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-on-surface);
+  font-family: var(--font-headline);
+  margin-bottom: 0.5rem;
 }
 
 .cohoes-registration-form .director-info {
-    font-size: 0.875rem;
-    color: var(--color-on-surface-variant);
-    margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  margin-bottom: 0.5rem;
 }
 
 .cohoes-registration-form .contact-info {
-    font-size: 0.875rem;
-    color: var(--color-on-surface-variant);
-    line-height: 1.5;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
 }
 
 .cohoes-registration-form .form-section-heading {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-on-surface);
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid rgba(67, 71, 89, 0.2);
-    padding-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(67, 71, 89, 0.2);
+  padding-bottom: 0.5rem;
 }
 
-.cohoes-registration-form .form-grid { 
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
+.cohoes-registration-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 @media (min-width: 640px) {
-    .cohoes-registration-form .form-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .cohoes-registration-form .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.cohoes-registration-form .full-width-field { 
-    grid-column: 1 / -1;
+.cohoes-registration-form .full-width-field {
+  grid-column: 1 / -1;
 }
 
 .cohoes-registration-form .day-selection {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .cohoes-registration-form .day-selection label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--color-on-surface-variant);
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
 }
 
 .cohoes-registration-form .day-selection input[type="checkbox"] {
-    accent-color: var(--color-secondary);
-    cursor: pointer;
+  accent-color: var(--color-secondary);
+  cursor: pointer;
 }
 
 .cohoes-registration-form .form-radio-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .cohoes-registration-form .form-radio-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .cohoes-registration-form .form-radio {
-    accent-color: var(--color-secondary);
-    cursor: pointer;
+  accent-color: var(--color-secondary);
+  cursor: pointer;
 }
 
 .cohoes-registration-form .form-radio-option label {
-    color: var(--color-on-surface-variant);
-    cursor: pointer;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
 }
 
 .cohoes-registration-form .form-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-on-surface);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.cohoes-registration-form .form-label .material-symbols-outlined {
-    margin-right: 0.5rem;
-    font-size: 1rem;
-    color: var(--color-secondary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans, sans-serif);
+  font-style: normal;
 }
 
 .cohoes-registration-form .form-input,
 .cohoes-registration-form .form-select,
 .cohoes-registration-form .form-textarea {
-    width: 100%;
-    background: var(--color-surface-container-low);
-    border: 1px solid rgba(67, 71, 89, 0.5);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: var(--color-on-surface);
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    font-family: var(--font-body);
+  width: 100%;
+  background: var(--color-surface-container-low);
+  border: 1px solid rgba(67, 71, 89, 0.5);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
 }
 
 .cohoes-registration-form .form-input:focus,
 .cohoes-registration-form .form-select:focus,
 .cohoes-registration-form .form-textarea:focus {
-    outline: none;
-    border-color: var(--color-secondary);
-    box-shadow: 0 0 0 3px rgba(0, 227, 253, 0.3);
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(0, 227, 253, 0.3);
 }
 
 .cohoes-registration-form .form-select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a6aabf' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
-    padding-right: 2.5rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a6aabf' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
 }
 
 .cohoes-registration-form .form-textarea {
-    resize: none;
-    min-height: 100px;
+  resize: none;
+  min-height: 100px;
 }
 
 .cohoes-registration-form .submit-btn {
-    width: 100%;
-    background: linear-gradient(to right, var(--color-primary-dim), var(--color-secondary));
-    color: var(--color-on-primary-fixed);
-    padding: 1rem;
-    border-radius: 0.75rem;
-    font-weight: 700;
-    font-size: 1rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    font-family: var(--font-body);
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    var(--color-primary-dim),
+    var(--color-secondary)
+  );
+  color: var(--color-on-primary-fixed);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-body);
 }
 
-.cohoes-registration-form .submit-btn:hover { transform: scale(1.02); }
-.cohoes-registration-form .submit-btn:active { transform: scale(0.98); }
+.cohoes-registration-form .submit-btn:hover {
+  transform: scale(1.02);
+}
+.cohoes-registration-form .submit-btn:active {
+  transform: scale(0.98);
+}
 
 .cohoes-registration-form .form-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: rgba(19, 25, 43, 0.5);
-    border-radius: 0.75rem;
-    border: 1px solid rgba(67, 71, 89, 0.2);
-    margin-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(19, 25, 43, 0.5);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(67, 71, 89, 0.2);
+  margin-top: 1rem;
 }
-
-.cohoes-registration-form .form-notice .material-symbols-outlined {
-    font-size: 0.875rem;
-    flex-shrink: 0;
+.material-symbols-outlined {
+  display: none;
 }
-
 .cohoes-registration-form .form-notice p {
-    font-size: 0.75rem;
-    color: var(--color-on-surface-variant);
-    line-height: 1.5;
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 /* Download section styles */
 .download-section {
-    padding: 4rem 1.25rem;
-    background: var(--color-surface-container-low);
-    text-align: center;
-    margin-top: 3rem;
+  padding: 4rem 1.25rem;
+  background: var(--color-surface-container-low);
+  text-align: center;
+  margin-top: 3rem;
 }
 
 @media (min-width: 768px) {
-    .download-section {
-        padding: 8rem 3rem;
-    }
+  .download-section {
+    padding: 8rem 3rem;
+  }
 }
 
 .download-link-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    max-width: 60rem;
-    margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 60rem;
+  margin: 0 auto;
 }
 
 .download-link-container .primary-btn {
-    text-decoration: none;
-    color: #001720;
-    background: linear-gradient(120deg, #7bb1ff 0%, #59ecff 100%);
-    border-radius: 999px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 800;
-    border: 1px solid rgba(84, 233, 255, 0.45);
-    display: inline-block;
+  text-decoration: none;
+  color: #001720;
+  background: linear-gradient(120deg, #7bb1ff 0%, #59ecff 100%);
+  border-radius: 999px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  border: 1px solid rgba(84, 233, 255, 0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(84, 233, 255, 0.3);
+}
+
+.download-link-container .primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 233, 255, 0.4);
+}
+
+.download-link-container .primary-btn:active {
+  transform: translateY(0);
 }
 
 @media (min-width: 768px) {
-    .download-link-container .primary-btn {
-        padding: 1rem 2.5rem;
-        font-size: 1.125rem;
-    }
+  .download-link-container .primary-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+  }
 }
