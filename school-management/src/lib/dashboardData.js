@@ -3,122 +3,84 @@
 export const generateStats = () => [
   {
     title: "Total Students",
-    value: 1247,
-    change: 3.2,
+    value: 2854,
+    change: 12.5,
     color: "#667eea",
-    icon: "👥",
     trend: "up",
+    icon: "🎓",
   },
   {
     title: "Active Teachers",
-    value: 68,
-    change: 1.5,
+    value: 124,
+    change: 5.2,
     color: "#48bb78",
-    icon: "👨‍🏫",
     trend: "up",
+    icon: "👨‍🏫",
   },
   {
-    title: "Classes",
+    title: "Online Classes",
     value: 42,
-    change: 0,
+    change: -2.4,
     color: "#ed8936",
-    icon: "🏫",
-    trend: "stable",
+    trend: "down",
+    icon: "💻",
   },
   {
-    title: "Pending Fees",
-    value: 27,
-    change: -5.2,
+    title: "Monthly Revenue",
+    value: 45200,
+    change: 18.7,
     color: "#f56565",
+    trend: "up",
     icon: "💰",
-    trend: "down",
   },
 ];
 
 export const generateRecentStudents = () => [
-  {
-    id: 1,
-    name: "Aisha Khan",
-    className: "Grade 10-A",
-    date: "2025-01-15",
-    status: "Active",
-    avatar: "AK",
+  { 
+    id: 1, 
+    name: "John Doe", 
+    status: "Active", 
+    className: "Grade 10-A", 
+    date: "2024-03-20",
+    avatar: "JD"
   },
-  {
-    id: 2,
-    name: "Rahul Mehta",
-    className: "Grade 9-B",
-    date: "2025-01-14",
-    status: "Active",
-    avatar: "RM",
+  { 
+    id: 2, 
+    name: "Jane Smith", 
+    status: "Pending", 
+    className: "Grade 12-B", 
+    date: "2024-03-22",
+    avatar: "JS"
   },
-  {
-    id: 3,
-    name: "Sara Ali",
-    className: "Grade 8-C",
-    date: "2025-01-13",
-    status: "Pending",
-    avatar: "SA",
+  { 
+    id: 3, 
+    name: "Alice Brown", 
+    status: "Active", 
+    className: "Grade 11-C", 
+    date: "2024-03-23",
+    avatar: "AB"
   },
-  {
-    id: 4,
-    name: "Tom Brown",
-    className: "Grade 11-A",
-    date: "2025-01-12",
-    status: "Active",
-    avatar: "TB",
-  },
-  {
-    id: 5,
-    name: "Maya Singh",
-    className: "Grade 7-B",
-    date: "2025-01-11",
-    status: "Active",
-    avatar: "MS",
+  { 
+    id: 4, 
+    name: "Bob Wilson", 
+    status: "Inactive", 
+    className: "Grade 9-A", 
+    date: "2024-03-24",
+    avatar: "BW"
   },
 ];
 
 export const generateAttendance = () => [
-  { name: "Grade 10-A", pct: 96, present: 28, total: 30, trend: "up" },
-  { name: "Grade 9-B", pct: 89, present: 25, total: 28, trend: "down" },
-  { name: "Grade 8-C", pct: 92, present: 27, total: 29, trend: "stable" },
-  { name: "Grade 11-A", pct: 85, present: 22, total: 26, trend: "up" },
-  { name: "Grade 7-B", pct: 94, present: 24, total: 25, trend: "up" },
+  { name: "10A", present: 28, total: 30, pct: 93 },
+  { name: "11C", present: 24, total: 30, pct: 80 },
+  { name: "12B", present: 29, total: 30, pct: 97 },
+  { name: "9A", present: 22, total: 30, pct: 73 },
 ];
 
 export const generateNotifications = () => [
-  {
-    id: 1,
-    type: "info",
-    title: "New Student Registration",
-    message: "Aisha Khan has been registered in Grade 10-A",
-    time: "2 hours ago",
-    icon: "👤",
-  },
-  {
-    id: 2,
-    type: "warning",
-    title: "Fee Payment Due",
-    message: "15 students have pending fee payments",
-    time: "4 hours ago",
-    icon: "⚠️",
-  },
-  {
-    id: 3,
-    type: "success",
-    title: "Exam Results Published",
-    message: "Mid-term exam results are now available",
-    time: "6 hours ago",
-    icon: "✅",
-  },
-  {
-    id: 4,
-    type: "info",
-    title: "Parent-Teacher Meeting",
-    message: "Scheduled for tomorrow at 2:00 PM",
-    time: "1 day ago",
-    icon: "📅",
-  },
+  { id: 1, title: "Registration", message: "New student registration: Jane Smith", time: "2 hours ago", priority: "high", icon: "👤" },
+  { id: 2, title: "Attendance", message: "Class 10A attendance is below average", time: "4 hours ago", priority: "medium", icon: "📋" },
+  { id: 3, title: "Meeting", message: "Staff meeting tomorrow at 9:00 AM", time: "1 day ago", priority: "low", icon: "🤝" },
 ];
 
 export const generateQuickActions = () => [
@@ -167,73 +129,15 @@ export const generateQuickActions = () => [
 ];
 
 export const generateUpcomingEvents = () => [
-  {
-    id: 1,
-    title: "Parent-Teacher Meeting",
-    date: "2025-01-20",
-    time: "10:00 AM",
-    type: "meeting",
-    priority: "high",
-  },
-  {
-    id: 2,
-    title: "Mid-Term Exams",
-    date: "2025-01-25",
-    time: "All Day",
-    type: "exam",
-    priority: "high",
-  },
-  {
-    id: 3,
-    title: "Sports Day",
-    date: "2025-01-30",
-    time: "8:00 AM",
-    type: "event",
-    priority: "medium",
-  },
-  {
-    id: 4,
-    title: "Science Fair",
-    date: "2025-02-05",
-    time: "9:00 AM",
-    type: "event",
-    priority: "medium",
-  },
+  { id: 1, title: "Parent-Teacher Meeting", date: "2024-04-15", time: "10:00 AM", type: "academic", priority: "high" },
+  { id: 2, title: "Annual Science Fair", date: "2024-04-20", time: "09:00 AM", type: "event", priority: "medium" },
+  { id: 3, title: "Spring Break Starts", date: "2024-05-01", time: "08:00 AM", type: "holiday", priority: "low" },
 ];
 
 export const generateTopPerformers = () => [
-  {
-    id: 1,
-    name: "Emma Wilson",
-    class: "10-A",
-    score: 98,
-    rank: 1,
-    subject: "Mathematics",
-  },
-  {
-    id: 2,
-    name: "Liam Chen",
-    class: "10-B",
-    score: 96,
-    rank: 2,
-    subject: "Physics",
-  },
-  {
-    id: 3,
-    name: "Sophia Kumar",
-    class: "10-A",
-    score: 95,
-    rank: 3,
-    subject: "Chemistry",
-  },
-  {
-    id: 4,
-    name: "Noah Patel",
-    class: "10-C",
-    score: 94,
-    rank: 4,
-    subject: "Biology",
-  },
+  { id: 1, name: "Sara Lee", score: 98, className: "12th Grade", subject: "Advanced Mathematics", rank: 1 },
+  { id: 2, name: "Mark Hamill", score: 95, className: "11th Grade", subject: "Quantum Physics", rank: 2 },
+  { id: 3, name: "Daisy Ridley", score: 94, className: "10th Grade", subject: "World History", rank: 3 },
 ];
 
 // Utility functions

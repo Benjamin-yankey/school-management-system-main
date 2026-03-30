@@ -5,6 +5,7 @@ import './Home.css';
 const Home = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     parentName: '',
@@ -126,45 +127,6 @@ const Home = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!formData.fullName) {
-      showToast('Please enter your full name.', 'error');
-      return;
-    }
-    if (!formData.email) {
-      showToast('Please enter your email address.', 'error');
-      return;
-    }
-    const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      showToast('Please enter a valid email address.', 'error');
-      return;
-    }
-    if (!formData.phone || formData.phone.length < 10) {
-      showToast('Please enter a valid phone number.', 'error');
-      return;
-    }
-    if (!formData.dob) {
-      showToast('Please enter your date of birth.', 'error');
-      return;
-    }
-    if (!formData.program) {
-      showToast('Please select a program of interest.', 'error');
-      return;
-    }
-    if (!formData.qualification) {
-      showToast('Please select your highest qualification.', 'error');
-      return;
-    }
-    if (!formData.statement) {
-      showToast('Please write your personal statement.', 'error');
-      return;
-    }
-    if (!formData.termsAgree) {
-      showToast('Please agree to the terms and conditions.', 'error');
-      return;
-    }
-
     setSubmitting(true);
     
     setTimeout(() => {
@@ -190,15 +152,20 @@ const Home = () => {
   return (
     <div className="home-page">
       {/* TopNavBar */}
-      <nav className="navbar">
+      <nav className={`navbar ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="navbar-brand">
-          <span className="logo-text">THE ACADEMY</span>
+          <Link to="/" className="logo-text">THE ACADEMY</Link>
+          <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+          </button>
+          
           <div className="navbar-links">
             {navLinks.map((link, index) => (
               <Link
                 key={index}
                 className={link.active ? 'nav-link active' : 'nav-link'}
                 to={link.to}
+                onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
               </Link>
@@ -263,57 +230,54 @@ const Home = () => {
           ))}
         </div>
 
+
+        
+ 
         {/* Mission & Vision Section */}
         <section className="mission-section">
           <div className="blur-circle blur-circle-top"></div>
-          <div className="blur-circle blur-circle-bottom"></div>
           <div className="mission-container">
-            <div className="mission-grid">
-              <div className="mission-card glass-card group">
-                <div className="icon-box">
-                  <span className="material-symbols-outlined filled-icon">visibility</span>
+            <div className="mission-copy">
+              <h2 className="section-title">Re-imagining the <br /><span className="text-secondary">Scholastic Sanctuary</span></h2>
+              <p className="section-text">
+                The Academy is more than an institution; it's a meticulously designed ecosystem for intellectual and creative expansion. We blend centuries of pedagogical wisdom with cutting-edge environmental psychology and cognitive science.
+              </p>
+              <div className="feature-list">
+                <div className="feature-item">
+                  <div className="feature-icon"><span className="material-symbols-outlined">science</span></div>
+                  <div>
+                    <h4 className="feature-title">Hyper-Labs</h4>
+                    <p className="feature-description">Quantum-ready facilities for breakthrough research.</p>
+                  </div>
                 </div>
-                <h3 className="card-title">A Global Standard in Elite Education</h3>
-                <p className="card-text">
-                  We envision a world where education transcends traditional boundaries, integrating high-stakes technology with the timeless pursuit of human wisdom. Our vision is to define the global benchmark for excellence.
-                </p>
-                <div className="card-link">
-                  <span>Learn about our Roadmap</span>
-                  <span className="material-symbols-outlined">arrow_forward</span>
+                <div className="feature-item">
+                  <div className="feature-icon"><span className="material-symbols-outlined">palette</span></div>
+                  <div>
+                    <h4 className="feature-title">Meta-Studios</h4>
+                    <p className="feature-description">Where digital and physical art forms converge.</p>
+                  </div>
                 </div>
               </div>
-              <div className="image-card">
+            </div>
+            <div className="mission-visual">
+              <div className="visual-frame glass-card">
                 <img
-                  alt="Modern architecture of a high-tech university campus"
-                  className="image-card-img"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqZqo6ZO1gdzYs8Wrtov6l1ksBZDjOFkQE7cikar9jtVmk_baybE5Udf5tFWBBalaSWj2oKSFBZi8u-LrtLA1owgNzaRulbPW_JD4X8yUGe95pMtRCh99UdUf3mRQJBdcDYsebp-IQrPusOjOSKvq6VbhcOcmdCZ2mpMKBhGwqBX0jC0B06_l8QzQDbms_ZCw1Tb87aPQWkPnl3hH5NZn2aPfrnTQV5EVdP7kpMKWiBw7fMEuc-lpGq997pQ3zclnxn2Gh3jw7vkcY"
+                  alt="Students in Lab"
+                  className="visual-image"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtg9Fsc-fF3vE7z61T98GvN6M8qj-0zT1f8m58_fK3V0Wp_O8n7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8"
                 />
-                <div className="image-card-overlay"></div>
-                <div className="image-card-content">
-                  <h3 className="image-card-title">The Sanctuary Campus</h3>
-                  <p className="image-card-subtitle">Zurich, Switzerland</p>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Academic Excellence Bento Grid */}
-        <section className="bento-section">
-          <div className="bento-grid">
+        {/* BENTO GRID OF CORE PILLARS */}
+        <section className="pillars-section">
+          <div className="pillars-grid">
             <div className="bento-card bento-card-large glass-card">
-              <div className="bento-card-icon">
-                <span className="material-symbols-outlined">biotech</span>
-              </div>
-              <div className="bento-card-content">
-                <h3 className="bento-card-title">Deep Focus Research</h3>
-                <p className="bento-card-text">Our laboratories provide an environment for undisturbed cognitive breakthroughs in quantum computing and bio-ethics.</p>
-              </div>
-            </div>
-            <div className="bento-card bento-card-small">
-              <span className="material-symbols-outlined filled-icon text-primary">public</span>
-              <h3 className="bento-card-title">Global Innovation Hub</h3>
-              <p className="bento-card-text">Connecting our scholars with 40+ international partners and industry giants.</p>
+              <span className="material-symbols-outlined text-primary text-4xl">diversity_3</span>
+              <h3 className="bento-card-title">Global Ethos</h3>
+              <p className="bento-card-text">Our student body represents 45 nations, creating a rich tapestry of perspectives and cultural intelligence.</p>
             </div>
             <div className="bento-card bento-card-medium">
               <span className="material-symbols-outlined text-secondary text-3xl">psychology</span>
@@ -424,36 +388,22 @@ const Home = () => {
             </div>
             <div className="events-grid">
               {filteredEvents.map((event, index) => (
-                <div key={index} className="event-card" data-category={event.category}>
-                  <div className="event-inner">
-                    <div className="event-image-wrapper">
-                      <img alt={event.title} className="event-image" src={event.image} />
-                      <div className={`event-badge event-badge-${event.category}`}>
-                        {event.category}
-                      </div>
+                <div key={index} className="event-card-horizontal glass-card">
+                  <div className="event-card-image">
+                    <img alt={event.title} src={event.image} />
+                    <div className="event-date-badge">
+                      <span className="day">{event.date}</span>
+                      <span className="month">{event.month}</span>
                     </div>
-                    <div className="event-content">
-                      <div className="event-header">
-                        <div>
-                          <h3 className="event-title">{event.title}</h3>
-                          <p className="event-description">{event.description}</p>
-                        </div>
-                        <div className="event-date">
-                          <div className="event-date-value">{event.date}</div>
-                          <div className="event-date-month">{event.month}</div>
-                        </div>
-                      </div>
-                      <div className="event-footer">
-                        <span className="event-time">
-                          <span className="material-symbols-outlined">schedule</span>
-                          {event.time}
-                        </span>
-                        <button className="add-btn">
-                          Add to Calendar
-                          <span className="material-symbols-outlined">add</span>
-                        </button>
-                      </div>
+                  </div>
+                  <div className="event-card-content">
+                    <div className="event-card-top">
+                      <span className={`category-tag tag-${event.category}`}>{event.category}</span>
+                      <span className="event-time">{event.time}</span>
                     </div>
+                    <h3 className="event-card-title">{event.title}</h3>
+                    <p className="event-card-description">{event.description}</p>
+                    <button className="text-link">Register Interest</button>
                   </div>
                 </div>
               ))}
@@ -461,15 +411,12 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Elite Faculty Row */}
+        {/* Faculty Spotlight */}
         <section className="faculty-section">
-          <div className="faculty-header">
-            <h2 className="section-title-lg">Visionary Minds</h2>
-            <p className="section-subtitle">Guided by world-class curators and leading educators.</p>
-          </div>
+          <h2 className="section-title-lg text-center">Visionary Minds</h2>
           <div className="faculty-grid">
             {faculty.map((member, index) => (
-              <div key={index} className="faculty-card">
+              <div key={index} className="faculty-card glass-card">
                 <div className="faculty-image-wrapper">
                   <img alt={member.name} className="faculty-image" src={member.image} />
                 </div>
@@ -480,46 +427,19 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Achievement Timeline Bento */}
-        <section className="achievement-section">
-          <div className="achievement-container">
-            <div className="achievement-grid">
-              <div className="achievement-card achievement-card-large glass-card">
-                <div className="achievement-bg">
-                  <img
-                    alt="Academic award ceremony"
-                    className="achievement-image"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw1xWgPoTWt10PdUPju8YdEo3pJG54vbGBC8pw7-jzDJqe_fyU79BPmI1FzS-kBv47aMwzxr9g3uOzgQAT5CbA3bbYNp6j3cKXz1lx0x1_EOF6GdC9eg9AXMT374QQR9XVunbMl0hcdbTCZKtzO5uarPEiY0PX0IfdTJ-JPyY6cjBr1_zY6qSjAWVWGJ2sFTPvshLOvXw5QxVuqL617R3C0-W349dW5l45EjpBBiZNuoOJLxg9aHCwE46yXMc-_SUYBtHTehGbskiu"
-                  />
-                </div>
-                <div className="achievement-content">
-                  <span className="achievement-label">Major Milestone</span>
-                  <h3 className="achievement-title">Voted #1 Private Academy for Technological Integration</h3>
-                  <p className="achievement-text">Three consecutive years of global leadership in education tech.</p>
-                </div>
-              </div>
-              <div className="achievement-card achievement-card-medium">
-                <div className="achievement-icon-wrapper">
-                  <span className="material-symbols-outlined text-primary">psychology</span>
-                </div>
-                <div>
-                  <h4 className="achievement-subtitle">Patent Hub</h4>
-                  <p className="achievement-description">Over 120 patents filed by students and faculty in 2023 alone.</p>
-                </div>
-              </div>
-              <div className="achievement-card achievement-card-small">
-                <h4 className="achievement-stat">10k+</h4>
-                <p className="achievement-stat-label">Alumni Network</p>
-              </div>
-              <div className="achievement-card achievement-card-cta">
-                <h4 className="achievement-cta-title">Join the Elite</h4>
-                <p className="achievement-cta-text">Admissions for 2025 are now open for select candidates.</p>
-                <span className="material-symbols-outlined">arrow_outward</span>
+        {/* Call to Action */}
+        <section className="cta-section">
+          <div className="cta-card glass-card">
+            <div className="cta-content">
+              <h2 className="cta-title">Begin Your Journey</h2>
+              <p className="cta-text">Applications for the next academic cycle are now being reviewed. Secure your place in the future of education.</p>
+              <div className="cta-buttons">
+                <button className="primary-btn primary-btn-lg" onClick={openModal}>Book a Private Tour</button>
+                <Link className="secondary-btn secondary-btn-lg" to="/admissions">View Admissions Process</Link>
               </div>
             </div>
           </div>
         </section>
-
         {/* Join the Future CTA */}
         <section className="cta-section">
           <div className="cta-bg">
@@ -545,264 +465,146 @@ const Home = () => {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-header">
-            <span className="footer-logo">THE ACADEMY</span>
-            <div className="footer-links">
-              <a className="footer-link" href="#">Privacy Policy</a>
-              <a className="footer-link" href="#">Terms of Service</a>
-              <a className="footer-link" href="#">Contact Us</a>
-              <a className="footer-link" href="#">Careers</a>
+        <div className="footer-container">
+          <div className="footer-brand">
+            <span className="logo-text">THE ACADEMY</span>
+            <p className="footer-copy">A Century of Excellence, Re-engineered.</p>
+          </div>
+          <div className="footer-links-grid">
+            <div className="footer-column">
+              <h4>Portal</h4>
+              <Link to="/signin">Student Login</Link>
+              <Link to="/signin">Parent Portal</Link>
+              <Link to="/signin">Faculty Access</Link>
+            </div>
+            <div className="footer-column">
+              <h4>Connect</h4>
+              <a href="#">X / Twitter</a>
+              <a href="#">Instagram</a>
+              <a href="#">LinkedIn</a>
             </div>
           </div>
-          <div className="footer-divider"></div>
-          <div className="footer-footer">
-            <p className="footer-copyright">© 2024 The Academy at The Sanctuary. All rights reserved.</p>
-          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© 2024 The Academy. All Rights Reserved.</p>
         </div>
       </footer>
 
-      {/* Admission Form Modal */}
-      <div className={`modal ${modalOpen ? 'modal-open' : ''}`}>
-        <div className="modal-backdrop" onClick={closeModal}></div>
-        <div className="modal-content">
-          <div className="modal-header">
+      {/* Modal */}
+      {modalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-container glass-card" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={closeModal}>
               <span className="material-symbols-outlined">close</span>
             </button>
-            <div className="modal-header-content">
-              <span className="material-symbols-outlined text-secondary text-3xl">school</span>
-              <h3 className="modal-title">The Academy Admissions</h3>
+            <div className="modal-header">
+              <h3>Inquiry & Admission</h3>
+              <p>Please provide your details for a personalized response.</p>
             </div>
-            <p className="modal-subtitle">Begin your journey to academic excellence</p>
-          </div>
-          
-          <div className="modal-body">
-            <form className="admission-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">badge</span>
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  className="form-input"
-                  placeholder="Johnathan M. Sterling"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  required
-                />
+            <form className="modal-form" onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    name="fullName"
+                    placeholder="Candidate's Name"
+                    required
+                    type="text"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Parent/Guardian Name</label>
+                  <input
+                    name="parentName"
+                    placeholder="Full Name"
+                    type="text"
+                    value={formData.parentName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    name="email"
+                    placeholder="email@example.com"
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    name="phone"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Program of Interest</label>
+                  <select
+                    name="program"
+                    required
+                    value={formData.program}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select a program</option>
+                    <option value="innovation">Innovation & Tech</option>
+                    <option value="humanities">Classical Humanities</option>
+                    <option value="science">Applied Sciences</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Current Qualification</label>
+                  <input
+                    name="qualification"
+                    placeholder="Year/Level"
+                    type="text"
+                    value={formData.qualification}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">badge</span>
-                  Parent/Guardian Name
-                </label>
-                <input
-                  type="text"
-                  name="parentName"
-                  className="form-input"
-                  placeholder="Johnathan M. Sterling"
-                  value={formData.parentName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">mail</span>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  className="form-input"
-                  placeholder="applicant@theacademy.edu"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">call</span>
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="form-input"
-                  placeholder="+1 (555) 000-0000"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">call</span>
-                  Parent/Guardian Phone
-                </label>
-                <input
-                  type="tel"
-                  name="parentPhone"
-                  className="form-input"
-                  placeholder="+1 (555) 000-0000"
-                  value={formData.parentPhone}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">cake</span>
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  name="dob"
-                  className="form-input"
-                  value={formData.dob}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">menu_book</span>
-                  Program of Interest
-                </label>
-                <select
-                  name="program"
-                  className="form-input form-select"
-                  value={formData.program}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="" disabled>Select a program</option>
-                  <option value="ai-ml">Artificial Intelligence & Machine Learning</option>
-                  <option value="quantum">Quantum Computing</option>
-                  <option value="bioengineering">Bio-Engineering & Ethics</option>
-                  <option value="fintech">FinTech & Digital Economics</option>
-                  <option value="creative-tech">Creative Technology & Design</option>
-                  <option value="leadership">Global Leadership & Innovation</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">history_edu</span>
-                  Highest Qualification
-                </label>
-                <select
-                  name="qualification"
-                  className="form-input form-select"
-                  value={formData.qualification}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="" disabled>Select qualification</option>
-                  <option value="highschool">High School Diploma</option>
-                  <option value="bachelor">Bachelor's Degree</option>
-                  <option value="master">Master's Degree</option>
-                  <option value="phd">PhD / Doctorate</option>
-                  <option value="other">Other / Equivalent</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">description</span>
-                  Personal Statement / Motivation
-                </label>
+              <div className="form-group full-width">
+                <label>Personal Statement (Optional)</label>
                 <textarea
                   name="statement"
-                  className="form-input form-textarea"
-                  rows="4"
-                  placeholder="Tell us why you want to join The Academy and what drives your passion for innovation..."
+                  placeholder="Tell us about your aspirations..."
+                  rows="3"
                   value={formData.statement}
                   onChange={handleInputChange}
-                  required
                 ></textarea>
               </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  <span className="material-symbols-outlined text-secondary">share</span>
-                  How did you hear about us?
-                </label>
-                <select
-                  name="referral"
-                  className="form-input form-select"
-                  value={formData.referral}
-                  onChange={handleInputChange}
-                >
-                  <option value="" disabled>Select an option</option>
-                  <option value="social">Social Media</option>
-                  <option value="alumni">Alumni Referral</option>
-                  <option value="event">Educational Event</option>
-                  <option value="search">Search Engine</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className="form-checkbox-group">
+              <div className="form-checkbox">
                 <input
-                  type="checkbox"
-                  name="termsAgree"
                   id="termsAgree"
-                  className="form-checkbox"
+                  name="termsAgree"
+                  required
+                  type="checkbox"
                   checked={formData.termsAgree}
                   onChange={handleInputChange}
-                  required
                 />
-                <label htmlFor="termsAgree" className="form-checkbox-label">
-                  I confirm that the information provided is accurate and I agree to the 
-                  <a href="#" className="text-secondary">Terms of Admission</a> and 
-                  <a href="#" className="text-secondary">Privacy Policy</a>.
-                </label>
+                <label htmlFor="termsAgree">I agree to the privacy policy and data processing terms.</label>
               </div>
-
-              <button type="submit" className="submit-btn" disabled={submitting}>
-                <span className="material-symbols-outlined">send</span>
-                {submitting ? 'Submitting...' : 'Submit Application'}
+              <button className="primary-btn full-width" disabled={submitting} type="submit">
+                {submitting ? 'Processing...' : 'Submit Inquiry'}
               </button>
             </form>
-
-            <div className="form-notice">
-              <span className="material-symbols-outlined text-secondary">info</span>
-              <p>
-                Your application will be reviewed by our admissions committee. You will receive a confirmation email within 48 hours. 
-                <span className="text-secondary"> Early decision deadline: December 15, 2024</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <p className="modal-footer-text">
-              <span className="material-symbols-outlined">security</span> Secure submission
-            </p>
-            <p className="modal-footer-text">⭐ The Academy Admissions 2024</p>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Toast Notification */}
+      {/* Toast */}
       {toast && (
         <div className={`toast toast-${toast.type}`}>
-          <span className="material-symbols-outlined">
-            {toast.type === 'success' ? 'check_circle' : 'error'}
-          </span>
-          <span>{toast.message}</span>
+          {toast.message}
         </div>
       )}
     </div>

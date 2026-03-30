@@ -27,10 +27,6 @@ export class ProxyController {
 
   @All("/auth/signin")
   proxySignIn(@Req() req: Request, @Res() res: Response) {
-    // Handle CORS preflight for signin
-    if (req.method === "OPTIONS") {
-      return this.handleCorsPreflight(res);
-    }
     return this.forward(req, res, "auth");
   }
 
@@ -79,19 +75,7 @@ export class ProxyController {
 
   // ── Helper ────────────────────────────────────────────────────────────────
 
-  private handleCorsPreflight(res: Response): void {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization",
-    );
-    res.setHeader("Access-Control-Max-Age", "86400");
-    res.status(204).send();
-  }
+
 
   private forward(req: Request, res: Response, service: string): void {
     const base = this.urls[service];
@@ -128,6 +112,7 @@ export class ProxyController {
 
     const proxyReq = transport.request(options, (proxyRes) => {
       res.status(proxyRes.statusCode || 502);
+
       Object.entries(proxyRes.headers).forEach(([key, value]) => {
         if (value !== undefined) res.setHeader(key, value);
       });
