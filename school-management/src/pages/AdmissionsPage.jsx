@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+import { generateAdmissionPDF } from "./generateAdmissionPDF";
 import "./AcademyPages.css";
 
 const initialState = {
@@ -13,6 +13,7 @@ const initialState = {
   childPhone: "",
   childAddress: "",
   childZip: "",
+  childImage: null,
   motherGuardianName: "",
   motherHomeAddress: "",
   motherEmployment: "",
@@ -43,10 +44,9 @@ const AdmissionsPage = () => {
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const formRef = useRef(null);
 
   const handleChange = (event) => {
-    const { name, type, checked, value } = event.target;
+    const { name, type, checked, value, files } = event.target;
 
     if (name === "days[]") {
       const currentDays = [...formData.days];
@@ -62,6 +62,18 @@ const AdmissionsPage = () => {
         ...prev,
         days: currentDays,
       }));
+    } else if (type === "file") {
+      const file = files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData((prev) => ({
+            ...prev,
+            [name]: reader.result,
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -70,17 +82,21 @@ const AdmissionsPage = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    const element = formRef.current;
-    const opt = {
-      margin: [15, 15, 15, 15],
-      filename: "geoziie-registration-form.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-    };
-    html2pdf().set(opt).from(element).save();
+  const toBase64 = (url) =>
+    fetch(url)
+      .then((r) => r.blob())
+      .then(
+        (blob) =>
+          new Promise((res) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.readAsDataURL(blob);
+          }),
+      );
+
+  const handleDownloadPDF = async () => {
+    const logo = await toBase64("/images/schoolLogo.jpeg");
+    generateAdmissionPDF(logo, formData.childImage);
   };
 
   const handleSubmit = (event) => {
@@ -223,11 +239,7 @@ const AdmissionsPage = () => {
             </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="admission-form"
-            ref={formRef}
-          >
+          <form onSubmit={handleSubmit} className="admission-form">
             <div className="form-grid">
               <div className="form-group full-width-field">
                 <label className="form-label" htmlFor="program">
@@ -382,6 +394,32 @@ const AdmissionsPage = () => {
                   onChange={handleChange}
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="childImage">
+                  Child's Photo
+                </label>
+                <input
+                  type="file"
+                  id="childImage"
+                  name="childImage"
+                  className="form-input"
+                  accept="image/*"
+                  onChange={handleChange}
+                />
+                {formData.childImage && (
+                  <img
+                    src={formData.childImage}
+                    alt="Child preview"
+                    style={{
+                      marginTop: "0.5rem",
+                      maxWidth: "150px",
+                      maxHeight: "150px",
+                      borderRadius: "0.5rem",
+                      border: "1px solid rgba(148, 163, 184, 0.3)",
+                    }}
+                  />
+                )}
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="childPhone">
@@ -795,8 +833,8 @@ const AdmissionsPage = () => {
             className="academy-page-subtitle"
             style={{ textAlign: "center", margin: "1rem 0" }}
           >
-            Click the link below to download the official Cohoes Child
-            Development Center Registration Form.
+            Click the button below to download the official GEOZIIE
+            International School Registration Form.
           </p>
           <div className="download-link-container">
             <button onClick={handleDownloadPDF} className="primary-btn">
