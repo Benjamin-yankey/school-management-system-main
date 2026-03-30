@@ -100,22 +100,32 @@ async function renderView() {
         case 'curriculum': renderCurriculum(); break;
         case 'students': renderStudents(); break;
         case 'promotions': renderPromotions(); break;
+        case 'teacher-sections': renderTeacherSections(); break;
+        case 'teacher-students': renderTeacherStudents(); break;
+        case 'student-profile': renderStudentProfile(); break;
+        case 'student-history': renderStudentHistory(); break;
+        case 'parent-children': renderParentPortal(); break;
     }
 }
 
 function renderDashboard() {
+    const role = state.user?.role?.toUpperCase() || 'USER';
     document.getElementById('content-area').innerHTML = `
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Welcome</div>
-                <div class="stat-value">Admin Dashboard</div>
-                <div class="stat-label">Manage your school parameters here.</div>
+                <div class="stat-label">Welcome back,</div>
+                <div class="stat-value">${role} Portal</div>
+                <div class="stat-label">SchoolSync Pro v1.0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Status</div>
-                <div class="stat-value">Connected</div>
-                <div class="stat-label">Ready to test school APIs</div>
+                <div class="stat-label">Session Status</div>
+                <div class="stat-value">Active</div>
+                <div class="stat-label">${state.user?.email}</div>
             </div>
+        </div>
+        <div class="card">
+            <h3>Portal Overview</h3>
+            <p>You are currently logged in as a <strong>${role}</strong>. Use the sidebar to navigate through your authorized features.</p>
         </div>
     `;
 }
@@ -339,21 +349,323 @@ async function viewSections(classId) {
     const container = document.getElementById('modal-container');
     container.classList.remove('hidden');
     const sections = await apiFetch(`/classes/${classId}/sections`);
-    container.innerHTML = `<div class="modal"><h3>Sections</h3><ul>${sections.map(s => `<li>${s.name} (Cap: ${s.capacity})</li>`).join('')}</ul><button class="btn-secondary mt-1" onclick="closeModal()">Close</button></div>`;
+    container.innerHTML = `
+        <div class="modal large">
+            <h3>Sections for Class</h3>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Section</th><th>Capacity</th><th>Teacher</th><th>Actions</th></tr></thead>
+                    <tbody>${sections.map(s => `
+                        <tr>
+                            <td>${s.name}</td>
+                            <td>${s.capacity}</td>
+                            <td><small id="teacher-name-${s.id}">Loading...</small></td>
+                            <td>
+                                <button class="btn-sm" onclick="showAssignTeacherModal('${s.id}')">Assign Teacher</button>
+                            </td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+            <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+        </div>
+    `;
+    // Load existing teachers for these sections
+    sections.forEach(async s => {
+        try {
+            const teachers = await apiFetch(`/administration/sections/${s.id}/teachers`);
+            document.getElementById(`teacher-name-${s.id}`).textContent = teachers.map(t => t.email.split('@')[0]).join(', ') || 'Unassigned';
+        } catch (e) {
+            document.getElementById(`teacher-name-${s.id}`).textContent = 'Error';
+        }
+    });
+}
+
+async function showAssignTeacherModal(sectionId) {
+    const container = document.getElementById('modal-container');
+    // We reuse the modal but show a nested one or replace
+    const users = await apiFetch('/administration/users');
+    const teachers = users.filter(u => u.role === 'teacher');
+
+    const subModal = document.createElement('div');
+    subModal.className = 'overlay';
+    subModal.innerHTML = `
+        <div class="modal">
+            <h3>Assign Teacher</h3>
+            <div class="input-group">
+                <label>Select Teacher</label>
+                <select id="assign-teacher-id">
+                    ${teachers.map(t => `<option value="${t.id}">${t.email}</option>`).join('')}
+                </select>
+            </div>
+            <div class="flex-end gap-1">
+                <button class="btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Cancel</button>
+                <button class="btn-primary" onclick="submitAssignTeacher('${sectionId}')">Assign</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(subModal);
+}
+
+async function submitAssignTeacher(sectionId) {
+    const teacherUserId = document.getElementById('assign-teacher-id').value;
+    await apiFetch(`/administration/teachers/${teacherUserId}/sections`, {
+        method: 'POST',
+        body: JSON.stringify({ sectionId })
+    });
+    showToast('Teacher assigned successfully');
+    closeModal();
 }
 
 async function addSection(classId) {
     const name = prompt("Name:");
-    if (name) { await apiFetch(`/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify({ name, capacity: 40 }) }); showToast('Added'); }
+    if (name) { 
+        const activeYear = await apiFetch('/academic-years/active');
+        if (!activeYear) return showToast('No active academic year set', 'error');
+        await apiFetch(`/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify({ name, capacity: 40, academicYearId: activeYear.id }) }); 
+        showToast('Added'); 
+    }
+}
+
+// -- TEACHER PORTAL --
+async function renderTeacherSections() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <h3>My Assigned Classes</h3>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Class</th><th>Section</th><th>Capacity</th><th>Actions</th></tr></thead>
+                    <tbody id="teacher-sections-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    const sections = await apiFetch('/teacher/sections');
+    document.getElementById('teacher-sections-body').innerHTML = sections.map(s => `
+        <tr>
+            <td>${s.classLevel?.name}</td>
+            <td>${s.name}</td>
+            <td>${s.capacity}</td>
+            <td><button class="btn-sm" onclick="viewSectionStudents('${s.id}', '${s.name}')">View Students</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" class="text-center">No assignments found.</td></tr>';
+}
+
+async function viewSectionStudents(sectionId, sectionName) {
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    const students = await apiFetch(`/teacher/sections/${sectionId}/students`);
+    container.innerHTML = `
+        <div class="modal large">
+            <h3>Students in Section ${sectionName}</h3>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
+                    <tbody>${students.map(s => `
+                        <tr>
+                            <td>${s.firstName} ${s.lastName}</td>
+                            <td>${s.email || '-'}</td>
+                            <td><button class="btn-sm" onclick="showToast('Grade management coming soon...')">Manage</button></td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+            <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+        </div>
+    `;
+}
+
+async function renderTeacherStudents() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <h3>My Students (All Sections)</h3>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Class</th><th>Section</th></tr></thead>
+                    <tbody id="teacher-all-students-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    const students = await apiFetch('/teacher/students');
+    document.getElementById('teacher-all-students-body').innerHTML = students.map(s => `
+        <tr>
+            <td>${s.firstName} ${s.lastName}</td>
+            <td>${s.email}</td>
+            <td>${s.currentClass || '-'}</td>
+            <td>${s.currentSection || '-'}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" class="text-center">No students found.</td></tr>';
+}
+
+// -- STUDENT PORTAL --
+async function renderStudentProfile() {
+    const container = document.getElementById('content-area');
+    const me = await apiFetch('/student-portal/me');
+    container.innerHTML = `
+        <div class="card">
+            <h3>My Academic Record</h3>
+            <div class="stats-grid mt-1">
+                <div class="stat-card">
+                    <div class="stat-label">Full Name</div>
+                    <div class="stat-value">${me.firstName} ${me.lastName}</div>
+                </div>
+                <div class="stat-card" style="border-color: var(--accent)">
+                    <div class="stat-label">Student ID</div>
+                    <div class="stat-value" style="font-size: 1.2rem">${me.studentId}</div>
+                </div>
+            </div>
+            <div class="card">
+                <p><strong>Email:</strong> ${me.email}</p>
+                <p><strong>Phone:</strong> ${me.phoneNumber || 'Not provided'}</p>
+                <p><strong>DOB:</strong> ${new Date(me.dateOfBirth).toLocaleDateString()}</p>
+                <p><strong>Interest:</strong> ${me.areaOfInterest}</p>
+            </div>
+        </div>
+    `;
+}
+
+async function renderStudentHistory() {
+    const container = document.getElementById('content-area');
+    const history = await apiFetch('/student-portal/enrollments');
+    container.innerHTML = `
+        <div class="card">
+            <h3>Enrollment History</h3>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Year</th><th>Class</th><th>Section</th><th>Date</th></tr></thead>
+                    <tbody>${history.map(h => `
+                        <tr>
+                            <td>${h.academicYear?.year}</td>
+                            <td>${h.classLevel?.name}</td>
+                            <td>${h.section?.name || '-'}</td>
+                            <td>${new Date(h.enrolledAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+// -- PARENT PORTAL --
+async function viewChildDetail(studentId) {
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = `<div class="loading">Fetching child details...</div>`;
+    
+    try {
+        const child = await apiFetch(`/parent/children/${studentId}`);
+        // Assuming child object contains .enrollments based on backend logic
+        const history = child.enrollments || [];
+
+        container.innerHTML = `
+            <div class="modal large">
+                <h3>Child Profile: ${child.firstName} ${child.lastName}</h3>
+                <div class="stats-grid mt-1">
+                    <div class="stat-card">
+                        <div class="stat-label">Student ID</div>
+                        <div class="stat-value" style="font-size: 1.1rem">${child.studentId}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <p><strong>Email:</strong> ${child.email}</p>
+                    <p><strong>Enrollment History:</strong></p>
+                    <div class="table-container mt-1">
+                        <table>
+                            <thead><tr><th>Year</th><th>Class</th><th>Enrolled At</th></tr></thead>
+                            <tbody>${history.map(h => `
+                                <tr>
+                                    <td>${h.academicYear?.year}</td>
+                                    <td>${h.classLevel?.name}</td>
+                                    <td>${new Date(h.enrolledAt).toLocaleDateString()}</td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+                <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+            </div>
+        `;
+    } catch (e) {
+        container.innerHTML = `<div class="modal"><p class="error-msg">Error loading child details.</p><button class="btn-secondary mt-1" onclick="closeModal()">Close</button></div>`;
+    }
+}
+
+async function renderParentPortal() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>Linked Children</h3>
+                <button class="btn-primary" onclick="showLinkChildModal()">Link New Child</button>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Name</th><th>Student ID</th><th>Class</th><th>Details</th><th>Actions</th></tr></thead>
+                    <tbody id="parent-children-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    const children = await apiFetch('/parent/children');
+    document.getElementById('parent-children-body').innerHTML = children.map(c => `
+        <tr>
+            <td>${c.firstName} ${c.lastName}</td>
+            <td>${c.studentId}</td>
+            <td>${c.currentClass || '-'}</td>
+            <td><button class="btn-sm" onclick="viewChildDetail('${c.id}')">Performance</button></td>
+            <td><button class="btn-sm error" onclick="unlinkChild('${c.id}')">Unlink</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="5" class="text-center">No children linked yet.</td></tr>';
+}
+
+async function showLinkChildModal() {
+    const studentId = prompt("Enter Child's Student UUID:");
+    const relationship = prompt("Relationship (e.g. father, mother):");
+    if (studentId && relationship) {
+        await apiFetch('/parent/children', {
+            method: 'POST',
+            body: JSON.stringify({ studentId, relationship })
+        });
+        showToast('Child linked successfully');
+        renderParentPortal();
+    }
+}
+
+async function unlinkChild(id) {
+    if (confirm('Unlink this child from your account?')) {
+        await apiFetch(`/parent/children/${id}`, { method: 'DELETE' });
+        showToast('Unlinked');
+        renderParentPortal();
+    }
 }
 
 // -- MISC & INIT --
 function renderPromotions() { document.getElementById('content-area').innerHTML = `<div class="card"><h3>Bulk Promotions</h3><p>Promotion logic is managed in the backend service.</p></div>`; }
 function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
 function initModules() {
+    const role = state.user.role;
+    // Hide ALL nav items by default
+    document.querySelectorAll('.nav-item[data-role], .nav-group[data-role]').forEach(el => {
+        const roles = el.dataset.role.split(',');
+        if (roles.includes(role)) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    });
+
     switchView('dashboard');
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.onclick = (e) => { if (!item.classList.contains('logout')) { e.preventDefault(); switchView(item.dataset.view); } };
+        item.onclick = (e) => { 
+            if (!item.classList.contains('logout')) { 
+                e.preventDefault(); 
+                switchView(item.dataset.view); 
+            } 
+        };
     });
 }
 

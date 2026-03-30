@@ -43,24 +43,50 @@
                 <a href="#" class="nav-item active" data-view="dashboard">
                     <span class="icon">📊</span> Dashboard
                 </a>
-                <div class="nav-group">MANAGEMENT</div>
-                <a href="#" class="nav-item" data-view="admissions">
+
+                <!-- Admin & Staff Section -->
+                <div class="nav-group" data-role="superadmin,administration">MANAGEMENT</div>
+                <a href="#" class="nav-item" data-view="admissions" data-role="superadmin,administration">
                     <span class="icon">📝</span> Admission Years
                 </a>
-                <a href="#" class="nav-item" data-view="applications">
+                <a href="#" class="nav-item" data-view="applications" data-role="superadmin,administration">
                     <span class="icon">📁</span> Current Applications
                 </a>
-                <a href="#" class="nav-item" data-view="academic">
+                <a href="#" class="nav-item" data-view="academic" data-role="superadmin,administration">
                     <span class="icon">📅</span> Academic Years
                 </a>
-                <a href="#" class="nav-item" data-view="curriculum">
+                <a href="#" class="nav-item" data-view="curriculum" data-role="superadmin,administration">
                     <span class="icon">🏫</span> Classes & Sections
                 </a>
-                <a href="#" class="nav-item" data-view="students">
+                <a href="#" class="nav-item" data-view="students" data-role="superadmin,administration">
                     <span class="icon">🎓</span> Students
                 </a>
-                <a href="#" class="nav-item" data-view="promotions">
+                <a href="#" class="nav-item" data-view="promotions" data-role="superadmin,administration">
                     <span class="icon">🚀</span> Promotions
+                </a>
+
+                <!-- Teacher Portal -->
+                <div class="nav-group" data-role="teacher">TEACHER PORTAL</div>
+                <a href="#" class="nav-item" data-view="teacher-sections" data-role="teacher">
+                    <span class="icon">📚</span> My Classes
+                </a>
+                <a href="#" class="nav-item" data-view="teacher-students" data-role="teacher">
+                    <span class="icon">👤</span> My Students
+                </a>
+
+                <!-- Student Portal -->
+                <div class="nav-group" data-role="student">STUDENT PORTAL</div>
+                <a href="#" class="nav-item" data-view="student-profile" data-role="student">
+                    <span class="icon">🆔</span> My Record
+                </a>
+                <a href="#" class="nav-item" data-view="student-history" data-role="student">
+                    <span class="icon">📜</span> Enrollment History
+                </a>
+
+                <!-- Parent Portal -->
+                <div class="nav-group" data-role="parent">PARENT PORTAL</div>
+                <a href="#" class="nav-item" data-view="parent-children" data-role="parent">
+                    <span class="icon">👨‍👩‍👧‍👦</span> My Children
                 </a>
                 <div class="nav-spacer"></div>
                 <a href="#" id="btn-logout" class="nav-item logout">
