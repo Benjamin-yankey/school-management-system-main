@@ -4,40 +4,42 @@
 .notification-channels {
   margin: 1.5rem 0;
   padding: 1rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
 .notification-channels h4 {
   margin: 0 0 1rem 0;
-  color: #2d3748;
+  color: var(--text);
 }
 
 .char-count {
   text-align: right;
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-top: 0.25rem;
 }
 
 .notification-preview {
   margin: 1.5rem 0;
   padding: 1rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
 .notification-preview h4 {
   margin: 0 0 1rem 0;
-  color: #2d3748;
+  color: var(--text);
 }
 
 .preview-card {
-  background: white;
+  background: var(--surface);
   padding: 1rem;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 
 .preview-header {
@@ -46,11 +48,11 @@
   align-items: center;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .preview-message {
-  color: #4a5568;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
@@ -60,7 +62,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 /* Priority Badges */
@@ -139,10 +141,11 @@
 }
 
 .attendance-stat-card {
-  background: #f7fafc;
+  background: var(--surface-muted);
   padding: 1rem;
   border-radius: 6px;
-  border-left: 4px solid #4299e1;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
 }
 
 .attendance-class-name {
@@ -165,7 +168,7 @@
 }
 
 .total-count {
-  color: #718096;
+  color: #4a5568;
 }
 
 .attendance-percentage {
@@ -176,7 +179,7 @@
 
 .attendance-bar {
   height: 6px;
-  background: #e2e8f0;
+  background: var(--border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -218,8 +221,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
   border-radius: 8px;
+  border: 1px solid var(--border);
   border-left: 4px solid #10b981;
   transition: all 0.2s ease;
 }
@@ -251,14 +255,15 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--surface);
   padding: 2rem;
   border-radius: 8px;
+  border: 1px solid var(--border);
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--card-shadow);
 }
 
 .modal-header {
@@ -281,7 +286,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #718096;
+  color: #4a5568;
   padding: 0;
   width: 30px;
   height: 30px;
@@ -305,14 +310,16 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #cbd5e0;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text);
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -345,8 +352,9 @@
 }
 
 .form-actions button[type="button"] {
-  background-color: #e2e8f0;
-  color: #4a5568;
+  background-color: var(--surface-muted);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .form-actions button[type="button"]:hover {
@@ -366,7 +374,7 @@
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 .stat {
@@ -381,7 +389,7 @@
 
 .next-time {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -397,7 +405,8 @@
   align-items: center;
   gap: 1rem;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -408,7 +417,7 @@
 
 .schedule-time {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   min-width: 60px;
 }
@@ -419,14 +428,14 @@
 
 .schedule-subject {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .schedule-room {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 .schedule-status {
@@ -445,7 +454,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -461,7 +471,7 @@
 .grade-student,
 .grade-assignment {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
@@ -469,7 +479,7 @@
 .grade-subject,
 .grade-date {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 .grade-due {
@@ -478,7 +488,7 @@
 
 .due-text {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
   margin-bottom: 0.25rem;
 }
 
@@ -494,7 +504,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -510,7 +521,7 @@
 .meeting-parent,
 .meeting-teacher {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
@@ -518,13 +529,13 @@
 .meeting-student,
 .meeting-subject {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
 .meeting-type {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -533,15 +544,15 @@
 }
 
 .meeting-date {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .meeting-time-text {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
 }
 
 /* Subjects List */
@@ -556,7 +567,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -570,8 +582,8 @@
 }
 
 .subject-name {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
 }
@@ -579,7 +591,7 @@
 .subject-teacher,
 .subject-next {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
@@ -590,13 +602,13 @@
 .grade-value {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text);
   margin-bottom: 0.125rem;
 }
 
 .grade-label {
   font-size: 0.625rem;
-  color: #718096;
+  color: #4a5568;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -613,7 +625,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -627,21 +640,21 @@
 }
 
 .assignment-title {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .assignment-subject {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
 .assignment-points {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -661,7 +674,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -675,21 +689,21 @@
 }
 
 .exam-subject {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .exam-type {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
 .exam-room {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .exam-time {
@@ -697,15 +711,15 @@
 }
 
 .exam-date {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .exam-time-text {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
 }
 
 /* Announcements List */
@@ -717,9 +731,10 @@
 
 .announcement-item {
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  border-left: 4px solid #8b5cf6;
+  border-left: 4px solid var(--accent);
   transition: all 0.2s ease;
 }
 
@@ -728,15 +743,15 @@
 }
 
 .announcement-title {
-  font-weight: 500;
-  color: #2d3748;
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
 }
 
 .announcement-message {
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 0.25rem;
   line-height: 1.4;
 }
@@ -760,7 +775,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -826,7 +842,7 @@
 
 .attendance-subject {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
   margin-bottom: 0.125rem;
 }
 
@@ -873,7 +889,7 @@
 
 .fee-amount {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
   margin-bottom: 0.125rem;
 }
 
@@ -888,7 +904,7 @@
 
 .fee-paid {
   font-size: 0.625rem;
-  color: #718096;
+  color: #4a5568;
   margin-top: 0.125rem;
 }
 
@@ -926,7 +942,7 @@
 
 .event-type {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
 }
 
 .event-time {
@@ -942,7 +958,7 @@
 
 .event-time-text {
   font-size: 0.75rem;
-  color: #718096;
+  color: #4a5568;
 }
 
 /* Responsive Design */
@@ -1014,4 +1030,13 @@ body[data-theme="dark"] .panel-footer {
 
 body[data-theme="dark"] .view-more-link {
   color: #a78bfa;
+}
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #4a5568;
+  font-style: italic;
+  background: rgba(247, 250, 252, 0.5);
+  border-radius: 8px;
+  border: 1px dashed #cbd5e0;
 }

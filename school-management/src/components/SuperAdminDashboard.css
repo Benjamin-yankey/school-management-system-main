@@ -8,6 +8,19 @@
     --super-glass: rgba(255, 255, 255, 0.7);
     --super-border: rgba(148, 163, 184, 0.15);
     --super-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    --super-text: #1e293b;
+    --super-text-muted: #64748b;
+    --super-panel: #ffffff;
+}
+
+body[data-theme="dark"] {
+    --super-bg: #0f172a;
+    --super-glass: rgba(30, 41, 59, 0.7);
+    --super-border: rgba(255, 255, 255, 0.1);
+    --super-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    --super-text: #f8fafc;
+    --super-text-muted: #94a3b8;
+    --super-panel: #1e293b;
 }
 
 .super-dashboard-container {
@@ -15,7 +28,7 @@
     min-height: 100vh;
     background: var(--super-bg);
     font-family: 'Inter', -apple-system, system-ui, sans-serif;
-    color: #1e293b;
+    color: var(--super-text);
 }
 
 /* Sidebar */
@@ -99,7 +112,7 @@
 }
 
 .super-content-header p {
-    color: #64748b;
+    color: var(--super-text-muted);
     margin: 0.35rem 0 0;
     font-size: 0.95rem;
 }
@@ -124,8 +137,8 @@
 }
 
 .btn-sync {
-    background: white;
-    color: #475569;
+    background: var(--super-panel);
+    color: var(--super-text);
     border: 1px solid var(--super-border);
 }
 
@@ -148,7 +161,7 @@
 }
 
 .super-stat-card {
-    background: white;
+    background: var(--super-panel);
     padding: 1.5rem;
     border-radius: 20px;
     box-shadow: var(--super-shadow);
@@ -174,7 +187,7 @@
 }
 
 .stat-details p {
-    color: #64748b;
+    color: var(--super-text-muted);
     font-size: 0.85rem;
     font-weight: 500;
     margin: 2px 0 4px;
@@ -241,8 +254,9 @@
 }
 
 .super-table td {
-    background: white;
+    background: var(--super-panel);
     padding: 1.25rem 1rem;
+    color: var(--super-text);
 }
 
 .super-table tr td:first-child { border-radius: 12px 0 0 12px; }
@@ -257,7 +271,7 @@
 }
 
 .school-cell strong { display: block; font-size: 0.95rem; }
-.school-cell span { font-size: 0.75rem; color: #64748b; }
+.school-cell span { font-size: 0.75rem; color: var(--super-text-muted); }
 
 .plan-badge {
     padding: 4px 10px;
@@ -282,7 +296,8 @@
 }
 
 .super-modal-content {
-    background: white;
+    background: var(--super-panel);
+    color: var(--super-text);
     width: 100%;
     max-width: 540px;
     padding: 2.5rem;
@@ -323,16 +338,18 @@
     border-radius: 2px;
 }
 
-.modal-sub { color: #64748b; font-size: 0.9rem; margin-top: 0.5rem; }
+.modal-sub { color: var(--super-text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
 
 .onboard-form { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
 
 .input-group-super { display: flex; flex-direction: column; gap: 0.5rem; }
-.input-group-super label { font-size: 0.85rem; font-weight: 700; color: #475569; }
+.input-group-super label { font-size: 0.85rem; font-weight: 700; color: var(--super-text-muted); }
 .input-group-super input {
     padding: 0.85rem 1rem;
     border-radius: 12px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid var(--super-border);
+    background: var(--super-bg);
+    color: var(--super-text);
     font-size: 1rem;
     transition: all 0.2s;
 }
@@ -346,10 +363,10 @@
     justify-content: center;
     padding: 4rem 2rem;
     text-align: center;
-    color: #94a3b8;
-    background: #f8fafc;
+    color: var(--super-text-muted);
+    background: var(--super-bg);
     border-radius: 24px;
-    border: 2px dashed #e2e8f0;
+    border: 2px dashed var(--super-border);
 }
 
 .super-empty-state h4 { color: #475569; margin: 1rem 0 0.5rem; font-size: 1.15rem; }
@@ -357,11 +374,11 @@
 
 .super-empty-state button {
     padding: 0.75rem 1.5rem;
-    background: white;
-    border: 1px solid #cbd5e1;
+    background: var(--super-panel);
+    border: 1px solid var(--super-border);
     border-radius: 10px;
     font-weight: 700;
-    color: #475569;
+    color: var(--super-text);
     cursor: pointer;
 }
 
@@ -497,12 +514,12 @@
 }
 
 .btn-back {
-    background: white;
+    background: var(--super-panel);
     border: 1px solid var(--super-border);
     padding: 0.6rem;
     border-radius: 12px;
     cursor: pointer;
-    color: #475569;
+    color: var(--super-text);
     display: grid;
     place-items: center;
     transition: all 0.2s;
@@ -518,12 +535,12 @@
 }
 
 .meta-pill {
-    background: #f1f5f9;
+    background: var(--super-border);
     padding: 4px 12px;
     border-radius: 99px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--super-text);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -557,7 +574,7 @@
 }
 
 .user-card-super {
-    background: white;
+    background: var(--super-panel);
     border-radius: 18px;
     padding: 1.25rem;
     border: 1px solid var(--super-border);
@@ -566,6 +583,7 @@
     gap: 1rem;
     transition: all 0.2s;
     position: relative;
+    color: var(--super-text);
 }
 
 .user-card-super:hover {
@@ -593,7 +611,7 @@
 .user-info-super strong {
     display: block;
     font-size: 0.95rem;
-    color: #1e293b;
+    color: var(--super-text);
 }
 
 .user-info-super span {
@@ -632,8 +650,8 @@
 .role-badge-super.parent { background: #fce7f3; color: #be185d; }
 
 .btn-add-user-small {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--super-border);
+    color: var(--super-text);
     border: none;
     padding: 0.5rem 0.85rem;
     border-radius: 8px;

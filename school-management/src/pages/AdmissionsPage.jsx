@@ -96,7 +96,9 @@ const AdmissionsPage = () => {
       );
 
   const handleDownloadPDF = async () => {
-    const logo = await toBase64("https://upload.wikimedia.org/wikipedia/commons/4/47/Academic_Chapeau_Graphite.png");
+    const logo = await toBase64(
+      "https://upload.wikimedia.org/wikipedia/commons/4/47/Academic_Chapeau_Graphite.png",
+    );
     generateAdmissionPDF(logo, formData.childImage);
   };
 
@@ -137,9 +139,19 @@ const AdmissionsPage = () => {
       >
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="school-logo-container">
-            <div className="school-logo-icon" style={{width: 32, height: 32, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-              <Building2 size={18} color="#fff" />
+            <div className="school-logo-icon">
+              <img
+                src="/images/schoolLogo.jpeg"
+                alt="GEOZIIE Logo"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "inherit",
+                }}
+              />
             </div>
+
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>

@@ -36,6 +36,21 @@
   --font-label: 'Plus Jakarta Sans', sans-serif;
 }
 
+body[data-theme="light"] {
+  --color-surface: #ffffff;
+  --color-on-surface: #0f1724;
+  --color-surface-container: #f6f8fb;
+  --color-surface-container-low: #f1f3f7;
+  --color-surface-container-high: #edf0f5;
+  --color-surface-variant: #e2e8f0;
+  --color-on-surface-variant: #64748b;
+  --color-outline: #cbd5e1;
+  --color-outline-variant: #94a3b8;
+  --color-primary: #2563eb;
+  --color-secondary: #0ea5e9;
+  --color-tertiary: #6366f1;
+}
+
 /* ===================================
    Base Styles
    =================================== */
@@ -1018,7 +1033,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  auto-rows: auto;
+  grid-auto-rows: auto;
 }
 
 @media (min-width: 768px) {

@@ -1,17 +1,19 @@
 /* Event Calendar Custom Styles */
 .event-calendar-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Override react-calendar styles */
 .react-calendar {
   width: 100%;
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border: none;
   font-family: inherit;
   line-height: 1.125em;
@@ -29,13 +31,13 @@
   border: none;
   font-size: 1rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .react-calendar__navigation button:hover {
-  background: #f3f4f6;
+  background: var(--surface-muted);
   border-radius: 6px;
 }
 
@@ -46,7 +48,7 @@
 
 .react-calendar__navigation__label {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   font-size: 1.125rem;
 }
 
@@ -55,7 +57,7 @@
   text-transform: uppercase;
   font-weight: 500;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -76,7 +78,7 @@
   text-align: center;
   line-height: 1;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
@@ -89,13 +91,13 @@
 }
 
 .react-calendar__tile:hover {
-  background: #f3f4f6;
+  background: var(--surface-muted);
   border-radius: 6px;
 }
 
 .react-calendar__tile--now {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--surface-muted);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -104,7 +106,7 @@
 }
 
 .react-calendar__tile--active {
-  background: #3b82f6;
+  background: var(--accent);
   color: white;
   font-weight: 600;
   border-radius: 6px;
@@ -185,8 +187,8 @@
 .event-count {
   font-size: 0.625rem;
   font-weight: 600;
-  color: #6b7280;
-  background: #f3f4f6;
+  color: var(--text-secondary);
+  background: var(--surface-muted);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   min-width: 1rem;
@@ -204,8 +206,9 @@
 
 /* Disabled dates */
 .react-calendar__tile--disabled {
-  background: #f9fafb;
-  color: #d1d5db;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

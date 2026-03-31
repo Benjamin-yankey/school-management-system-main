@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Eye, Plus, Edit, Trash2, Calendar, User } from 'lucide-react';
+import { Bell, Eye, Plus, Edit, Trash2, Calendar, User, X, Inbox } from 'lucide-react';
+import api from '../lib/api';
 import './Announcements.css';
 
 const Announcements = ({ userRole = 'admin' }) => {
@@ -7,88 +8,20 @@ const Announcements = ({ userRole = 'admin' }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
-  // Mock data - in real app, this would come from your API
-  const mockAnnouncements = [
-    {
-      id: 1,
-      title: "Parent-Teacher Meeting Scheduled",
-      description: "Monthly parent-teacher conference will be held on January 20th at 10:00 AM in the main hall. All parents are requested to attend.",
-      date: "2025-01-15",
-      type: "meeting",
-      priority: "high",
-      author: "Principal",
-      targetAudience: "Parents",
-      status: "active"
-    },
-    {
-      id: 2,
-      title: "Mid-Term Examination Notice",
-      description: "Mid-term examinations will commence from January 25th to January 30th. Students are advised to prepare thoroughly.",
-      date: "2025-01-14",
-      type: "exam",
-      priority: "high",
-      author: "Academic Department",
-      targetAudience: "Students",
-      status: "active"
-    },
-    {
-      id: 3,
-      title: "Sports Day Preparations",
-      description: "Annual sports day is scheduled for February 10th. Students interested in participating should register with their respective sports teachers.",
-      date: "2025-01-13",
-      type: "event",
-      priority: "medium",
-      author: "Sports Department",
-      targetAudience: "Students",
-      status: "active"
-    },
-    {
-      id: 4,
-      title: "Library Hours Extension",
-      description: "The school library will remain open until 6:00 PM from Monday to Friday during examination period to help students with their studies.",
-      date: "2025-01-12",
-      type: "general",
-      priority: "low",
-      author: "Library Staff",
-      targetAudience: "Students",
-      status: "active"
-    },
-    {
-      id: 5,
-      title: "Science Fair Registration",
-      description: "Students can now register for the annual science fair. Projects should be innovative and demonstrate scientific principles.",
-      date: "2025-01-11",
-      type: "event",
-      priority: "medium",
-      author: "Science Department",
-      targetAudience: "Students",
-      status: "active"
+  const loadAnnouncements = async () => {
+    setLoading(true);
+    try {
+      // Fetch announcements based on user role
+      const data = await api.getAnnouncements(userRole !== 'admin' ? userRole : "");
+      setAnnouncements(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load announcements:", err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    // Simulate API call
-    const loadAnnouncements = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Filter announcements based on user role
-      let filteredAnnouncements = mockAnnouncements;
-      
-      if (userRole !== 'admin') {
-        // Non-admin users see announcements targeted to them
-        filteredAnnouncements = mockAnnouncements.filter(announcement => {
-          const targetAudience = announcement.targetAudience.toLowerCase();
-          return targetAudience.includes(userRole) || 
-                 targetAudience.includes('all') || 
-                 targetAudience.includes('general');
-        });
-      }
-      
-      setAnnouncements(filteredAnnouncements);
-      setLoading(false);
-    };
-
     loadAnnouncements();
   }, [userRole]);
 
@@ -124,21 +57,37 @@ const Announcements = ({ userRole = 'admin' }) => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-GB", {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat("en-GB", {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(date);
+    } catch (e) {
+      return dateString;
+    }
   };
 
-  const handleDeleteAnnouncement = (id) => {
-    setAnnouncements(prev => prev.filter(announcement => announcement.id !== id));
+  const handleDeleteAnnouncement = async (id) => {
+    if (window.confirm("Are you sure you want to delete this announcement?")) {
+      try {
+        await api.deleteAnnouncement(id);
+        setAnnouncements(prev => prev.filter(announcement => announcement.id !== id));
+      } catch (err) {
+        alert("Failed to delete announcement: " + err.message);
+      }
+    }
   };
 
-  const handleAddAnnouncement = (newAnnouncement) => {
-    setAnnouncements(prev => [newAnnouncement, ...prev]);
-    setShowForm(false);
+  const handleAddAnnouncement = async (formData) => {
+    try {
+      const newAnnouncement = await api.createAnnouncement(formData);
+      setAnnouncements(prev => [newAnnouncement, ...prev]);
+      setShowForm(false);
+    } catch (err) {
+      alert("Failed to create announcement: " + err.message);
+    }
   };
 
   if (loading) {
@@ -182,81 +131,88 @@ const Announcements = ({ userRole = 'admin' }) => {
       </div>
 
       <div className="announcements-grid">
-        {announcements.slice(0, 3).map((announcement, index) => {
-          const bgColors = ['#e6f3ff', '#f0f9ff', '#fef3c7'];
-          const borderColors = ['#3b82f6', '#0ea5e9', '#f59e0b'];
-          
-          return (
-            <div 
-              key={announcement.id} 
-              className="announcement-card"
-              style={{
-                backgroundColor: bgColors[index % bgColors.length],
-                borderLeftColor: borderColors[index % borderColors.length]
-              }}
-            >
-              <div className="announcement-header">
-                <div className="announcement-title-section">
-                  <div className="announcement-icon">
-                    {getTypeIcon(announcement.type)}
-                  </div>
-                  <h3 className="announcement-title">{announcement.title}</h3>
-                </div>
-                <div className="announcement-meta">
-                  <span 
-                    className="priority-badge"
-                    style={{ 
-                      backgroundColor: `${getPriorityColor(announcement.priority)}20`,
-                      color: getPriorityColor(announcement.priority)
-                    }}
-                  >
-                    {announcement.priority}
-                  </span>
-                  <span className="date-badge">
-                    {formatDate(announcement.date)}
-                  </span>
-                </div>
-              </div>
-              
-              <p className="announcement-description">{announcement.description}</p>
-              
-              <div className="announcement-footer">
-                <div className="announcement-author">
-                  <User className="author-icon" />
-                  <span>{announcement.author}</span>
-                </div>
-                <div className="announcement-actions">
-                  <span 
-                    className="type-badge"
-                    style={{ 
-                      backgroundColor: `${getTypeColor(announcement.type)}20`,
-                      color: getTypeColor(announcement.type)
-                    }}
-                  >
-                    {announcement.type}
-                  </span>
-                  {userRole === 'admin' && (
-                    <div className="admin-actions">
-                      <button 
-                        className="action-btn edit"
-                        title="Edit"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button 
-                        className="action-btn delete"
-                        onClick={() => handleDeleteAnnouncement(announcement.id)}
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+        {announcements.length > 0 ? (
+          announcements.slice(0, 3).map((announcement, index) => {
+            const bgColors = ['#e6f3ff', '#f0f9ff', '#fef3c7'];
+            const borderColors = ['#3b82f6', '#0ea5e9', '#f59e0b'];
+            
+            return (
+              <div 
+                key={announcement.id} 
+                className="announcement-card"
+                style={{
+                  backgroundColor: bgColors[index % bgColors.length],
+                  borderLeftColor: borderColors[index % borderColors.length]
+                }}
+              >
+                <div className="announcement-header">
+                  <div className="announcement-title-section">
+                    <div className="announcement-icon">
+                      {getTypeIcon(announcement.type)}
                     </div>
-                  )}
+                    <h3 className="announcement-title">{announcement.title}</h3>
+                  </div>
+                  <div className="announcement-meta">
+                    <span 
+                      className="priority-badge"
+                      style={{ 
+                        backgroundColor: `${getPriorityColor(announcement.priority)}20`,
+                        color: getPriorityColor(announcement.priority)
+                      }}
+                    >
+                      {announcement.priority}
+                    </span>
+                    <span className="date-badge">
+                      {formatDate(announcement.createdAt || announcement.date)}
+                    </span>
+                  </div>
+                </div>
+                
+                <p className="announcement-description">{announcement.description}</p>
+                
+                <div className="announcement-footer">
+                  <div className="announcement-author">
+                    <User className="author-icon" />
+                    <span>{announcement.author}</span>
+                  </div>
+                  <div className="announcement-actions">
+                    <span 
+                      className="type-badge"
+                      style={{ 
+                        backgroundColor: `${getTypeColor(announcement.type)}20`,
+                        color: getTypeColor(announcement.type)
+                      }}
+                    >
+                      {announcement.type}
+                    </span>
+                    {userRole === 'admin' && (
+                      <div className="admin-actions">
+                        <button 
+                          className="action-btn edit"
+                          title="Edit"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button 
+                          className="action-btn delete"
+                          onClick={() => handleDeleteAnnouncement(announcement.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          <div className="announcements-empty">
+            <Inbox size={48} strokeWidth={1.5} />
+            <p>No important announcements today. Stay tuned!</p>
+          </div>
+        )}
       </div>
 
       {announcements.length > 3 && (
@@ -318,12 +274,7 @@ const AnnouncementForm = ({ onClose, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      id: Date.now(),
-      author: 'Admin',
-      status: 'active'
-    });
+    onSubmit(formData);
   };
 
   return (
@@ -332,7 +283,7 @@ const AnnouncementForm = ({ onClose, onSubmit }) => {
         <div className="modal-header">
           <h2>Add New Announcement</h2>
           <button onClick={onClose} className="close-btn">
-            <X />
+            <X size={20} />
           </button>
         </div>
         

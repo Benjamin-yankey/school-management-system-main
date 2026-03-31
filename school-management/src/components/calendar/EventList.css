@@ -1,10 +1,11 @@
 /* Event List Styles */
 .event-list-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -15,19 +16,19 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .event-list-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
 .event-count {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -54,7 +55,7 @@
 }
 
 .loading-text {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   margin: 0;
 }
@@ -85,7 +86,7 @@
 .no-events-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -104,7 +105,9 @@
 }
 
 .event-item {
-  border: 2px solid #f3f4f6;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   border-radius: 12px;
   padding: 1.5rem;
   border-top: 4px solid;
@@ -136,17 +139,16 @@
 
 .event-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1),
-    0 4px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: #e5e7eb;
+  box-shadow: var(--card-shadow);
+  border-color: var(--border);
 }
 
 .event-item.even {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--surface);
 }
 
 .event-item.odd {
-  background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%);
+  background: var(--surface-muted);
 }
 
 /* Event Header */
@@ -164,7 +166,7 @@
 .event-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
 }
@@ -189,7 +191,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   flex-shrink: 0;
@@ -206,7 +208,7 @@
 
 /* Event Description */
 .event-description {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 0 1rem 0;
@@ -223,7 +225,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 

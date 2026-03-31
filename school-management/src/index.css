@@ -1,10 +1,15 @@
 :root {
   --bg: #f6f8fb;
   --text: #0f1724;
+  --text-secondary: #64748b;
   --accent: #2563eb;
   --surface: #ffffff;
   --surface-muted: #f7fafc;
   --border: #e2e8f0;
+  --card-bg: linear-gradient(180deg, #ffffff, #fbfdff);
+  --card-shadow: 0 8px 30px rgba(12, 18, 34, 0.06);
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
   --header-bg: rgba(255, 255, 255, 0.95);
   --header-border: #e5e7eb;
   --header-text: #111827;
@@ -34,9 +39,14 @@ body {
 body[data-theme="dark"] {
   --bg: #0b1120;
   --text: #e2e8f0;
+  --text-secondary: #94a3b8;
   --surface: #111827;
   --surface-muted: #0f172a;
   --border: #1f2937;
+  --card-bg: linear-gradient(180deg, #111827, #1e293b);
+  --card-shadow: 0 12px 40px rgba(2, 6, 23, 0.4);
+  --input-bg: #1f2937;
+  --input-border: #374151;
   --header-bg: rgba(15, 23, 42, 0.9);
   --header-border: #1f2937;
   --header-text: #f8fafc;
@@ -80,9 +90,10 @@ body[data-theme="dark"] {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  background: linear-gradient(90deg, #ffffff, #fbfdff);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(12, 18, 34, 0.06);
+  box-shadow: var(--card-shadow);
   margin-bottom: 1.25rem;
 }
 .top-actions {
@@ -93,8 +104,9 @@ body[data-theme="dark"] {
 .search {
   padding: 0.5rem 0.75rem;
   border-radius: 10px;
-  border: 1px solid #e6eef7;
-  background: #f8fafc;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
   min-width: 280px;
 }
 .btn {
@@ -146,11 +158,12 @@ body[data-theme="dark"] {
   gap: 1rem;
 }
 .stat-card {
-  background: linear-gradient(180deg, #fff, #fbfdff);
+  background: var(--card-bg);
   padding: 1rem;
   border-radius: 14px;
-  border-left: 6px solid transparent;
-  box-shadow: 0 8px 30px rgba(12, 18, 34, 0.06);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--accent);
+  box-shadow: var(--card-shadow);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 .stat-card:hover {
@@ -159,7 +172,7 @@ body[data-theme="dark"] {
 }
 .stat-card-title {
   font-weight: 700;
-  color: #334155;
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 .stat-card-value {
@@ -184,10 +197,11 @@ body[data-theme="dark"] {
   gap: 1rem;
 }
 .panel {
-  background: linear-gradient(180deg, #fff, #fbfdff);
+  background: var(--card-bg);
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(12, 18, 34, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 .recent-table {
   width: 100%;
@@ -268,10 +282,11 @@ body[data-theme="dark"] {
 }
 .shell .navbar {
   width: 220px;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 8px 30px rgba(12, 18, 34, 0.05);
+  box-shadow: var(--card-shadow);
 }
 .content {
   flex: 1;
@@ -300,7 +315,7 @@ body[data-theme="dark"] {
   font-weight: 600;
 }
 .nav-item:hover {
-  background: linear-gradient(90deg, #f7fbff, #fbfdff);
+  background: var(--header-hover);
 }
 .nav-footer {
   margin-top: auto;
@@ -384,10 +399,11 @@ body[data-theme="dark"] {
   font-weight: 600;
 }
 .attendance-list {
-  background: linear-gradient(180deg, #fff, #fbfdff);
+  background: var(--card-bg);
   padding: 0.6rem;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(12, 18, 34, 0.04);
+  box-shadow: var(--card-shadow);
 }
 
 /* Results page styles */
@@ -445,10 +461,11 @@ body[data-theme="dark"] {
   justify-content: center;
 }
 .login-card {
-  background: linear-gradient(180deg, #fff, #fbfdff);
+  background: var(--card-bg);
   padding: 2rem;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(12, 18, 34, 0.08);
+  box-shadow: var(--card-shadow);
   width: 420px;
 }
 .login-card h2 {
@@ -570,10 +587,11 @@ body[data-theme="dark"] {
 /* Sidebar styles */
 .sidebar {
   width: 220px;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  background: var(--card-bg);
+  border-right: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.75rem;
-  box-shadow: 0 8px 30px rgba(12, 18, 34, 0.05);
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

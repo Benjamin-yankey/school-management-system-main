@@ -1,10 +1,11 @@
 /* Event Calendar Container Styles */
 .event-calendar-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
@@ -25,13 +26,13 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
@@ -43,8 +44,8 @@
   height: 2rem;
   border-radius: 6px;
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }

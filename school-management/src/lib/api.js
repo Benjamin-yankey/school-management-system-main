@@ -319,6 +319,44 @@ export async function getStudentFeeBalance(studentId) {
   return handleResponse(res);
 }
 
+// ==================== ANNOUNCEMENTS ====================
+
+export async function getAnnouncements(role = "") {
+  const url = role 
+    ? `${API_BASE_URL}/announcements?role=${role}`
+    : `${API_BASE_URL}/announcements`;
+  const res = await fetch(url, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createAnnouncement(announcementData) {
+  const res = await fetch(`${API_BASE_URL}/announcements`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(announcementData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateAnnouncement(id, announcementData) {
+  const res = await fetch(`${API_BASE_URL}/announcements/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(announcementData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteAnnouncement(id) {
+  const res = await fetch(`${API_BASE_URL}/announcements/${id}`, {
+    method: "DELETE",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function getDashboardStats() {
   // Get counts from users endpoint
   const users = await getStudents();
@@ -358,4 +396,8 @@ export default {
   getStudentReportCard,
   getStudentFees,
   getStudentFeeBalance,
+  getAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
 };

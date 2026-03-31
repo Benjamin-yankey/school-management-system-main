@@ -412,6 +412,7 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
 }
 
 /* Responsive Design */
@@ -464,6 +465,33 @@
     padding: 1.5rem;
     margin: 1rem;
   }
+}
+
+/* Empty State */
+.announcements-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  gap: 1rem;
+  background: var(--surface-muted);
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+  text-align: center;
+}
+
+.announcements-empty svg {
+  color: var(--text-secondary);
+}
+
+.announcements-empty p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  max-width: 300px;
 }
 
 @media (max-width: 480px) {

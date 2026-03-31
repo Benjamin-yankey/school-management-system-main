@@ -245,9 +245,19 @@ const Home = () => {
       <nav className={`navbar ${isMenuOpen ? "mobile-active" : ""}`}>
         <div className="navbar-brand">
           <Link to="/" className="school-logo-container">
-            <div className="school-logo-icon" style={{width: 40, height: 40, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'}}>
-              <Building2 size={24} color="#fff" />
+            <div className="school-logo-icon">
+              <img
+                src="/images/schoolLogo.jpeg"
+                alt="GEOZIIE Logo"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "inherit",
+                }}
+              />
             </div>
+
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>
@@ -292,7 +302,7 @@ const Home = () => {
             <img
               alt="Campus Architecture"
               className="hero-image"
-              src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=2000"
+              src="images/schoolLogo.jpeg"
             />
             <div className="hero-gradient-overlay"></div>
           </div>
@@ -375,9 +385,9 @@ const Home = () => {
             <div className="mission-visual">
               <div className="visual-frame glass-card">
                 <img
-                  alt="Students in Lab"
-                  className="visual-image"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtg9Fsc-fF3vE7z61T98GvN6M8qj-0zT1f8m58_fK3V0Wp_O8n7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8o7_1l_9L8"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQzjrgtnRd05hN4zW2f8_TcmY-yW1v5p0owBUOCcKDfouChAMHqBhusBJ8SzDnzftwIuj8U8HfhyeZqCO5QUEZ3vhgjVIKvsbl3k9ZlgulGSWVHkQWA2Z_I3RM8yQQDs38N_Yl2RWoQ8WRJTZRZK7b-aB86H7eNmavldwXQKDwQ_RyTN8nEgVUujdKf8adSsnSZ8VRRp029JjeSkdxpNe-0nuvbWeFvKux0RpZMNPSmKtk7tEkE3sw8ZQN9wRuzFzxfw1pVshSbjtx"
+                  alt="GEOZIIE Campus Architecture"
+                  className="hero-fallback-image"
                 />
               </div>
             </div>
@@ -455,10 +465,10 @@ const Home = () => {
                 neural-link research.
               </p>
               <p className="section-text">
-                Today, The Academy stands as a "Neon Sanctuary"—a place where
-                silence is respected, but innovation is constant. We don't just
-                teach history; we provide the tools to write the next chapter of
-                human civilization.
+                Today, GEOZIIE INTERNATIONAL SCHOOL stands as a "Neon
+                Sanctuary"—a place where silence is respected, but innovation is
+                constant. We don't just teach history; we provide the tools to
+                write the next chapter of human civilization.
               </p>
               <div className="legacy-link-wrapper">
                 <a className="text-link" href="#">
@@ -640,7 +650,19 @@ const Home = () => {
         <div className="footer-container">
           <div className="footer-brand">
             <div className="school-logo-container">
-              <div className="school-logo-icon" style={{width: 36, height: 36, background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)'}}>
+              <div
+                className="school-logo-icon"
+                style={{
+                  width: 36,
+                  height: 36,
+                  background: "rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
                 <Building2 size={20} color="#fff" />
               </div>
               <span className="school-logo-text" style={{ color: "white" }}>

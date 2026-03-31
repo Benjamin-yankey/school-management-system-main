@@ -16,8 +16,10 @@
 }
 
 .form-modal-content {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 16px;
+  border: 1px solid var(--border);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 600px;
@@ -32,14 +34,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 1.5rem 0 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
 
 .form-modal-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
@@ -51,15 +53,15 @@
   height: 2rem;
   border-radius: 6px;
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .close-btn:hover:not(:disabled) {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .close-btn:disabled {
@@ -86,12 +88,12 @@
 .delete-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.75rem 0;
 }
 
 .delete-message {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 0 2rem 0;
@@ -118,12 +120,12 @@
 }
 
 .cancel-btn {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .cancel-btn:hover:not(:disabled) {
-  background: #e5e7eb;
+  background: var(--bg);
 }
 
 .delete-btn {

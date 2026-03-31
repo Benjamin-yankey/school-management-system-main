@@ -1,6 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
 
 .academy-page {
+  --academy-bg: #060b18;
+  --academy-bg-alt: #090f1f;
+  --academy-surface: rgba(16, 25, 48, 0.9);
+  --academy-surface-alt: rgba(10, 16, 35, 0.78);
+  --academy-text: #e8eefc;
+  --academy-text-muted: rgba(215, 226, 248, 0.84);
+  --academy-border: rgba(148, 163, 184, 0.2);
+  --academy-accent: #54e9ff;
+
   min-height: 100vh;
   background:
     radial-gradient(
@@ -13,9 +22,19 @@
       rgba(144, 147, 255, 0.22),
       transparent 58%
     ),
-    linear-gradient(180deg, #060b18 0%, #090f1f 100%);
-  color: #e8eefc;
+    linear-gradient(180deg, var(--academy-bg) 0%, var(--academy-bg-alt) 100%);
+  color: var(--academy-text);
   font-family: "Manrope", sans-serif;
+}
+
+body[data-theme="light"] .academy-page {
+  --academy-bg: #f8fafc;
+  --academy-bg-alt: #f1f5f9;
+  --academy-surface: rgba(255, 255, 255, 0.9);
+  --academy-surface-alt: rgba(248, 250, 252, 0.82);
+  --academy-text: #1e293b;
+  --academy-text-muted: #64748b;
+  --academy-border: rgba(148, 163, 184, 0.2);
 }
 
 .academy-page-shell {
@@ -29,8 +48,8 @@
   z-index: 40;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  background: rgba(7, 12, 25, 0.72);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--academy-surface);
+  border-bottom: 1px solid var(--academy-border);
 }
 
 .academy-page-nav-inner {
@@ -65,7 +84,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
-  color: #f4f8ff;
+  color: var(--academy-text);
   white-space: nowrap;
 }
 
@@ -74,11 +93,11 @@
   top: 100%;
   left: 0;
   width: 100%;
-  background: rgba(7, 12, 25, 0.98);
+  background: var(--academy-bg);
   flex-direction: column;
   padding: 1.5rem;
   gap: 1.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid var(--academy-border);
   transform: translateY(-150%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -106,7 +125,7 @@
 }
 
 .academy-page-link {
-  color: rgba(229, 236, 251, 0.74);
+  color: var(--academy-text-muted);
   text-decoration: none;
   font-weight: 700;
   font-size: 0.95rem;
@@ -115,7 +134,7 @@
 }
 
 .academy-page-link:hover {
-  color: #ffffff;
+  color: var(--academy-text);
 }
 
 .academy-page-link.active {
@@ -202,7 +221,7 @@
 .academy-page-subtitle {
   margin-top: 0.95rem;
   max-width: 760px;
-  color: rgba(215, 226, 248, 0.84);
+  color: var(--academy-text-muted);
   font-size: 1rem;
   line-height: 1.75;
 }
@@ -216,12 +235,8 @@
 .academy-page-card {
   border-radius: 18px;
   padding: 1.2rem;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: linear-gradient(
-    160deg,
-    rgba(16, 25, 48, 0.9),
-    rgba(10, 16, 35, 0.78)
-  );
+  border: 1px solid var(--academy-border);
+  background: var(--academy-surface);
   box-shadow: 0 18px 32px -24px rgba(4, 9, 20, 0.85);
 }
 
@@ -245,7 +260,7 @@
 .academy-page-card-text {
   margin-top: 0.55rem;
   line-height: 1.64;
-  color: rgba(212, 223, 245, 0.82);
+  color: var(--academy-text-muted);
   font-size: 0.92rem;
 }
 
@@ -259,9 +274,9 @@
 .academy-page-chip {
   padding: 0.22rem 0.58rem;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.32);
+  border: 1px solid var(--academy-border);
   font-size: 0.75rem;
-  color: rgba(222, 230, 248, 0.9);
+  color: var(--academy-text);
 }
 
 .campus-photo-grid {
@@ -295,8 +310,8 @@
 
 .campus-info-card {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(14, 22, 43, 0.85);
+  border: 1px solid var(--academy-border);
+  background: var(--academy-surface);
   padding: 1rem;
 }
 
@@ -308,7 +323,7 @@
 .campus-info-card p {
   font-size: 0.9rem;
   line-height: 1.6;
-  color: rgba(212, 223, 245, 0.84);
+  color: var(--academy-text-muted);
 }
 
 .admissions-wrap {
@@ -320,12 +335,8 @@
 .admissions-panel,
 .admissions-form-card {
   border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: linear-gradient(
-    160deg,
-    rgba(16, 25, 48, 0.9),
-    rgba(10, 16, 35, 0.82)
-  );
+  border: 1px solid var(--academy-border);
+  background: var(--academy-surface);
   box-shadow: 0 22px 40px -26px rgba(4, 9, 20, 0.85);
 }
 
@@ -363,7 +374,7 @@
   align-items: center;
   gap: 0.55rem;
   font-size: 0.88rem;
-  color: rgba(215, 226, 248, 0.88);
+  color: var(--academy-text-muted);
 }
 
 .admissions-form-card {
@@ -400,9 +411,9 @@
 .admissions-textarea {
   width: 100%;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.34);
-  background: rgba(8, 14, 28, 0.86);
-  color: #edf5ff;
+  border: 1px solid var(--academy-border);
+  background: var(--academy-bg-alt);
+  color: var(--academy-text);
   padding: 0.73rem 0.82rem;
   font-family: inherit;
   font-size: 0.94rem;

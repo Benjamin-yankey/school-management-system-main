@@ -19,10 +19,11 @@
 
 /* Modal Content */
 .modal-content {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--card-shadow);
   max-height: 90vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease-out;
@@ -73,7 +74,7 @@
 .modal-title h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text);
   margin: 0;
 }
 
@@ -85,8 +86,8 @@
   height: 2.5rem;
   border-radius: 50%;
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -110,10 +111,10 @@
 
 /* Form Sections */
 .form-section {
-  background: #f8fafc;
+  background: var(--surface-muted);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
 }
 
 .section-title {
@@ -122,10 +123,10 @@
   gap: 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--border);
 }
 
 .section-icon {
@@ -160,7 +161,7 @@
 .form-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -178,12 +179,13 @@
 .form-select,
 .form-textarea {
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text);
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s ease;
   font-family: inherit;
-  background: white;
 }
 
 .form-input:focus,
@@ -250,8 +252,8 @@
 }
 
 .schedule-day {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
 }
@@ -302,7 +304,7 @@
 }
 
 .checkbox-item:hover {
-  background: #f3f4f6;
+  background: var(--surface-muted);
 }
 
 /* Attendance Specific */
@@ -325,8 +327,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   transition: all 0.2s ease;
 }
@@ -351,7 +353,7 @@
 
 .student-name {
   font-weight: 500;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .attendance-buttons {
@@ -364,9 +366,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.875rem;
@@ -400,9 +403,9 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--surface-muted);
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
 }
 
 .summary-item {
@@ -423,7 +426,7 @@
 .summary-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .summary-value.present {
@@ -445,7 +448,7 @@
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
 }
 
 /* Buttons */
@@ -476,9 +479,9 @@
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {

@@ -256,7 +256,7 @@ const AcademyLandingPage = () => {
             <div className="hero-overlay-gradient"></div>
             <img 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQzjrgtnRd05hN4zW2f8_TcmY-yW1v5p0owBUOCcKDfouChAMHqBhusBJ8SzDnzftwIuj8U8HfhyeZqCO5QUEZ3vhgjVIKvsbl3k9ZlgulGSWVHkQWA2Z_I3RM8yQQDs38N_Yl2RWoQ8WRJTZRZK7b-aB86H7eNmavldwXQKDwQ_RyTN8nEgVUujdKf8adSsnSZ8VRRp029JjeSkdxpNe-0nuvbWeFvKux0RpZMNPSmKtk7tEkE3sw8ZQN9wRuzFzxfw1pVshSbjtx" 
-              alt="Academy Architecture" 
+              alt="GEOZIIE Campus Architecture" 
               className="hero-fallback-image"
             />
           </div>
@@ -314,7 +314,7 @@ const AcademyLandingPage = () => {
               <div className="vision-text-modern">
                 <h2 className="vision-title-modern">The Neon Sanctuary</h2>
                 <p className="vision-paragraph-modern">
-                  The Academy is more than an institution; it's a meticulously designed ecosystem for intellectual and creative expansion. We blend centuries of pedagogical wisdom with cutting-edge environmental psychology and cognitive science.
+                  GEOZIIE INTERNATIONAL SCHOOL is more than an institution; it's a meticulously designed ecosystem for intellectual and creative expansion. We blend centuries of pedagogical wisdom with cutting-edge environmental psychology and cognitive science.
                 </p>
                 <div className="vision-features-modern">
                   <div className="v-feature">

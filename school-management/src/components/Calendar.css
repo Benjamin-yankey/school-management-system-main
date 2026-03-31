@@ -1,9 +1,11 @@
 /* Calendar Styles */
 .calendar-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -14,7 +16,7 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .calendar-nav {
@@ -30,9 +32,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #6b7280;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -46,7 +48,7 @@
 .calendar-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text);
   margin: 0;
 }
 
@@ -64,9 +66,9 @@
 
 .view-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #6b7280;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -89,9 +91,9 @@
 .today-events {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: var(--surface-muted);
   border-radius: 12px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--accent);
 }
 
 .today-events-title {
@@ -100,7 +102,7 @@
   gap: 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin-bottom: 1rem;
 }
 
@@ -111,11 +113,12 @@
 }
 
 .event-card {
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  border-left: 4px solid #3b82f6;
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  border-left: 4px solid var(--accent);
 }
 
 .event-header {
@@ -128,7 +131,7 @@
 .event-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
@@ -154,12 +157,12 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .event-description {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;
 }
@@ -175,8 +178,8 @@
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
 }
 
 .weekday-header {
@@ -184,7 +187,7 @@
   text-align: center;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -196,8 +199,8 @@
 }
 
 .calendar-day {
-  border-right: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -206,7 +209,7 @@
 }
 
 .calendar-day:hover {
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .calendar-day.today {
@@ -214,7 +217,7 @@
 }
 
 .calendar-day.today .day-number {
-  background: #3b82f6;
+  background: var(--accent);
   color: white;
   border-radius: 50%;
   width: 2rem;
@@ -238,7 +241,7 @@
 .day-number {
   font-size: 1rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
@@ -268,11 +271,11 @@
 
 .more-events {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-weight: 500;
   text-align: center;
   padding: 0.25rem;
-  background: #f3f4f6;
+  background: var(--surface-muted);
   border-radius: 4px;
 }
 

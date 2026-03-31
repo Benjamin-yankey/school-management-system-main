@@ -8,7 +8,7 @@ import {
   Microscope,
   Palette,
   Sparkles,
-  Building2
+  Building2,
 } from "lucide-react";
 import "./AcademyPages.css";
 
@@ -61,30 +61,63 @@ const ProgramsPage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
     <div className="academy-page">
-      <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
+      <header
+        className={`academy-page-nav ${isMenuOpen ? "mobile-active" : ""}`}
+      >
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="school-logo-container">
-            <div className="school-logo-icon" style={{width: 32, height: 32, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-              <Building2 size={18} color="#fff" />
+            <div className="school-logo-icon">
+              <img
+                src="/images/schoolLogo.jpeg"
+                alt="GEOZIIE Logo"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "inherit",
+                }}
+              />
             </div>
+
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>
           </Link>
-          <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <span className="material-symbols-outlined">
+              {isMenuOpen ? "close" : "menu"}
+            </span>
           </button>
           <nav className="academy-page-links" aria-label="Primary">
-            <Link to="/" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              to="/"
+              className="academy-page-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Home
             </Link>
-            <Link to="/programs" className="academy-page-link active" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              to="/programs"
+              className="academy-page-link active"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Programs
             </Link>
-            <Link to="/campus" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              to="/campus"
+              className="academy-page-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Campus
             </Link>
-            <Link to="/admissions" className="academy-page-link" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              to="/admissions"
+              className="academy-page-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Admissions
             </Link>
           </nav>
@@ -92,7 +125,10 @@ const ProgramsPage = () => {
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
-            <Link to="/signin" className="academy-page-auth academy-page-auth-accent">
+            <Link
+              to="/signin"
+              className="academy-page-auth academy-page-auth-accent"
+            >
               Portal Access
             </Link>
             <Link to="/admissions" className="academy-page-apply">
@@ -111,8 +147,9 @@ const ProgramsPage = () => {
             Programs built for deep thinkers, builders, and future leaders.
           </h1>
           <p className="academy-page-subtitle">
-            Every pathway combines rigorous theory, real implementation, and close mentorship.
-            Choose a direction that stretches your technical depth and strategic imagination.
+            Every pathway combines rigorous theory, real implementation, and
+            close mentorship. Choose a direction that stretches your technical
+            depth and strategic imagination.
           </p>
         </section>
 

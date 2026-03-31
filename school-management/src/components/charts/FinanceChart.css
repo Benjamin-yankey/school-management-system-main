@@ -1,10 +1,11 @@
 /* Finance Chart Styles */
 .finance-chart-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -18,13 +19,13 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .chart-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
@@ -36,7 +37,7 @@
 
 .period-selector {
   display: flex;
-  background: #f3f4f6;
+  background: var(--surface-muted);
   border-radius: 8px;
   padding: 0.25rem;
   gap: 0.25rem;
@@ -55,8 +56,8 @@
 }
 
 .period-btn:hover {
-  color: #374151;
-  background: #e5e7eb;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .period-btn.active {
@@ -72,8 +73,8 @@
   height: 2rem;
   border-radius: 6px;
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -101,8 +102,10 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
 }
 
@@ -163,7 +166,7 @@
 .summary-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -172,7 +175,7 @@
 .summary-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   line-height: 1;
 }
 
@@ -191,17 +194,16 @@
 
 /* Custom Tooltip */
 .finance-tooltip {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--card-shadow);
 }
 
 .tooltip-label {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
 }

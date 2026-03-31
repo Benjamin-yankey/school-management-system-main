@@ -7,9 +7,23 @@
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: #090e1c;
-  color: #e1e4fa;
+  background-color: var(--bg-local, #090e1c);
+  color: var(--text-local, #e1e4fa);
   overflow-x: hidden;
+}
+
+:root {
+  --bg-local: #090e1c;
+  --text-local: #e1e4fa;
+  --surface-local: #181f33;
+  --border-local: rgba(133, 173, 255, 0.2);
+}
+
+body[data-theme="light"] {
+  --bg-local: #ffffff;
+  --text-local: #0f1724;
+  --surface-local: #f6f8fb;
+  --border-local: #e2e8f0;
 }
 
 .material-symbols-outlined {
@@ -65,9 +79,9 @@ body {
   right: 0;
   width: 100%;
   z-index: 1000;
-  background-color: rgba(9, 14, 28, 0.95);
+  background-color: var(--bg-local);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(133, 173, 255, 0.2);
+  border-bottom: 1px solid var(--border-local);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
