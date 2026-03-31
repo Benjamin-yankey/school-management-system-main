@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import { Building2 } from "lucide-react";
+import { useTheme } from "./contexts/ThemeContext";
+import { Building2, Sun, Moon } from "lucide-react";
 import "./Home.css";
 
 const Home = () => {
@@ -26,6 +27,7 @@ const Home = () => {
   const galleryRef = useRef(null);
 
   const { user, isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const navLinks = [
@@ -285,6 +287,21 @@ const Home = () => {
           </div>
         </div>
         <div className="nav-actions">
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn icon-btn"
+            aria-label="Toggle Theme"
+            style={{
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              color: "var(--color-on-surface)",
+            }}
+          >
+            {theme === "light" ? <Moon size={24} /> : <Sun size={24} />}
+          </button>
           <div className="nav-auth-links">
             <Link className="nav-auth-link" to="/signin">
               Sign In
@@ -650,21 +667,19 @@ const Home = () => {
         <div className="footer-container">
           <div className="footer-brand">
             <div className="school-logo-container">
-              <div
-                className="school-logo-icon"
-                style={{
-                  width: 36,
-                  height: 36,
-                  background: "rgba(255,255,255,0.1)",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                }}
-              >
-                <Building2 size={20} color="#fff" />
+              <div className="school-logo-icon">
+                <img
+                  src="/images/schoolLogo.jpeg"
+                  alt="GEOZIIE Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "inherit",
+                  }}
+                />
               </div>
+
               <span className="school-logo-text" style={{ color: "white" }}>
                 GEOZIIE INTERNATIONAL SCHOOL
               </span>

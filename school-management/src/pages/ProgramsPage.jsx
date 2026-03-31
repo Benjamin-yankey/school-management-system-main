@@ -9,7 +9,10 @@ import {
   Palette,
   Sparkles,
   Building2,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import "./AcademyPages.css";
 
 const programs = [
@@ -59,6 +62,8 @@ const programs = [
 
 const ProgramsPage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="academy-page">
       <header
@@ -122,6 +127,14 @@ const ProgramsPage = () => {
             </Link>
           </nav>
           <div className="academy-page-actions">
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-btn academy-page-auth"
+              aria-label="Toggle Theme"
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--academy-text)' }}
+            >
+              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
