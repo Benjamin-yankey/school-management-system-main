@@ -12,6 +12,7 @@ import { ClassesService } from './classes.service';
 import { CreateClassLevelDto } from './dto/create-class-level.dto';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { CreateAcademicYearDto } from './dto/create-academic-year.dto';
+import { CreateAcademicTermDto } from './dto/create-academic-term.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { MustResetGuard } from '../common/guards/must-reset.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -43,6 +44,23 @@ export class ClassesController {
   @Patch('academic-years/:id/activate')
   setActiveAcademicYear(@Param('id') id: string) {
     return this.classesService.setActiveAcademicYear(id);
+  }
+
+  // ── Academic Terms ────────────────────────────────────────────────
+
+  @Post('academic-terms')
+  createAcademicTerm(@Body() dto: CreateAcademicTermDto) {
+    return this.classesService.createAcademicTerm(dto);
+  }
+
+  @Get('academic-terms')
+  findAllAcademicTerms(@Param('academicYearId') academicYearId?: string) {
+    return this.classesService.findAllAcademicTerms(academicYearId);
+  }
+
+  @Patch('academic-terms/:id/activate')
+  setActiveAcademicTerm(@Param('id') id: string) {
+    return this.classesService.setActiveAcademicTerm(id);
   }
 
   // ── Class Levels ─────────────────────────────────────────────────

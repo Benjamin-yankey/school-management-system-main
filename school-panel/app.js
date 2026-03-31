@@ -102,6 +102,9 @@ async function renderView() {
         case 'staff': renderStaff(); break;
         case 'parents': renderParentRegistry(); break;
         case 'promotions': renderPromotions(); break;
+        case 'fees-admin': renderFeesAdmin(); break;
+        case 'student-fees': renderStudentFees(); break;
+        case 'parent-fees': renderParentFees(); break;
         case 'teacher-sections': renderTeacherSections(); break;
         case 'teacher-students': renderTeacherStudents(); break;
         case 'student-profile': renderStudentProfile(); break;
@@ -269,7 +272,14 @@ async function showEnrollModal(applicantId) {
                 <div class="input-group"><label>Academic Year</label><select id="enroll-year">${years.map(y => `<option value="${y.id}">${y.year}</option>`).join('')}</select></div>
                 <div class="input-group"><label>Class Level</label><select id="enroll-class" onchange="loadSectionsForEnroll(this.value)"><option>Select Class</option>${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
                 <div class="input-group"><label>Section</label><select id="enroll-section"><option value="">No Section</option></select></div>
-                <div class="flex-end gap-1"><button class="btn-secondary" onclick="closeModal()">Cancel</button><button class="btn-primary" onclick="submitEnrollment('${applicantId}')">Enroll Now</button></div>
+                
+                <div class="card bg-muted mt-1">
+                    <p class="small mb-1"><strong>Parent Linking (Optional)</strong></p>
+                    <div class="input-group"><label>Parent User ID</label><input type="text" id="enroll-parent-id" placeholder="Parent UUID"></div>
+                    <div class="input-group"><label>Relationship</label><input type="text" id="enroll-relationship" placeholder="e.g. Father"></div>
+                </div>
+
+                <div class="flex-end gap-1 mt-1"><button class="btn-secondary" onclick="closeModal()">Cancel</button><button class="btn-primary" onclick="submitEnrollment('${applicantId}')">Enroll Now</button></div>
             </div>
         `;
     } catch (e) { closeModal(); }
@@ -281,7 +291,14 @@ async function loadSectionsForEnroll(classId) {
 }
 
 async function submitEnrollment(applicantId) {
-    const payload = { applicantId, academicYearId: document.getElementById('enroll-year').value, classLevelId: document.getElementById('enroll-class').value, sectionId: document.getElementById('enroll-section').value || null };
+    const payload = { 
+        applicantId, 
+        academicYearId: document.getElementById('enroll-year').value, 
+        classLevelId: document.getElementById('enroll-class').value, 
+        sectionId: document.getElementById('enroll-section').value || null,
+        parentUserId: document.getElementById('enroll-parent-id').value || null,
+        relationship: document.getElementById('enroll-relationship').value || null
+    };
     await apiFetch('/students/enroll', { method: 'POST', body: JSON.stringify(payload) });
     showToast('Enrollment complete');
     closeModal();
@@ -315,15 +332,30 @@ async function loadStudents() {
     const students = await apiFetch('/students');
     document.getElementById('student-body').innerHTML = students.map(s => `
         <tr>
-            <td><strong>${s.firstName} ${s.lastName}</strong><br><small>${s.studentId}</small></td>
+            <td>
+                <strong>${s.firstName} ${s.lastName}</strong><br>
+                <small>${s.studentId}</small>
+                ${s.status === 'WITHDRAWN' ? '<span class="badge absent">WITHDRAWN</span>' : ''}
+            </td>
             <td>${s.email || '-'}</td>
             <td><small>${s.parents?.length || 0} Linked</small></td>
             <td>
-                <button class="btn-sm" onclick="viewStudentEnrollments('${s.id}')">History</button>
-                <button class="btn-sm" onclick="showManageGuardiansModal('${s.id}', '${s.firstName} ${s.lastName}')">Manage Guardians</button>
+                <div class="gap-05" style="display:flex; flex-wrap: wrap;">
+                    <button class="btn-sm" onclick="viewStudentEnrollments('${s.id}')">History</button>
+                    <button class="btn-sm" onclick="showManageGuardiansModal('${s.id}', '${s.firstName} ${s.lastName}')">Guardians</button>
+                    ${s.status !== 'WITHDRAWN' ? `<button class="btn-sm error" onclick="withdrawStudent('${s.id}')">Withdraw</button>` : ''}
+                </div>
             </td>
         </tr>
     `).join('') || '<tr><td colspan="4" class="text-center">No students found.</td></tr>';
+}
+
+async function withdrawStudent(studentId) {
+    if (confirm('Are you sure you want to withdraw this student? This action sets their status to WITHDRAWN.')) {
+        await apiFetch(`/students/${studentId}/withdraw`, { method: 'PATCH' });
+        showToast('Student withdrawn');
+        loadStudents();
+    }
 }
 
 async function viewStudentEnrollments(studentId) {
@@ -431,23 +463,103 @@ async function unlinkGuardian(studentId, parentUserId) {
 
 // -- ACADEMIC YEARS --
 function renderAcademicYears() {
-    document.getElementById('content-area').innerHTML = `<div class="card"><div class="flex-between"><h3>Academic Cycles</h3><button class="btn-primary" onclick="createAcademicYear()">Create</button></div><div class="table-container mt-1"><table><thead><tr><th>Year</th><th>Status</th><th>Action</th></tr></thead><tbody id="academic-years-body"></tbody></table></div></div>`;
+    document.getElementById('content-area').innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>Academic Cycles</h3>
+                <button class="btn-primary" onclick="createAcademicYear()">Create New Year</button>
+            </div>
+            <div id="academic-years-list" class="mt-1"></div>
+        </div>
+    `;
     loadAcademicYears();
 }
 
 async function loadAcademicYears() {
     const list = await apiFetch('/academic-years');
-    document.getElementById('academic-years-body').innerHTML = list.map(y => `<tr><td>${y.year}</td><td><span class="badge ${y.isActive ? 'success' : 'muted'}">${y.isActive ? 'ACTIVE' : 'INACTIVE'}</span></td><td>${!y.isActive ? `<button class="btn-sm" onclick="activateAcademicYear('${y.id}')">Activate</button>` : ''}</td></tr>`).join('');
+    const container = document.getElementById('academic-years-list');
+    container.innerHTML = '';
+
+    for (const y of list) {
+        const yearCard = document.createElement('div');
+        yearCard.className = 'card bg-muted mb-1';
+        yearCard.innerHTML = `
+            <div class="flex-between">
+                <div>
+                    <strong>${y.year}</strong>
+                    <span class="badge ${y.isActive ? 'success' : 'muted'} ml-1">${y.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                </div>
+                <div class="gap-1">
+                    ${!y.isActive ? `<button class="btn-sm" onclick="activateAcademicYear('${y.id}')">Activate Year</button>` : ''}
+                    <button class="btn-sm success" onclick="createAcademicTerm('${y.id}')">+ Add Term</button>
+                </div>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Term Name</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="terms-body-${y.id}"></tbody>
+                </table>
+            </div>
+        `;
+        container.appendChild(yearCard);
+        loadAcademicTerms(y.id);
+    }
+}
+
+async function loadAcademicTerms(yearId) {
+    const terms = await apiFetch(`/academic-terms?academicYearId=${yearId}`);
+    const body = document.getElementById(`terms-body-${yearId}`);
+    body.innerHTML = terms.map(t => `
+        <tr>
+            <td>${t.name}</td>
+            <td><span class="badge ${t.isCurrent ? 'success' : 'muted'}">${t.isCurrent ? 'CURRENT' : '-'}</span></td>
+            <td>
+                ${!t.isCurrent ? `<button class="btn-sm" onclick="activateAcademicTerm('${t.id}', '${yearId}')">Set Current</button>` : ''}
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="3" class="text-center">No terms defined</td></tr>';
 }
 
 async function createAcademicYear() {
-    const year = prompt("Year (e.g. 24/25):");
-    if (year) { await apiFetch('/academic-years', { method: 'POST', body: JSON.stringify({ year }) }); loadAcademicYears(); }
+    const year = prompt("Enter Year (e.g. 2024/2025):");
+    if (year) { 
+        await apiFetch('/academic-years', { method: 'POST', body: JSON.stringify({ year }) }); 
+        loadAcademicYears(); 
+    }
 }
 
 async function activateAcademicYear(id) {
     await apiFetch(`/academic-years/${id}/activate`, { method: 'PATCH' });
     loadAcademicYears();
+}
+
+async function createAcademicTerm(academicYearId) {
+    const name = prompt("Enter Term Name (e.g. Term 1, First Semester):");
+    if (!name) return;
+    
+    const rawStart = prompt("Enter Start Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+    if (!rawStart) return;
+    
+    const rawEnd = prompt("Enter End Date (YYYY-MM-DD):", new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    if (!rawEnd) return;
+    
+    try {
+        const startDate = new Date(rawStart).toISOString();
+        const endDate = new Date(rawEnd).toISOString();
+        
+        await apiFetch('/academic-terms', { 
+            method: 'POST', 
+            body: JSON.stringify({ name, academicYearId, startDate, endDate }) 
+        });
+        loadAcademicTerms(academicYearId);
+    } catch(e) {
+        showToast('Invalid dates provided', 'error');
+    }
+}
+
+async function activateAcademicTerm(id, yearId) {
+    await apiFetch(`/academic-terms/${id}/activate`, { method: 'PATCH' });
+    loadAcademicTerms(yearId);
 }
 
 // -- CURRICULUM --
@@ -582,7 +694,13 @@ async function viewSectionStudents(sectionId, sectionName) {
     const students = await apiFetch(`/teacher/sections/${sectionId}/students`);
     container.innerHTML = `
         <div class="modal large">
-            <h3>Students in Section ${sectionName}</h3>
+            <div class="flex-between">
+                <h3>Students in Section ${sectionName}</h3>
+                <div class="gap-1">
+                    <button class="btn-primary" onclick="renderAttendanceMarking('${sectionId}', '${sectionName}')">Mark Attendance</button>
+                    <button class="btn-primary" onclick="renderGradeEntry('${sectionId}', '${sectionName}')">Enter Grades</button>
+                </div>
+            </div>
             <div class="table-container mt-1">
                 <table>
                     <thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
@@ -590,10 +708,162 @@ async function viewSectionStudents(sectionId, sectionName) {
                         <tr>
                             <td>${s.firstName} ${s.lastName}</td>
                             <td>${s.email || '-'}</td>
-                            <td><button class="btn-sm" onclick="showToast('Grade management coming soon...')">Manage</button></td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="btn-sm" onclick="viewStudentSummary('${s.id}', '${s.firstName}')">View Summary</button>
+                                    <button class="btn-sm" onclick="promptReportCard('${s.id}')">Report Card</button>
+                                </div>
+                            </td>
                         </tr>
                     `).join('')}</tbody>
                 </table>
+            </div>
+            <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+        </div>
+    `;
+}
+
+async function renderAttendanceMarking(sectionId, sectionName) {
+    const container = document.getElementById('modal-container');
+    const students = await apiFetch(`/teacher/sections/${sectionId}/students`);
+    const activeYear = await apiFetch('/academic-years/active'); // Simplified: assumes active year
+    const terms = await apiFetch(`/academic-terms?academicYearId=${activeYear.id}`);
+    const currentTerm = terms.find(t => t.isCurrent);
+
+    if (!currentTerm) return showToast('No current academic term set!', 'error');
+
+    container.innerHTML = `
+        <div class="modal large">
+            <h3>Mark Attendance: ${sectionName}</h3>
+            <p class="small text-muted mb-1">Date: ${new Date().toLocaleDateString()} | Term: ${currentTerm.name}</p>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Student</th><th>Status</th></tr></thead>
+                    <tbody>${students.map(s => `
+                        <tr>
+                            <td>${s.firstName} ${s.lastName}</td>
+                            <td>
+                                <div class="attendance-grid" id="att-row-${s.id}">
+                                    <button class="att-btn active" data-status="present" onclick="setAttendanceStatus('${s.id}', 'present')">P</button>
+                                    <button class="att-btn" data-status="absent" onclick="setAttendanceStatus('${s.id}', 'absent')">A</button>
+                                    <button class="att-btn" data-status="late" onclick="setAttendanceStatus('${s.id}', 'late')">L</button>
+                                    <button class="att-btn" data-status="excused" onclick="setAttendanceStatus('${s.id}', 'excused')">E</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+            <div class="flex-end gap-1 mt-1">
+                <button class="btn-secondary" onclick="viewSectionStudents('${sectionId}', '${sectionName}')">Back</button>
+                <button class="btn-primary" onclick="submitAttendance('${sectionId}', '${currentTerm.id}')">Submit Attendance</button>
+            </div>
+        </div>
+    `;
+}
+
+const attendanceState = {};
+function setAttendanceStatus(studentId, status) {
+    attendanceState[studentId] = status;
+    const row = document.getElementById(`att-row-${studentId}`);
+    row.querySelectorAll('.att-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.status === status);
+    });
+}
+
+async function submitAttendance(sectionId, termId) {
+    const records = Object.entries(attendanceState).map(([studentId, status]) => ({
+        studentId,
+        status
+    }));
+    
+    // Default remaining to 'present' if not clicked
+    const rowIds = Array.from(document.querySelectorAll('[id^="att-row-"]')).map(el => el.id.replace('att-row-', ''));
+    rowIds.forEach(id => {
+        if (!attendanceState[id]) {
+            records.push({ studentId: id, status: 'present' });
+        }
+    });
+
+    await apiFetch('/attendance/bulk', {
+        method: 'POST',
+        body: JSON.stringify({
+            sectionId,
+            termId,
+            date: new Date().toISOString().split('T')[0],
+            records
+        })
+    });
+    showToast('Attendance recorded successfully');
+    closeModal();
+}
+
+async function renderGradeEntry(sectionId, sectionName) {
+    const container = document.getElementById('modal-container');
+    const students = await apiFetch(`/teacher/sections/${sectionId}/students`);
+    const activeYear = await apiFetch('/academic-years/active');
+    const terms = await apiFetch(`/academic-terms?academicYearId=${activeYear.id}`);
+    const currentTerm = terms.find(t => t.isCurrent);
+
+    if (!currentTerm) return showToast('No current academic term set!', 'error');
+
+    container.innerHTML = `
+        <div class="modal large">
+            <h3>Grade Entry: ${sectionName}</h3>
+            <div class="flex-between mb-1">
+                <div class="input-group" style="margin:0"><label>Subject</label><input type="text" id="grade-subject" placeholder="e.g. Mathematics"></div>
+                <p class="small text-muted">Term: ${currentTerm.name}</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Student</th><th>Score (0-100)</th></tr></thead>
+                    <tbody>${students.map(s => `
+                        <tr>
+                            <td>${s.firstName} ${s.lastName}</td>
+                            <td><input type="number" class="grade-input" id="grade-score-${s.id}" min="0" max="100" value="0"></td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+            <div class="flex-end gap-1 mt-1">
+                <button class="btn-secondary" onclick="viewSectionStudents('${sectionId}', '${sectionName}')">Back</button>
+                <button class="btn-primary" onclick="submitGrades('${sectionId}', '${currentTerm.id}')">Submit Grades</button>
+            </div>
+        </div>
+    `;
+}
+
+async function submitGrades(sectionId, termId) {
+    const subject = document.getElementById('grade-subject').value;
+    if (!subject) return showToast('Subject name is required', 'error');
+
+    const inputs = document.querySelectorAll('.grade-input');
+    const grades = Array.from(inputs).map(input => ({
+        studentId: input.id.replace('grade-score-', ''),
+        score: parseInt(input.value) || 0
+    }));
+
+    await apiFetch('/grades/bulk', {
+        method: 'POST',
+        body: JSON.stringify({
+            termId,
+            subject,
+            grades
+        })
+    });
+    showToast('Grades submitted successfully');
+    closeModal();
+}
+
+async function viewStudentSummary(studentId, name) {
+    const summary = await apiFetch(`/attendance/student/${studentId}/summary`);
+    const container = document.getElementById('modal-container');
+    container.innerHTML = `
+        <div class="modal">
+            <h3>Summary for ${name}</h3>
+            <div class="stats-grid mt-1">
+                <div class="stat-card" style="border-color: var(--success)"><div class="stat-label">Present</div><div class="stat-value">${summary.present}</div></div>
+                <div class="stat-card" style="border-color: var(--error)"><div class="stat-label">Absent</div><div class="stat-value">${summary.absent}</div></div>
             </div>
             <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
         </div>
@@ -641,11 +911,14 @@ async function renderStudentProfile() {
                     <div class="stat-value" style="font-size: 1.2rem">${me.studentId}</div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card mt-1">
                 <p><strong>Email:</strong> ${me.email}</p>
                 <p><strong>Phone:</strong> ${me.phoneNumber || 'Not provided'}</p>
                 <p><strong>DOB:</strong> ${new Date(me.dateOfBirth).toLocaleDateString()}</p>
                 <p><strong>Interest:</strong> ${me.areaOfInterest}</p>
+                <div class="mt-1">
+                    <button class="btn-primary" onclick="promptReportCard('${me.id}')">View Current Report Card</button>
+                </div>
             </div>
         </div>
     `;
@@ -739,11 +1012,27 @@ async function renderStaff() {
     document.getElementById('staff-body').innerHTML = teachers.map(u => `
         <tr>
             <td><small>${u.id}</small></td>
-            <td><strong>${u.email}</strong></td>
+            <td>
+                <strong>${u.email}</strong>
+                ${!u.isActive ? '<span class="badge absent">INACTIVE</span>' : ''}
+            </td>
             <td><span class="badge success">${u.role.toUpperCase()}</span></td>
-            <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+            <td>
+                <button class="btn-sm ${u.isActive ? 'error' : 'success'}" onclick="toggleUserStatus('${u.id}', ${u.isActive})">
+                    ${u.isActive ? 'Deactivate' : 'Activate'}
+                </button>
+            </td>
         </tr>
     `).join('') || '<tr><td colspan="4" class="text-center">No teachers found.</td></tr>';
+}
+
+async function toggleUserStatus(userId, currentStatus) {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+        await apiFetch(`/administration/users/${userId}/${action}`, { method: 'PATCH' });
+        showToast(`User ${action}d`);
+        renderView();
+    }
 }
 
 async function renderParentRegistry() {
@@ -756,7 +1045,7 @@ async function renderParentRegistry() {
             </div>
             <div class="table-container mt-1">
                 <table>
-                    <thead><tr><th>ID</th><th>Email</th><th>Role</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
                     <tbody id="parents-registry-body"></tbody>
                 </table>
             </div>
@@ -767,10 +1056,18 @@ async function renderParentRegistry() {
     document.getElementById('parents-registry-body').innerHTML = parents.map(u => `
         <tr>
             <td><small>${u.id}</small></td>
-            <td><strong>${u.email}</strong></td>
+            <td>
+                <strong>${u.email}</strong>
+                ${!u.isActive ? '<span class="badge absent">INACTIVE</span>' : ''}
+            </td>
             <td><span class="badge">${u.role.toUpperCase()}</span></td>
+            <td>
+                <button class="btn-sm ${u.isActive ? 'error' : 'success'}" onclick="toggleUserStatus('${u.id}', ${u.isActive})">
+                    ${u.isActive ? 'Deactivate' : 'Activate'}
+                </button>
+            </td>
         </tr>
-    `).join('') || '<tr><td colspan="3" class="text-center">No parents found.</td></tr>';
+    `).join('') || '<tr><td colspan="4" class="text-center">No parents found.</td></tr>';
 }
 
 function showCreateUserModal(role) {
@@ -829,7 +1126,7 @@ async function renderParentPortal() {
             <td>${c.firstName} ${c.lastName}</td>
             <td>${c.studentId}</td>
             <td>${c.currentClass || '-'}</td>
-            <td><button class="btn-sm" onclick="viewChildDetail('${c.id}')">Performance</button></td>
+            <td><button class="btn-sm" onclick="promptReportCard('${c.id}')">Report Card</button></td>
             <td><button class="btn-sm error" onclick="unlinkChild('${c.id}')">Unlink</button></td>
         </tr>
     `).join('') || '<tr><td colspan="5" class="text-center">No children linked yet.</td></tr>';
@@ -857,7 +1154,256 @@ async function unlinkChild(id) {
 }
 
 // -- MISC & INIT --
-function renderPromotions() { document.getElementById('content-area').innerHTML = `<div class="card"><h3>Bulk Promotions</h3><p>Promotion logic is managed in the backend service.</p></div>`; }
+async function renderPromotions() { 
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <h3>Bulk Promotions</h3>
+            <p class="text-muted mb-1">Promote eligible students to the next class level in bulk.</p>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Class Level</th><th>Sections</th><th>Action</th></tr></thead>
+                    <tbody id="promotions-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    try {
+        const classes = await apiFetch('/classes/levels');
+        document.getElementById('promotions-body').innerHTML = classes.map(c => `
+            <tr>
+                <td>${c.name}</td>
+                <td>${c.sections?.length || 0}</td>
+                <td><button class="btn-sm" onclick="showToast('Promotion logic is executed via the backend promotion engine.')">Promote All</button></td>
+            </tr>
+        `).join('') || '<tr><td colspan="3" class="text-center">No classes defined</td></tr>';
+    } catch(e) {}
+}
+
+async function promptReportCard(studentId) {
+    try {
+        const activeYear = await apiFetch('/academic-years/active');
+        const terms = await apiFetch(`/academic-terms?academicYearId=${activeYear.id}`);
+        const currentTerm = terms.find(t => t.isCurrent);
+        if (!currentTerm) return showToast('No current academic term set!', 'error');
+        renderReportCard(studentId, currentTerm.id);
+    } catch(e) {
+        showToast('Error generating report card', 'error');
+    }
+}
+
+async function renderReportCard(studentId, termId) {
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="modal report-card large">
+            <div class="text-center"><div class="loading">Generating Report Card...</div></div>
+        </div>
+    `;
+    
+    try {
+        const rc = await apiFetch(`/grades/report-card/${studentId}/term/${termId}`);
+        container.innerHTML = `
+            <div class="modal report-card large">
+                <div class="report-card-header">
+                    <h2>Student Report Card</h2>
+                    <h3>${rc.academicTerm.name}</h3>
+                </div>
+                <div class="report-card-grid">
+                    <div class="report-card-field"><strong>Student Name:</strong> ${rc.student.firstName} ${rc.student.lastName}</div>
+                    <div class="report-card-field"><strong>Student ID:</strong> ${rc.student.studentId}</div>
+                </div>
+                
+                <h4 class="mt-1 mb-05">Academic Performance</h4>
+                <div class="table-container grade-table">
+                    <table>
+                        <thead><tr><th>Subject</th><th>Score</th><th>Remark</th></tr></thead>
+                        <tbody>
+                            ${rc.grades.map(g => `
+                                <tr>
+                                    <td>${g.subject}</td>
+                                    <td>${g.score}</td>
+                                    <td class="remark-${g.remark.toLowerCase()}">${g.remark}</td>
+                                </tr>
+                            `).join('') || '<tr><td colspan="3" class="text-center">No grades recorded for this term.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="flex-between mt-1 pt-1" style="border-top: 2px solid var(--border);">
+                    <div><strong>Average Score:</strong> ${rc.average.toFixed(2)}</div>
+                    <div><strong>Overall Remark:</strong> <span class="remark-${rc.overallRemark.toLowerCase()}">${rc.overallRemark}</span></div>
+                </div>
+                
+                <div class="flex-end gap-1 mt-1 no-print">
+                    <button class="btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn-primary" onclick="window.print()">Print Report Card</button>
+                </div>
+            </div>
+        `;
+    } catch(e) {
+        container.innerHTML = `
+            <div class="modal">
+                <h3 class="error">Error</h3>
+                <p>Could not generate report card. Ensure the term exists and grades are submitted.</p>
+                <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+            </div>
+        `;
+    }
+}
+
+// -- FEES MANAGEMENT --
+async function renderFeesAdmin() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>System Fees</h3>
+                <button class="btn-primary" onclick="showCreateFeeModal()">Create New Fee</button>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Name</th><th>Amount</th><th>Category</th><th>Term</th></tr></thead>
+                    <tbody id="fees-admin-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Record Payment</h3>
+            <div class="flex-column gap-1">
+                <div class="input-group">
+                    <label>Student UUID</label>
+                    <input type="text" id="pay-student-id" placeholder="Paste Student UUID...">
+                </div>
+                <div class="flex-end">
+                    <button class="btn-primary" onclick="showRecordPaymentModal()">Next: Payment Details</button>
+                </div>
+            </div>
+        </div>
+    `;
+    const fees = await apiFetch('/fees');
+    document.getElementById('fees-admin-body').innerHTML = fees.map(f => `
+        <tr>
+            <td>${f.name}</td>
+            <td>$${f.amount}</td>
+            <td><span class="badge">${f.category}</span></td>
+            <td>${f.academicTerm?.name || '-'}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" class="text-center">No fees defined</td></tr>';
+}
+
+async function showCreateFeeModal() {
+    const activeYear = await apiFetch('/academic-years/active');
+    const terms = await apiFetch(`/academic-terms?academicYearId=${activeYear.id}`);
+    
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="modal">
+            <h3>Create New Fee</h3>
+            <div class="input-group"><label>Fee Name</label><input type="text" id="new-fee-name" placeholder="e.g. Tuition Fee Q1"></div>
+            <div class="input-group"><label>Amount</label><input type="number" id="new-fee-amount" placeholder="0.00"></div>
+            <div class="input-group"><label>Category</label><select id="new-fee-cat"><option value="tuition">Tuition</option><option value="registration">Registration</option><option value="other">Other</option></select></div>
+            <div class="input-group"><label>Target Term</label><select id="new-fee-term">${terms.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}</select></div>
+            <div class="flex-end gap-1">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitCreateFee()">Create Fee</button>
+            </div>
+        </div>
+    `;
+}
+
+async function submitCreateFee() {
+    const payload = {
+        name: document.getElementById('new-fee-name').value,
+        amount: parseFloat(document.getElementById('new-fee-amount').value),
+        category: document.getElementById('new-fee-cat').value,
+        academicTermId: document.getElementById('new-fee-term').value
+    };
+    await apiFetch('/fees', { method: 'POST', body: JSON.stringify(payload) });
+    showToast('Fee created successfully');
+    closeModal();
+    renderFeesAdmin();
+}
+
+async function showRecordPaymentModal() {
+    const studentId = document.getElementById('pay-student-id').value;
+    if (!studentId) return showToast('Please enter Student UUID', 'error');
+    
+    const balance = await apiFetch(`/fees/student/${studentId}/balance`);
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="modal">
+            <h3>Record Payment</h3>
+            <div class="stat-card fee-card mb-1">
+                <div class="stat-label">Total Outstanding Balance</div>
+                <div class="balance-value">$${balance.balance}</div>
+            </div>
+            <div class="input-group"><label>Payment Amount</label><input type="number" id="pay-amount" value="${balance.balance}"></div>
+            <div class="input-group"><label>Reference/Note</label><input type="text" id="pay-note" placeholder="Receipt # or Check info"></div>
+            <div class="flex-end gap-1">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitRecordPayment('${studentId}')">Confirm Payment</button>
+            </div>
+        </div>
+    `;
+}
+
+async function submitRecordPayment(studentId) {
+    const payload = {
+        amount: parseFloat(document.getElementById('pay-amount').value),
+        reference: document.getElementById('pay-note').value
+    };
+    await apiFetch(`/fees/student/${studentId}/pay`, { method: 'POST', body: JSON.stringify(payload) });
+    showToast('Payment recorded!');
+    closeModal();
+    renderFeesAdmin();
+}
+
+async function renderStudentFees() {
+    const container = document.getElementById('content-area');
+    const me = await apiFetch('/student-portal/me');
+    const balance = await apiFetch(`/fees/student/${me.id}/balance`);
+    
+    container.innerHTML = `
+        <div class="card">
+            <h3>My Fee Status</h3>
+            <div class="stats-grid mt-1">
+                <div class="stat-card fee-card"><div class="stat-label">Total Balance Due</div><div class="balance-value">$${balance.balance}</div></div>
+                <div class="stat-card" style="border-color: var(--success)"><div class="stat-label">Total Paid</div><div class="stat-value">$${balance.totalPaid}</div></div>
+            </div>
+            <div class="card mt-1">
+                <h4>Payment History</h4>
+                <p>Contact the accounting office for detailed transaction history.</p>
+            </div>
+        </div>
+    `;
+}
+
+async function renderParentFees() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `<div class="card"><h3>Children Fee Balances</h3><div id="parent-fees-list" class="flex-column gap-1 mt-1"></div></div>`;
+    
+    const children = await apiFetch('/parent/children');
+    const list = document.getElementById('parent-fees-list');
+    
+    for (const c of children) {
+        const balance = await apiFetch(`/fees/student/${c.id}/balance`);
+        list.innerHTML += `
+            <div class="stat-card flex-between">
+                <div>
+                    <div class="stat-label">${c.firstName} ${c.lastName}</div>
+                    <div class="balance-value" style="font-size: 1.25rem">$${balance.balance}</div>
+                </div>
+                <div class="text-right">
+                    <span class="badge ${balance.balance <= 0 ? 'success' : 'late'}">${balance.balance <= 0 ? 'PAID' : 'PENDING'}</span>
+                </div>
+            </div>
+        `;
+    }
+}
 function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
 function initModules() {
     const role = state.user.role;
@@ -880,6 +1426,18 @@ function initModules() {
             } 
         };
     });
+    loadActiveTerm();
+}
+
+async function loadActiveTerm() {
+    try {
+        const activeYear = await apiFetch('/academic-years/active');
+        const terms = await apiFetch(`/academic-terms?academicYearId=${activeYear.id}`);
+        const currentTerm = terms.find(t => t.isCurrent);
+        document.getElementById('active-term-display').textContent = currentTerm ? `Term: ${currentTerm.name}` : 'Term: Not Set';
+    } catch(e) {
+        document.getElementById('active-term-display').textContent = 'Term: N/A';
+    }
 }
 
 document.getElementById('btn-login').onclick = login;

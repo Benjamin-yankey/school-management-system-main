@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { EnrollStudentDto } from './dto/enroll-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -20,8 +20,13 @@ export class StudentController {
   }
 
   @Get()
-  findAll() {
-    return this.studentService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('academicYearId') academicYearId?: string,
+    @Query('classLevelId') classLevelId?: string,
+  ) {
+    return this.studentService.findAll({ page, limit, academicYearId, classLevelId });
   }
 
   @Get(':id')
@@ -42,5 +47,10 @@ export class StudentController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateStudentStatusDto) {
     return this.studentService.updateStatus(id, dto);
+  }
+
+  @Patch(':id/withdraw')
+  withdraw(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.studentService.withdraw(id, reason);
   }
 }

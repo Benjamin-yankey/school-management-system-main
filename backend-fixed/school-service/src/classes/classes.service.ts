@@ -8,9 +8,11 @@ import { Repository } from 'typeorm';
 import { ClassLevel } from './class-level.entity';
 import { Section } from './section.entity';
 import { AcademicYear } from './academic-year.entity';
+import { AcademicTerm } from './academic-term.entity';
 import { CreateClassLevelDto } from './dto/create-class-level.dto';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { CreateAcademicYearDto } from './dto/create-academic-year.dto';
+import { CreateAcademicTermDto } from './dto/create-academic-term.dto';
 
 @Injectable()
 export class ClassesService {
@@ -21,11 +23,24 @@ export class ClassesService {
     private readonly sectionRepo: Repository<Section>,
     @InjectRepository(AcademicYear)
     private readonly academicYearRepo: Repository<AcademicYear>,
+    @InjectRepository(AcademicTerm)
+    private readonly termRepo: Repository<AcademicTerm>,
   ) {}
 
   // ── Academic Years ───────────────────────────────────────────────
 
   async createAcademicYear(dto: CreateAcademicYearDto): Promise<AcademicYear> {
+    // 8. Academic year format validation YYYY/YYYY
+    const regex = /^(\d{4})\/(\d{4})$/;
+    const match = dto.year.match(regex);
+    if (!match) throw new BadRequestException('Academic year must be in YYYY/YYYY format');
+    
+    const year1 = parseInt(match[1]);
+    const year2 = parseInt(match[2]);
+    if (year2 !== year1 + 1) {
+      throw new BadRequestException('The second year must be exactly one year after the first');
+    }
+
     const existing = await this.academicYearRepo.findOneBy({ year: dto.year });
     if (existing) throw new BadRequestException(`Academic year ${dto.year} already exists`);
     return this.academicYearRepo.save(this.academicYearRepo.create(dto));
@@ -49,6 +64,36 @@ export class ClassesService {
     const year = await this.academicYearRepo.findOneBy({ id });
     if (!year) throw new NotFoundException('Academic year not found');
     return year;
+  }
+
+  // ── Academic Terms ────────────────────────────────────────────────
+
+  async createAcademicTerm(dto: CreateAcademicTermDto): Promise<AcademicTerm> {
+    await this.getAcademicYearOrFail(dto.academicYearId);
+    
+    if (dto.isCurrent) {
+      await this.termRepo.update({ academicYearId: dto.academicYearId, isCurrent: true }, { isCurrent: false });
+    }
+    
+    return this.termRepo.save(this.termRepo.create(dto));
+  }
+
+  findAllAcademicTerms(academicYearId?: string): Promise<AcademicTerm[]> {
+    const where = academicYearId ? { academicYearId } : {};
+    return this.termRepo.find({ where, order: { startDate: 'ASC' } });
+  }
+
+  async setActiveAcademicTerm(id: string): Promise<AcademicTerm> {
+    const term = await this.getAcademicTermOrFail(id);
+    await this.termRepo.update({ academicYearId: term.academicYearId, isCurrent: true }, { isCurrent: false });
+    await this.termRepo.update(id, { isCurrent: true });
+    return this.getAcademicTermOrFail(id);
+  }
+
+  async getAcademicTermOrFail(id: string): Promise<AcademicTerm> {
+    const term = await this.termRepo.findOneBy({ id });
+    if (!term) throw new NotFoundException('Academic term not found');
+    return term;
   }
 
   // ── Class Levels ─────────────────────────────────────────────────
@@ -89,6 +134,10 @@ export class ClassesService {
 
   getSectionsByClass(classLevelId: string): Promise<Section[]> {
     return this.sectionRepo.find({ where: { classLevelId } });
+  }
+
+  async findSectionById(id: string): Promise<Section | null> {
+    return this.sectionRepo.findOneBy({ id });
   }
 
   async updateSection(id: string, dto: Partial<CreateSectionDto>): Promise<Section> {
