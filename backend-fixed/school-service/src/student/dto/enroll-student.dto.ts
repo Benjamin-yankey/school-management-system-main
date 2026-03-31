@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class EnrollStudentDto {
   @IsUUID()
@@ -16,4 +16,12 @@ export class EnrollStudentDto {
   @IsUUID()
   @IsOptional()
   sectionId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  parentUserId?: string;
+
+  @IsString()
+  @IsOptional()
+  relationship?: string;
 }

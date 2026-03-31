@@ -125,12 +125,47 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/academic-terms*")
+  proxyAcademicTerms(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @All("/attendance*")
+  proxyAttendance(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @All("/grades*")
+  proxyGrades(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.STUDENT, Role.PARENT)
+  @All("/fees*")
+  proxyFees(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
   // ── Teacher management (administration assigns teachers to sections) ───────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
   @All("/administration/teachers*")
   proxyTeacherManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/parents*")
+  proxyParentManagement(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 

@@ -10,10 +10,14 @@ import { Application } from './admission/application.entity';
 import { ClassLevel } from './classes/class-level.entity';
 import { Section } from './classes/section.entity';
 import { AcademicYear } from './classes/academic-year.entity';
+import { AcademicTerm } from './classes/academic-term.entity';
 import { Student } from './student/student.entity';
 import { StudentEnrollment } from './student/student-enrollment.entity';
 import { TeacherSection } from './teacher/teacher-section.entity';
 import { ParentStudent } from './parent/parent-student.entity';
+import { Attendance } from './attendance/attendance.entity';
+import { Grade } from './grade/grade.entity';
+import { Fee } from './fee/fee.entity';
 
 import { SchoolModule } from './school/school.module';
 import { AdmissionModule } from './admission/admission.module';
@@ -23,6 +27,9 @@ import { PromotionModule } from './promotion/promotion.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { StudentPortalModule } from './student-portal/student-portal.module';
 import { ParentModule } from './parent/parent.module';
+import { AttendanceModule } from './attendance/attendance.module';
+import { GradeModule } from './grade/grade.module';
+import { FeeModule } from './fee/fee.module';
 
 @Module({
   imports: [
@@ -41,10 +48,14 @@ import { ParentModule } from './parent/parent.module';
           ClassLevel,
           Section,
           AcademicYear,
+          AcademicTerm,
           Student,
           StudentEnrollment,
           TeacherSection,
           ParentStudent,
+          Attendance,
+          Grade,
+          Fee,
         ],
         synchronize: true,
       }),
@@ -61,6 +72,9 @@ import { ParentModule } from './parent/parent.module';
     TeacherModule,
     StudentPortalModule,
     ParentModule,
+    AttendanceModule,
+    GradeModule,
+    FeeModule,
   ],
 })
 export class AppModule {}

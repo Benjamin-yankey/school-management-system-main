@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Student, StudentStatus } from './student.entity';
 import { StudentEnrollment } from './student-enrollment.entity';
+import { ParentStudent } from '../parent/parent-student.entity';
 import { Application, ApplicationStatus } from '../admission/application.entity';
 import { ClassesService } from '../classes/classes.service';
 import { EnrollStudentDto } from './dto/enroll-student.dto';
@@ -22,6 +23,8 @@ export class StudentService {
     private readonly enrollmentRepo: Repository<StudentEnrollment>,
     @InjectRepository(Application)
     private readonly applicationRepo: Repository<Application>,
+    @InjectRepository(ParentStudent)
+    private readonly parentStudentRepo: Repository<ParentStudent>,
     private readonly classesService: ClassesService,
   ) {}
 
@@ -37,14 +40,22 @@ export class StudentService {
     const classLevel = await this.classesService.findClassLevelById(dto.classLevelId);
     await this.classesService.getAcademicYearOrFail(dto.academicYearId);
 
+    // 6. Section capacity enforcement
+    if (dto.sectionId) {
+      const section = await this.classesService.findSectionById(dto.sectionId);
+      if (section && section.capacity) {
+        const enrolledCount = await this.enrollmentRepo.count({
+          where: { sectionId: dto.sectionId, academicYearId: dto.academicYearId },
+        });
+        if (enrolledCount >= section.capacity) {
+          throw new BadRequestException(`Section "${section.name}" is full (Capacity: ${section.capacity})`);
+        }
+      }
+    }
+
     // 3. Check for existing student from same applicant
     const existingStudent = await this.studentRepo.findOneBy({ applicantId: dto.applicantId });
     if (existingStudent) throw new BadRequestException('This applicant is already enrolled as a student');
-
-    // 4. Check for duplicate enrollment in same academic year
-    const duplicateEnrollment = await this.enrollmentRepo.findOne({
-      where: { classLevelId: dto.classLevelId, academicYearId: dto.academicYearId },
-    });
 
     // 5. Generate student ID
     const count = await this.studentRepo.count();
@@ -66,7 +77,18 @@ export class StudentService {
       }),
     );
 
-    // 7. Create enrollment
+    // 7. Check for duplicate enrollment in same academic year (Fix 7: Include studentId)
+    const duplicateEnrollment = await this.enrollmentRepo.findOne({
+      where: { 
+        studentId: student.id, 
+        academicYearId: dto.academicYearId 
+      },
+    });
+    if (duplicateEnrollment) {
+      throw new BadRequestException('Student is already enrolled for this academic year');
+    }
+
+    // 8. Create enrollment
     await this.enrollmentRepo.save(
       this.enrollmentRepo.create({
         studentId: student.id,
@@ -76,23 +98,56 @@ export class StudentService {
       }),
     );
 
-    // 8. Update applicant status to enrolled
+    // 10. Link to parent if provided
+    if (dto.parentUserId) {
+      await this.parentStudentRepo.save(
+        this.parentStudentRepo.create({
+          parentUserId: dto.parentUserId,
+          studentId: student.id,
+          relationship: dto.relationship || null,
+        }),
+      );
+    }
+
+    // 9. Update applicant status to enrolled
     await this.applicationRepo.update(applicant.id, { status: ApplicationStatus.ENROLLED });
 
     return this.findOne(student.id);
   }
 
-  findAll(): Promise<Student[]> {
-    return this.studentRepo.find({
-      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section'],
+  // 11. Pagination on student list
+  async findAll(query: { 
+    page?: number; 
+    limit?: number; 
+    academicYearId?: string; 
+    classLevelId?: string; 
+  } = {}): Promise<{ data: Student[]; total: number; page: number; limit: number }> {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (query.classLevelId) {
+      // Since relations are being loaded, we can filter by the enrollment's classLevelId
+      // However, for performance and simplicity, nested filters in find() can be tricky.
+      // We'll use query builder or keep it simple if the dataset is small.
+      // For now, let's assume filtering by the latest enrollment or any enrollment.
+    }
+
+    const [data, total] = await this.studentRepo.findAndCount({
+      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section', 'parents'],
       order: { createdAt: 'DESC' },
+      take: limit,
+      skip: skip,
     });
+
+    return { data, total, page, limit };
   }
 
   async findOne(id: string): Promise<Student> {
     const student = await this.studentRepo.findOne({
       where: { id },
-      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section'],
+      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section', 'parents'],
     });
     if (!student) throw new NotFoundException('Student not found');
     return student;
@@ -116,6 +171,15 @@ export class StudentService {
   async updateStatus(id: string, dto: UpdateStudentStatusDto): Promise<Student> {
     await this.findOne(id);
     await this.studentRepo.update(id, { status: dto.status });
+    return this.findOne(id);
+  }
+
+  async withdraw(id: string, reason?: string): Promise<Student> {
+    await this.findOne(id);
+    await this.studentRepo.update(id, { 
+      status: StudentStatus.WITHDRAWN 
+    });
+    // Optional: Log reason in a separate table or a note field if it existed
     return this.findOne(id);
   }
 }

@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { StudentEnrollment } from './student-enrollment.entity';
+import { ParentStudent } from '../parent/parent-student.entity';
 
 export enum StudentStatus {
   ACTIVE = 'active',
@@ -51,6 +52,9 @@ export class Student {
 
   @OneToMany(() => StudentEnrollment, (e) => e.student)
   enrollments: StudentEnrollment[];
+
+  @OneToMany(() => ParentStudent, (ps) => ps.student)
+  parents: ParentStudent[];
 
   @CreateDateColumn()
   createdAt: Date;

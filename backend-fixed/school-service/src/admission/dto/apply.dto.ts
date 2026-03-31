@@ -1,4 +1,5 @@
 import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsValidAge } from '../../common/decorators/is-valid-age.decorator';
 
 export class ApplyDto {
   @IsString()
@@ -21,6 +22,7 @@ export class ApplyDto {
   phoneNumber: string;
 
   @IsDateString()
+  @IsValidAge(3, 30)
   dateOfBirth: string;
 
   @IsString()

@@ -38,9 +38,32 @@ export class ParentService {
     return this.parentStudentRepo.save(link);
   }
 
+  /**
+   * Administrative linking: skips the "You" terminology in errors.
+   */
+  async linkStudentByAdmin(parentUserId: string, studentId: string, relationship?: string): Promise<ParentStudent> {
+    await this.studentService.findOne(studentId);
+    
+    const existing = await this.parentStudentRepo.findOneBy({ parentUserId, studentId });
+    if (existing) throw new BadRequestException('This link already exists.');
+
+    const link = this.parentStudentRepo.create({
+      parentUserId,
+      studentId,
+      relationship: relationship ?? null,
+    });
+    return this.parentStudentRepo.save(link);
+  }
+
   async unlinkStudent(parentUserId: string, studentId: string): Promise<void> {
     const link = await this.parentStudentRepo.findOneBy({ parentUserId, studentId });
     if (!link) throw new NotFoundException('Link not found.');
+    await this.parentStudentRepo.remove(link);
+  }
+
+  async unlinkStudentByAdmin(parentUserId: string, studentId: string): Promise<void> {
+    const link = await this.parentStudentRepo.findOneBy({ parentUserId, studentId });
+    if (!link) throw new NotFoundException('Relationship link not found.');
     await this.parentStudentRepo.remove(link);
   }
 

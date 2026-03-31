@@ -167,6 +167,19 @@ export class UserService implements OnModuleInit {
     await this.userRepo.update(id, { isActive: false });
   }
 
+  async activateUser(id: string) {
+    await this.userRepo.update(id, { isActive: true });
+  }
+
+  async activateSchoolUser(id: string, requestingUserId: string) {
+    const schoolId = await this.getSchoolIdForUser(requestingUserId);
+
+    const user = await this.userRepo.findOneBy({ id });
+    if (!user) throw new NotFoundException();
+    if (user.schoolId !== schoolId) throw new ForbiddenException();
+    await this.userRepo.update(id, { isActive: true });
+  }
+
   // ── Profile ────────────────────────────────────────────────────────────────
 
   async getProfile(userId: string) {
