@@ -432,11 +432,11 @@ const Header = () => {
       <div className="header-container">
         <div className="header-content">
           <div className={`header-brand ${user?.role}`}>
-            <div className="header-logo">
-              <GraduationCap />
+            <div className="school-logo-container">
+              <img src="/images/schoolLogo.jpeg" alt="School Logo" className="school-logo-img" />
+              <span className="school-logo-text">GEOZIIE INTERNATIONAL SCHOOL</span>
             </div>
             <div className="header-title">
-              <h1 className="header-app-name">SchoolSync Pro</h1>
               <p className="header-role-badge">{roleLabel} Dashboard</p>
               {showProfileShowcase && (
                 <p className="header-supporting-copy">
