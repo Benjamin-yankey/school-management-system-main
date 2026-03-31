@@ -2,27 +2,18 @@ import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-valid
 import { FeeStatus, FeeType } from '../fee.entity';
 
 export class CreateFeeDto {
-  /** Human-readable name shown in the fee table (e.g. "Tuition Fee Q1") */
-  @IsString()
-  name: string;
-
-  /** Maps to termId on the entity */
   @IsUUID()
-  academicTermId: string;
+  studentId: string;
 
-  /** Category / fee type — matches frontend select values */
+  @IsUUID()
+  termId: string;
+
   @IsEnum(FeeType)
-  category: FeeType;
+  feeType: FeeType;
 
-  /** Payment amount — maps to amountDue */
   @IsNumber()
   @Min(0)
-  amount: number;
-
-  /** Optional: pre-assign fee to a specific student */
-  @IsUUID()
-  @IsOptional()
-  studentId?: string;
+  amountDue: number;
 
   @IsString()
   @IsOptional()

@@ -12,15 +12,7 @@ export class FeeService {
   ) {}
 
   async createFee(dto: CreateFeeDto): Promise<Fee> {
-    const fee = this.feeRepo.create({
-      name: dto.name,
-      termId: dto.academicTermId,
-      feeType: dto.category,
-      amountDue: dto.amount,
-      studentId: dto.studentId ?? null,
-      note: dto.note,
-    });
-    return this.feeRepo.save(fee);
+    return this.feeRepo.save(this.feeRepo.create(dto));
   }
 
   async findAllFees(studentId?: string, termId?: string): Promise<Fee[]> {
@@ -85,50 +77,5 @@ export class FeeService {
 
     summary.balance = summary.totalDue - summary.totalPaid;
     return summary;
-  }
-
-  /**
-   * Distribute a lump-sum payment across all of a student's pending/partial
-   * fees (FIFO). Called by POST /fees/student/:studentId/pay
-   */
-  async payStudentBalance(
-    studentId: string,
-    amountPaid: number,
-    reference?: string,
-  ) {
-    if (amountPaid <= 0) {
-      throw new BadRequestException('Payment amount must be greater than 0');
-    }
-
-    const fees = await this.feeRepo.find({
-      where: { studentId },
-      order: { createdAt: 'ASC' },
-    });
-
-    const unpaidFees = fees.filter(
-      (f) => f.status !== FeeStatus.PAID && f.status !== FeeStatus.WAIVED,
-    );
-
-    if (unpaidFees.length === 0) {
-      throw new BadRequestException('No outstanding fees for this student');
-    }
-
-    let remaining = amountPaid;
-    const updated: Fee[] = [];
-
-    for (const fee of unpaidFees) {
-      if (remaining <= 0) break;
-      const owed = fee.amountDue - fee.amountPaid;
-      const applying = Math.min(remaining, owed);
-      fee.amountPaid += applying;
-      if (reference) fee.reference = reference;
-      fee.status =
-        fee.amountPaid >= fee.amountDue ? FeeStatus.PAID : FeeStatus.PARTIAL;
-      remaining -= applying;
-      updated.push(fee);
-    }
-
-    await this.feeRepo.save(updated);
-    return this.getBalanceSummary(studentId);
   }
 }

@@ -674,3 +674,39 @@ body[data-theme="dark"] {
     margin-left: 120px;
   }
 }
+
+/* School Logo and Text Styles */
+.school-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.school-logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.school-logo-container .school-logo-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  color: inherit; /* Inherit color from parent */
+  transition: color 0.3s ease; /* Smooth transition for color change */
+  text-decoration: none; /* Ensure no underline */
+}
+
+.school-logo-text:hover {
+  color: var(--color-secondary); /* Change to accent color on hover */
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+.navbar .school-logo-container .school-logo-text {
+  /* This specific rule targets the text within the navbar's logo container */
+  text-decoration: none; /* Explicitly remove underline */
+  color: inherit; /* Ensure it inherits color correctly */
+}

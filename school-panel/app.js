@@ -1029,7 +1029,7 @@ async function renderStaff() {
 async function toggleUserStatus(userId, currentStatus) {
     const action = currentStatus ? 'deactivate' : 'activate';
     if (confirm(`Are you sure you want to ${action} this user?`)) {
-        await apiFetch(`/administration/${action}/${userId}`, { method: 'PATCH' });
+        await apiFetch(`/administration/users/${userId}/${action}`, { method: 'PATCH' });
         showToast(`User ${action}d`);
         renderView();
     }
@@ -1159,7 +1159,7 @@ async function renderPromotions() {
     container.innerHTML = `
         <div class="card">
             <h3>Bulk Promotions</h3>
-            <p class="text-muted mb-1">Promote eligible students to the next class level. Select a class and choose the source and destination academic years.</p>
+            <p class="text-muted mb-1">Promote eligible students to the next class level in bulk.</p>
             <div class="table-container">
                 <table>
                     <thead><tr><th>Class Level</th><th>Sections</th><th>Action</th></tr></thead>
@@ -1170,60 +1170,14 @@ async function renderPromotions() {
     `;
     
     try {
-        const classes = await apiFetch('/classes');
+        const classes = await apiFetch('/classes/levels');
         document.getElementById('promotions-body').innerHTML = classes.map(c => `
             <tr>
                 <td>${c.name}</td>
                 <td>${c.sections?.length || 0}</td>
-                <td><button class="btn-sm success" onclick="showBulkPromoteModal('${c.id}', '${c.name}')">Promote All</button></td>
+                <td><button class="btn-sm" onclick="showToast('Promotion logic is executed via the backend promotion engine.')">Promote All</button></td>
             </tr>
         `).join('') || '<tr><td colspan="3" class="text-center">No classes defined</td></tr>';
-    } catch(e) {}
-}
-
-async function showBulkPromoteModal(classLevelId, className) {
-    const container = document.getElementById('modal-container');
-    container.classList.remove('hidden');
-    container.innerHTML = '<div class="loading">Loading academic years...</div>';
-    try {
-        const years = await apiFetch('/academic-years');
-        if (years.length < 2) {
-            container.innerHTML = `<div class="modal"><h3>Promote: ${className}</h3><p class="error-msg">At least two academic years are required to run a promotion.</p><button class="btn-secondary mt-1" onclick="closeModal()">Close</button></div>`;
-            return;
-        }
-        const opts = years.map(y => `<option value="${y.id}">${y.year}</option>`).join('');
-        container.innerHTML = `
-            <div class="modal">
-                <h3>Bulk Promote: ${className}</h3>
-                <p class="small text-muted mb-1">Students enrolled in the selected <strong>From</strong> year will be promoted and enrolled in the <strong>To</strong> year.</p>
-                <div class="input-group"><label>From Academic Year</label><select id="promo-from">${opts}</select></div>
-                <div class="input-group"><label>To Academic Year</label><select id="promo-to">${opts}</select></div>
-                <div class="flex-end gap-1 mt-1">
-                    <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button class="btn-primary" onclick="submitBulkPromotion('${classLevelId}')">Run Promotion</button>
-                </div>
-            </div>
-        `;
-        // Default second select to next year if possible
-        const selTo = document.getElementById('promo-to');
-        if (selTo.options.length > 1) selTo.selectedIndex = 1;
-    } catch(e) { closeModal(); }
-}
-
-async function submitBulkPromotion(classLevelId) {
-    const fromAcademicYearId = document.getElementById('promo-from').value;
-    const toAcademicYearId = document.getElementById('promo-to').value;
-    if (fromAcademicYearId === toAcademicYearId) {
-        return showToast('From and To years must be different', 'error');
-    }
-    try {
-        const result = await apiFetch('/promotions/bulk', {
-            method: 'POST',
-            body: JSON.stringify({ classLevelId, fromAcademicYearId, toAcademicYearId })
-        });
-        showToast(`Promotion complete: ${result.promoted ?? ''} student(s) promoted`);
-        closeModal();
-        renderPromotions();
     } catch(e) {}
 }
 
@@ -1249,7 +1203,7 @@ async function renderReportCard(studentId, termId) {
     `;
     
     try {
-        const rc = await apiFetch(`/grades/report-card/${studentId}?termId=${termId}`);
+        const rc = await apiFetch(`/grades/report-card/${studentId}/term/${termId}`);
         container.innerHTML = `
             <div class="modal report-card large">
                 <div class="report-card-header">
@@ -1484,51 +1438,6 @@ async function loadActiveTerm() {
     } catch(e) {
         document.getElementById('active-term-display').textContent = 'Term: N/A';
     }
-}
-
-// -- PUBLIC ADMISSIONS APPLY MODAL --
-function showPublicApplyModal() {
-    const container = document.getElementById('modal-container');
-    container.classList.remove('hidden');
-    container.innerHTML = `
-        <div class="modal large">
-            <h3>Submit Admission Application</h3>
-            <p class="small text-muted mb-1">This form is submitted to the currently open admission year.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="input-group"><label>First Name</label><input type="text" id="app-first" placeholder="e.g. Kwame"></div>
-                <div class="input-group"><label>Last Name</label><input type="text" id="app-last" placeholder="e.g. Mensah"></div>
-                <div class="input-group"><label>Middle Name (optional)</label><input type="text" id="app-middle" placeholder=""></div>
-                <div class="input-group"><label>Email</label><input type="email" id="app-email" placeholder="applicant@email.com"></div>
-                <div class="input-group"><label>Date of Birth</label><input type="date" id="app-dob"></div>
-                <div class="input-group"><label>Phone Number</label><input type="tel" id="app-phone" placeholder="+233..."></div>
-            </div>
-            <div class="input-group mt-1"><label>Area of Interest / Programme</label><input type="text" id="app-interest" placeholder="e.g. Science, Business, Arts"></div>
-            <div class="flex-end gap-1 mt-1">
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                <button class="btn-primary" onclick="submitPublicApplication()">Submit Application</button>
-            </div>
-        </div>
-    `;
-}
-
-async function submitPublicApplication() {
-    const payload = {
-        firstName: document.getElementById('app-first').value,
-        lastName: document.getElementById('app-last').value,
-        middleName: document.getElementById('app-middle').value || null,
-        email: document.getElementById('app-email').value,
-        dateOfBirth: document.getElementById('app-dob').value,
-        phoneNumber: document.getElementById('app-phone').value || null,
-        areaOfInterest: document.getElementById('app-interest').value,
-    };
-    if (!payload.firstName || !payload.lastName || !payload.email || !payload.dateOfBirth || !payload.areaOfInterest) {
-        return showToast('Please fill in all required fields', 'error');
-    }
-    try {
-        await apiFetch('/admissions/apply', { method: 'POST', body: JSON.stringify(payload) });
-        showToast('Application submitted successfully! You will be contacted by the school.');
-        closeModal();
-    } catch(e) {}
 }
 
 document.getElementById('btn-login').onclick = login;

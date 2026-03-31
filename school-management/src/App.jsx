@@ -5,7 +5,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import SignIn from "./components/SignIn";
-import SignUp from "./components/SignUp";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import ForceResetPassword from "./components/ForceResetPassword";
@@ -13,17 +12,17 @@ import ForceResetPassword from "./components/ForceResetPassword";
 import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
+import StudentAssignments from "./components/student/Assignments";
+import StudentGrades from "./components/student/Grades";
+import StudentTimetable from "./components/student/Timetable";
+import StudentPayments from "./components/student/Payments";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
-homepage
 import SuperAdminDashboard from "./components/SuperAdminDashboard";
-
 import AcademyLandingPage from "./AcademyLandingPage";
-main
 import Home from "./Home";
 import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
-
 import AddStudent from "./pages/AddStudent";
 
 export default function App() {
@@ -33,19 +32,23 @@ export default function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          homepage
-          <Route path="/login" element={<Login />} />
-
+          
           {/* Superadmin Dashboard - Full system access */}
           <Route
             path="/superadmin"
             element={
               <ProtectedRoute requiredRole="superadmin">
-                <SuperAdminDashboard />
+                <div className="app">
+                  <Header />
+                  <SuperAdminDashboard />
+                </div>
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/superadmin/dashboard"
+            element={<Navigate to="/superadmin" replace />}
+          />
           {/* Superadmin as standalone (for development/testing) */}
           <Route
             path="/superadmin-dashboard"
@@ -57,19 +60,18 @@ export default function App() {
           <Route path="/programs" element={<ProgramsPage />} />
           <Route path="/campus" element={<CampusPage />} />
           <Route path="/admissions" element={<AdmissionsPage />} />
-
           <Route path="/login" element={<Navigate to="/signin" replace />} />
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup" element={<Navigate to="/signin" replace />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/force-reset" element={<ForceResetPassword />} />
-
+          
           {/* Add Student Page (admin only) */}
           <Route
             path="/add-student"
             element={
-              <ProtectedRoute requiredRole="admin">
+              <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                 <div className="app">
                   <Header />
                   <AddStudent />
@@ -77,12 +79,12 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          
           {/* Admin Dashboard */}
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute requiredRole="admin">
+              <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                 <div className="app">
                   <Header />
                   <AdminDashboard />
@@ -90,7 +92,11 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/administration/dashboard"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
+          
           {/* Teacher Dashboard */}
           <Route
             path="/teacher/dashboard"
@@ -103,7 +109,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          
           {/* Student Dashboard */}
           <Route
             path="/student/dashboard"
@@ -116,7 +122,51 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/student/assignments"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentAssignments />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/grades"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentGrades />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/timetable"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentTimetable />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/payments"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentPayments />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          
           {/* Parent Dashboard */}
           <Route
             path="/parent/dashboard"
@@ -129,7 +179,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+          
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -47,29 +47,9 @@ export class FeeController {
     return this.feeService.waiveFee(id, note);
   }
 
-  /** GET /fees/balance/:studentId — original route kept for compatibility */
   @Roles('superadmin', 'administration', 'student', 'parent')
   @Get('balance/:studentId')
   getBalanceSummary(@Param('studentId') studentId: string) {
     return this.feeService.getBalanceSummary(studentId);
   }
-
-  /** GET /fees/student/:studentId/balance — matches school-panel frontend URL */
-  @Roles('superadmin', 'administration', 'student', 'parent')
-  @Get('student/:studentId/balance')
-  getStudentBalance(@Param('studentId') studentId: string) {
-    return this.feeService.getBalanceSummary(studentId);
-  }
-
-  /** POST /fees/student/:studentId/pay — lump-sum payment distributed across pending fees */
-  @Roles('superadmin', 'administration')
-  @Post('student/:studentId/pay')
-  payStudentBalance(
-    @Param('studentId') studentId: string,
-    @Body('amount') amount: number,
-    @Body('reference') reference?: string,
-  ) {
-    return this.feeService.payStudentBalance(studentId, amount, reference);
-  }
 }
-

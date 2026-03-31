@@ -31,11 +31,7 @@ export class Fee {
   @Column()
   termId: string;
 
-  /** Human-readable label sent by the school-panel (e.g. "Tuition Fee Q1") */
-  @Column({ nullable: true })
-  name: string;
-
-  @Column({ type: 'enum', enum: FeeType, default: FeeType.OTHER })
+  @Column({ type: 'enum', enum: FeeType })
   feeType: FeeType;
 
   @Column({ type: 'float' })

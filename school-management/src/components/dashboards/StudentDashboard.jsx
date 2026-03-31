@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
+import Announcements from "../Announcements";
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([]);
 
@@ -13,40 +16,82 @@ const StudentDashboard = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        // In a real app, we'd fetch specific student stats
-        // For now, we use the user info and some default values
+        // 1. Get the detailed student record using account email
+        const student = await api.getStudentPortalMe();
+        const studentId = student.id;
+
+        // 2. Fetch all student-related data in parallel
+        const [attendanceSummary, reportCard, feeBalance] = await Promise.all([
+          api.getStudentAttendanceSummary(studentId),
+          api.getStudentReportCard(studentId),
+          api.getStudentFeeBalance(studentId),
+        ]);
+
+        // 3. Compute GPA (average of scores/25 to get a 4.0 scale roughly)
+        const grades = Array.isArray(reportCard) ? reportCard : [];
+        const avgScore = grades.length > 0 
+          ? grades.reduce((acc, curr) => acc + curr.score, 0) / grades.length 
+          : 0;
+        const gpa = (avgScore / 25).toFixed(1);
+
+        // 4. Map subjects from report card or enrollment
+        const subjectsList = grades.map(g => ({
+          name: g.subject,
+          teacher: "Assigned Faculty", // backend doesn't store teacher name in grade table yet
+          nextClass: "Refer to timetable",
+          grade: g.score >= 90 ? "A" : g.score >= 80 ? "B" : g.score >= 70 ? "C" : "D",
+          status: "Current"
+        }));
+
+        setMySubjects(subjectsList.length > 0 ? subjectsList : [
+          { name: "Mathematics - Calculus", teacher: "Mr. Johnson", nextClass: "Today 10:00 AM", grade: "A-", status: "Current" },
+          { name: "Advanced Physics - Robotics", teacher: "Dr. Smith", nextClass: "Tomorrow 11:30 AM", grade: "B+", status: "Current" }
+        ]);
+
+        // 5. Update stats with real values
         setStats([
           {
             title: "Current GPA",
-            value: "0.0",
-            change: 0,
+            value: gpa || "0.0",
+            change: 0.2, // Mock change for UI
             color: "#8b5cf6",
             icon: "📊",
           },
           {
             title: "Attendance",
-            value: "0%",
-            change: 0,
+            value: attendanceSummary?.percentage ? `${attendanceSummary.percentage}%` : "0%",
+            change: 2,
             color: "#10b981",
             icon: "✅",
           },
           {
             title: "Assignments Due",
-            value: 0,
-            change: 0,
+            value: 3, // Mocked until Assignment Microservice is live
+            change: -1,
             color: "#f59e0b",
             icon: "📝",
           },
           {
-            title: "Upcoming Exams",
-            value: 0,
+            title: "Fee Balance", // Replaced upcoming exams with finance balance
+            value: feeBalance?.balance ? `$${feeBalance.balance}` : "$0",
             change: 0,
             color: "#ef4444",
-            icon: "📚",
+            icon: "💰",
           },
         ]);
+
+        // Map recent grades to UI
+        const mappedGrades = grades.slice(0, 5).map(g => ({
+          assignment: `Final Assessment: ${g.subject}`,
+          subject: g.subject,
+          date: new Date(g.createdAt).toLocaleDateString(),
+          grade: g.score >= 90 ? "A" : g.score >= 80 ? "B" : g.score >= 70 ? "C" : "D",
+          points: `${g.score}/100`
+        }));
+        setRecentGrades(mappedGrades.length > 0 ? mappedGrades : recentGrades);
+
       } catch (err) {
-        console.error("Failed to load student dashboard:", err);
+        console.error("Failed to sync student dashboard with backend:", err);
       } finally {
         setLoading(false);
       }
@@ -54,38 +99,9 @@ const StudentDashboard = () => {
     loadData();
   }, []);
 
-  const mySubjects = [
-    {
-      name: "Mathematics",
-      teacher: "Mr. Johnson",
-      grade: "A-",
-      nextClass: "Today 10:00 AM",
-      room: "Room 101",
-    },
-    {
-      name: "Physics",
-      teacher: "Dr. Smith",
-      grade: "B+",
-      nextClass: "Tomorrow 11:30 AM",
-      room: "Lab 2",
-    },
-    {
-      name: "Chemistry",
-      teacher: "Ms. Davis",
-      grade: "A",
-      nextClass: "Friday 2:00 PM",
-      room: "Lab 1",
-    },
-    {
-      name: "English",
-      teacher: "Mrs. Wilson",
-      grade: "A-",
-      nextClass: "Monday 9:00 AM",
-      room: "Room 205",
-    },
-  ];
+  const [mySubjects, setMySubjects] = useState([]);
 
-  const upcomingAssignments = [
+  const [upcomingAssignments, setUpcomingAssignments] = useState([
     {
       subject: "Mathematics",
       title: "Trigonometry Problem Set",
@@ -107,9 +123,9 @@ const StudentDashboard = () => {
       priority: "Low",
       points: 100,
     },
-  ];
+  ]);
 
-  const recentGrades = [
+  const [recentGrades, setRecentGrades] = useState([
     {
       subject: "Mathematics",
       assignment: "Algebra Test",
@@ -131,7 +147,7 @@ const StudentDashboard = () => {
       points: "48/50",
       date: "2 weeks ago",
     },
-  ];
+  ]);
 
   const examSchedule = [
     {
@@ -157,29 +173,12 @@ const StudentDashboard = () => {
     },
   ];
 
-  const announcements = [
-    {
-      title: "School Assembly",
-      message: "Assembly scheduled for tomorrow at 8:00 AM",
-      date: "Today",
-    },
-    {
-      title: "Library Hours",
-      message: "Library will be open until 6:00 PM this week",
-      date: "Yesterday",
-    },
-    {
-      title: "Sports Day",
-      message: "Annual sports day on February 15th",
-      date: "2 days ago",
-    },
-  ];
 
   const quickActions = [
-    { label: "View Assignments", icon: "📝", color: "#8b5cf6" },
-    { label: "Check Grades", icon: "📊", color: "#10b981" },
-    { label: "Download Timetable", icon: "📅", color: "#f59e0b" },
-    { label: "Pay Fees", icon: "💰", color: "#ef4444" },
+    { label: "View Assignments", icon: "📝", color: "#8b5cf6", path: "/student/assignments" },
+    { label: "Check Grades", icon: "📊", color: "#10b981", path: "/student/grades" },
+    { label: "Download Timetable", icon: "📅", color: "#f59e0b", path: "/student/timetable" },
+    { label: "Pay Fees", icon: "💰", color: "#ef4444", path: "/student/payments" },
   ];
 
   const getPriorityColor = (priority) => {
@@ -208,16 +207,16 @@ const StudentDashboard = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h2>Student Dashboard</h2>
+        <h2>Student Portal</h2>
         <div className="dashboard-sub">
-          Welcome back, {user?.name || "Student"}! Track your academic progress and stay organized.
+          Welcome back to GEOZIIE INTERNATIONAL SCHOOL, {user?.name || "Student"}! Track your academic progress and stay organized.
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className="quick-actions">
         {quickActions.map((action, index) => (
-          <button key={index} className="action-btn">
+          <button key={index} className="action-btn" onClick={() => navigate(action.path)}>
             <div
               className="icon"
               style={{ backgroundColor: `${action.color}20` }}
@@ -273,6 +272,9 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
+          <div className="panel-footer">
+            <button className="view-more-link" onClick={() => navigate("/student/grades")}>Review Full Academic Record →</button>
+          </div>
         </section>
 
         {/* Upcoming Assignments */}
@@ -305,6 +307,9 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
+          <div className="panel-footer">
+            <button className="view-more-link" onClick={() => navigate("/student/assignments")}>Go to Submission Portal →</button>
+          </div>
         </section>
 
         {/* Recent Grades */}
@@ -324,6 +329,9 @@ const StudentDashboard = () => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="panel-footer">
+            <button className="view-more-link" onClick={() => navigate("/student/grades")}>View Grade Analysis →</button>
           </div>
         </section>
 
@@ -345,22 +353,14 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
+          <div className="panel-footer">
+            <button className="view-more-link" onClick={() => navigate("/student/timetable")}>Download Full Timetable →</button>
+          </div>
         </section>
 
         {/* Announcements */}
         <section className="panel">
-          <h3>School Announcements</h3>
-          <div className="announcements-list">
-            {announcements.map((announcement, index) => (
-              <div key={index} className="announcement-item">
-                <div className="announcement-title">{announcement.title}</div>
-                <div className="announcement-message">
-                  {announcement.message}
-                </div>
-                <div className="announcement-date">{announcement.date}</div>
-              </div>
-            ))}
-          </div>
+          <Announcements userRole="student" />
         </section>
       </div>
     </div>

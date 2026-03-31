@@ -27,8 +27,13 @@ const CampusPage = () => {
     <div className="academy-page">
       <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
-          <Link to="/" className="academy-page-brand">
-            The Academy
+          <Link to="/" className="school-logo-container">
+            <div className="school-logo-icon" style={{width: 32, height: 32, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Building2 size={18} color="#fff" />
+            </div>
+            <span className="school-logo-text">
+              GEOZIIE INTERNATIONAL SCHOOL
+            </span>
           </Link>
           <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
@@ -51,8 +56,8 @@ const CampusPage = () => {
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
-            <Link to="/signup" className="academy-page-auth academy-page-auth-accent">
-              Sign Up
+            <Link to="/signin" className="academy-page-auth academy-page-auth-accent">
+              Portal Access
             </Link>
             <Link to="/admissions" className="academy-page-apply">
               Apply Now

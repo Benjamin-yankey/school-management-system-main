@@ -55,7 +55,7 @@ export class ClassesController {
   }
 
   @Get('academic-terms')
-  findAllAcademicTerms(@Query('academicYearId') academicYearId?: string) {
+  findAllAcademicTerms(@Param('academicYearId') academicYearId?: string) {
     return this.classesService.findAllAcademicTerms(academicYearId);
   }
 
