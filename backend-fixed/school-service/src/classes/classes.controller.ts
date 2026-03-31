@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ClassesService } from './classes.service';
@@ -54,7 +55,7 @@ export class ClassesController {
   }
 
   @Get('academic-terms')
-  findAllAcademicTerms(@Param('academicYearId') academicYearId?: string) {
+  findAllAcademicTerms(@Query('academicYearId') academicYearId?: string) {
     return this.classesService.findAllAcademicTerms(academicYearId);
   }
 
