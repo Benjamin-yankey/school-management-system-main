@@ -19,7 +19,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @Roles('parent')
 @Controller('parent')
 export class ParentController {
-  constructor(private readonly parentService: ParentService) {}
+  constructor(private readonly parentService: ParentService) { }
 
   /**
    * Link a student to this parent account.
@@ -55,5 +55,28 @@ export class ParentController {
   @Delete('children/:studentId')
   unlinkStudent(@CurrentUser() user: any, @Param('studentId') studentId: string) {
     return this.parentService.unlinkStudent(user.id, studentId);
+  }
+
+  /**
+   * Administrative linking: link any student to any parent.
+   * POST /administration/parents/:parentUserId/students/:studentId
+   */
+  @Roles('superadmin', 'administration')
+  @Post('administration/parents/:parentUserId/students/:studentId')
+  linkStudentByAdmin(
+    @Param('parentUserId') parentUserId: string,
+    @Param('studentId') studentId: string,
+    @Body('relationship') relationship?: string,
+  ) {
+    return this.parentService.linkStudentByAdmin(parentUserId, studentId, relationship);
+  }
+
+  @Roles('superadmin', 'administration')
+  @Delete('administration/parents/:parentUserId/students/:studentId')
+  unlinkStudentByAdmin(
+    @Param('parentUserId') parentUserId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.parentService.unlinkStudentByAdmin(parentUserId, studentId);
   }
 }

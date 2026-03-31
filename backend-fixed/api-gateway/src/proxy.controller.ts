@@ -134,6 +134,13 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/parents*")
+  proxyParentManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
   // ── Teacher self-service ──────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)

@@ -84,7 +84,7 @@ export class StudentService {
 
   findAll(): Promise<Student[]> {
     return this.studentRepo.find({
-      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section'],
+      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section', 'parents'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -92,7 +92,7 @@ export class StudentService {
   async findOne(id: string): Promise<Student> {
     const student = await this.studentRepo.findOne({
       where: { id },
-      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section'],
+      relations: ['enrollments', 'enrollments.classLevel', 'enrollments.academicYear', 'enrollments.section', 'parents'],
     });
     if (!student) throw new NotFoundException('Student not found');
     return student;

@@ -99,6 +99,8 @@ async function renderView() {
         case 'academic': renderAcademicYears(); break;
         case 'curriculum': renderCurriculum(); break;
         case 'students': renderStudents(); break;
+        case 'staff': renderStaff(); break;
+        case 'parents': renderParentRegistry(); break;
         case 'promotions': renderPromotions(); break;
         case 'teacher-sections': renderTeacherSections(); break;
         case 'teacher-students': renderTeacherStudents(); break;
@@ -289,20 +291,142 @@ async function submitEnrollment(applicantId) {
 // -- STUDENTS --
 async function renderStudents() {
     const container = document.getElementById('content-area');
-    container.innerHTML = `<div class="card"><div class="flex-between"><h3>Student Registry</h3><button class="btn-primary" onclick="showEnrollModal()">Direct Enrollment</button></div><div class="table-container mt-1"><table><thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead><tbody id="student-body"></tbody></table></div></div>`;
+    container.innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>Student Registry</h3>
+                <div class="gap-1">
+                    <button class="btn-secondary" onclick="showEnrollModal()">Direct Enrollment</button>
+                    <button class="btn-primary" onclick="showCreateUserModal('student')">Create New Student Account</button>
+                </div>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>Name</th><th>Email / ID</th><th>Guardians</th><th>Actions</th></tr></thead>
+                    <tbody id="student-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
     loadStudents();
 }
 
 async function loadStudents() {
     const students = await apiFetch('/students');
-    document.getElementById('student-body').innerHTML = students.map(s => `<tr><td>${s.firstName} ${s.lastName}</td><td>${s.email || '-'}</td><td><button class="btn-sm" onclick="viewStudentEnrollments('${s.id}')">History</button></td></tr>`).join('');
+    document.getElementById('student-body').innerHTML = students.map(s => `
+        <tr>
+            <td><strong>${s.firstName} ${s.lastName}</strong><br><small>${s.studentId}</small></td>
+            <td>${s.email || '-'}</td>
+            <td><small>${s.parents?.length || 0} Linked</small></td>
+            <td>
+                <button class="btn-sm" onclick="viewStudentEnrollments('${s.id}')">History</button>
+                <button class="btn-sm" onclick="showManageGuardiansModal('${s.id}', '${s.firstName} ${s.lastName}')">Manage Guardians</button>
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" class="text-center">No students found.</td></tr>';
 }
 
 async function viewStudentEnrollments(studentId) {
     const container = document.getElementById('modal-container');
     container.classList.remove('hidden');
-    const history = await apiFetch(`/students/${studentId}/enrollments`);
-    container.innerHTML = `<div class="modal"><h3>History</h3><div class="table-container"><table><thead><tr><th>Year</th><th>Class</th></tr></thead><tbody>${history.map(h => `<tr><td>${h.academicYear?.year}</td><td>${h.classLevel?.name}</td></tr>`).join('')}</tbody></table></div><button class="btn-secondary mt-1" onclick="closeModal()">Close</button></div>`;
+    container.innerHTML = '<div class="loading">Loading history...</div>';
+    try {
+        const history = await apiFetch(`/students/${studentId}/enrollments`);
+        container.innerHTML = `
+            <div class="modal large">
+                <h3>Enrollment History</h3>
+                <div class="table-container mt-1">
+                    <table>
+                        <thead><tr><th>Year</th><th>Class</th><th>Section</th><th>Date</th></tr></thead>
+                        <tbody>${history.map(h => `
+                            <tr>
+                                <td>${h.academicYear?.year}</td>
+                                <td>${h.classLevel?.name}</td>
+                                <td>${h.section?.name || '-'}</td>
+                                <td>${new Date(h.enrolledAt).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
+                </div>
+                <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+            </div>
+        `;
+    } catch (e) { closeModal(); }
+}
+
+async function showManageGuardiansModal(studentId, studentName) {
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = '<div class="loading">Loading guardians...</div>';
+    
+    try {
+        const student = await apiFetch(`/students/${studentId}`);
+        container.innerHTML = `
+            <div class="modal large">
+                <h3>Manage Guardians for ${studentName}</h3>
+                <div class="card bg-muted mt-1">
+                    <h4>Current Links</h4>
+                    <div class="table-container mt-1">
+                        <table>
+                            <thead><tr><th>User ID / Email</th><th>Relationship</th><th>Actions</th></tr></thead>
+                            <tbody>${(student.parents || []).map(p => `
+                                <tr>
+                                    <td>${p.parentUserId}</td>
+                                    <td><span class="badge">${p.relationship || 'Guardian'}</span></td>
+                                    <td><button class="btn-sm error" onclick="unlinkGuardian('${studentId}', '${p.parentUserId}')">Unlink</button></td>
+                                </tr>
+                            `).join('') || '<tr><td colspan="3">No guardians linked.</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card mt-1">
+                    <h4>Link New Guardian</h4>
+                    <p class="small text-muted mb-1">Search for a registered parent by their User ID and specify relationship.</p>
+                    <div class="flex-column gap-1">
+                        <div class="input-group">
+                            <label>Parent User ID</label>
+                            <input type="text" id="link-parent-id" placeholder="Paste Parent UUID here...">
+                        </div>
+                        <div class="input-group">
+                            <label>Relationship</label>
+                            <input type="text" id="link-relationship" placeholder="e.g. Father, Mother, Aunt">
+                        </div>
+                        <button class="btn-primary" onclick="submitLinkParentAdmin('${studentId}')">Create Link</button>
+                    </div>
+                </div>
+                
+                <button class="btn-secondary mt-1" onclick="closeModal()">Close</button>
+            </div>
+        `;
+    } catch (e) { closeModal(); }
+}
+
+async function submitLinkParentAdmin(studentId) {
+    const parentUserId = document.getElementById('link-parent-id').value;
+    const relationship = document.getElementById('link-relationship').value;
+    if (!parentUserId) return showToast('Please enter Parent User ID', 'error');
+    
+    try {
+        await apiFetch(`/administration/parents/${parentUserId}/students/${studentId}`, {
+            method: 'POST',
+            body: JSON.stringify({ relationship })
+        });
+        showToast('Student successfully linked to parent');
+        closeModal();
+        renderStudents();
+    } catch (e) {}
+}
+
+async function unlinkGuardian(studentId, parentUserId) {
+    if (confirm('Are you sure you want to remove this connection?')) {
+        try {
+            await apiFetch(`/administration/parents/${parentUserId}/students/${studentId}`, { method: 'DELETE' });
+            showToast('Guardian unlinked');
+            closeModal();
+            renderStudents();
+        } catch (e) {}
+    }
 }
 
 // -- ACADEMIC YEARS --
@@ -592,6 +716,95 @@ async function viewChildDetail(studentId) {
     } catch (e) {
         container.innerHTML = `<div class="modal"><p class="error-msg">Error loading child details.</p><button class="btn-secondary mt-1" onclick="closeModal()">Close</button></div>`;
     }
+}
+
+async function renderStaff() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>Staff Registry (Teachers)</h3>
+                <button class="btn-primary" onclick="showCreateUserModal('teacher')">Add New Teacher</button>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>ID</th><th>Email</th><th>Role</th><th>Created</th></tr></thead>
+                    <tbody id="staff-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    const users = await apiFetch('/administration/users');
+    const teachers = users.filter(u => u.role === 'teacher');
+    document.getElementById('staff-body').innerHTML = teachers.map(u => `
+        <tr>
+            <td><small>${u.id}</small></td>
+            <td><strong>${u.email}</strong></td>
+            <td><span class="badge success">${u.role.toUpperCase()}</span></td>
+            <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" class="text-center">No teachers found.</td></tr>';
+}
+
+async function renderParentRegistry() {
+    const container = document.getElementById('content-area');
+    container.innerHTML = `
+        <div class="card">
+            <div class="flex-between">
+                <h3>Parent Registry</h3>
+                <button class="btn-primary" onclick="showCreateUserModal('parent')">Add New Parent</button>
+            </div>
+            <div class="table-container mt-1">
+                <table>
+                    <thead><tr><th>ID</th><th>Email</th><th>Role</th></tr></thead>
+                    <tbody id="parents-registry-body"></tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    const users = await apiFetch('/administration/users');
+    const parents = users.filter(u => u.role === 'parent');
+    document.getElementById('parents-registry-body').innerHTML = parents.map(u => `
+        <tr>
+            <td><small>${u.id}</small></td>
+            <td><strong>${u.email}</strong></td>
+            <td><span class="badge">${u.role.toUpperCase()}</span></td>
+        </tr>
+    `).join('') || '<tr><td colspan="3" class="text-center">No parents found.</td></tr>';
+}
+
+function showCreateUserModal(role) {
+    const container = document.getElementById('modal-container');
+    container.classList.remove('hidden');
+    container.innerHTML = `
+        <div class="modal">
+            <h3>Create ${role.charAt(0).toUpperCase() + role.slice(1)} Account</h3>
+            <p class="small text-muted mb-1">A temporary password will be generated. The user must reset it on first login.</p>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="new-user-email" placeholder="email@school.com">
+            </div>
+            <div class="flex-end gap-1">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitCreateUser('${role}')">Create Account</button>
+            </div>
+        </div>
+    `;
+}
+
+async function submitCreateUser(role) {
+    const email = document.getElementById('new-user-email').value;
+    if (!email) return showToast('Email is required', 'error');
+    
+    try {
+        await apiFetch('/administration/create-user', {
+            method: 'POST',
+            body: JSON.stringify({ email, role })
+        });
+        showToast(`${role} account created successfully`);
+        closeModal();
+        renderView();
+    } catch (e) {}
 }
 
 async function renderParentPortal() {
