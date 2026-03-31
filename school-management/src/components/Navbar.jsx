@@ -11,7 +11,10 @@ export default function Navbar({ onNavigate, active }) {
 
   return (
     <nav className="navbar" aria-label="Main navigation">
-      <div className="nav-brand">School</div>
+      <div className="school-logo-container" style={{padding: '1rem'}}>
+        <img src="/images/schoolLogo.jpeg" alt="School Logo" className="school-logo-img" />
+        <span className="school-logo-text">GEOZIIE</span>
+      </div>
       <ul className="nav-list" role="list">
         {items.map((it) => (
           <li key={it.key} role="listitem">

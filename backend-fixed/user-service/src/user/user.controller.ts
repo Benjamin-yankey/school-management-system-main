@@ -83,6 +83,20 @@ export class UserController {
     return this.userService.deactivateSchoolUser(id, user.id);
   }
 
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin')
+  @Patch('superadmin/activate/:id')
+  activateSuperadmin(@Param('id') id: string) {
+    return this.userService.activateUser(id);
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard, ScopeGuard)
+  @Roles('administration')
+  @Patch('administration/activate/:id')
+  activateUser(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.userService.activateSchoolUser(id, user.id);
+  }
+
   // ── Profile ────────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, MustResetGuard)

@@ -126,6 +126,13 @@ export const generateQuickActions = () => [
     color: "#38b2ac",
     action: "sendNotifications",
   },
+  {
+    id: 7,
+    label: "Manage Users",
+    icon: "👤",
+    color: "#4a5568",
+    action: "manageUsers",
+  },
 ];
 
 export const generateUpcomingEvents = () => [

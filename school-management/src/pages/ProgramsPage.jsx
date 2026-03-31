@@ -62,8 +62,15 @@ const ProgramsPage = () => {
     <div className="academy-page">
       <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
-          <Link to="/" className="academy-page-brand">
-            The Academy
+          <Link to="/" className="school-logo-container">
+            <img
+              src="/images/schoolLogo.jpeg"
+              alt="School Logo"
+              className="school-logo-img"
+            />
+            <span className="school-logo-text">
+              GEOZIIE INTERNATIONAL SCHOOL
+            </span>
           </Link>
           <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
@@ -86,8 +93,8 @@ const ProgramsPage = () => {
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>
-            <Link to="/signup" className="academy-page-auth academy-page-auth-accent">
-              Sign Up
+            <Link to="/signin" className="academy-page-auth academy-page-auth-accent">
+              Portal Access
             </Link>
             <Link to="/admissions" className="academy-page-apply">
               Apply Now

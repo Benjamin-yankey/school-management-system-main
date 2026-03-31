@@ -58,25 +58,30 @@ export const AuthProvider = ({ children }) => {
           };
         } else {
           // Get full profile data for normal users
-          const profile = await api.getProfile();
+          let profile = {};
+          try {
+            profile = await api.getProfile();
+          } catch (e) {
+            console.warn("Failed to fetch profile, using JWT data", e);
+          }
 
           userData = {
-            id: profile.id,
-            email: profile.email,
+            id: profile.id || payload?.sub,
+            email: profile.email || payload?.email,
             name:
               profile.firstName && profile.lastName
                 ? `${profile.firstName} ${profile.lastName}`
-                : profile.email.split("@")[0],
+                : (profile.email || payload?.email)?.split("@")[0] || "User",
             firstName: profile.firstName || "",
             lastName: profile.lastName || "",
             phone: profile.phone || "",
-            role: profile.role || selectedRole,
+            role: profile.role || payload?.role || selectedRole,
             schoolId: profile.schoolId,
             mustResetPassword: false,
             avatar:
               profile.firstName && profile.lastName
                 ? `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase()
-                : profile.email[0].toUpperCase(),
+                : (profile.email || payload?.email)?.[0].toUpperCase() || "U",
           };
         }
 

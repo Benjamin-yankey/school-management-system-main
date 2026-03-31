@@ -53,10 +53,6 @@ const Login = () => {
     navigate("/forgot-password");
   };
 
-  const handleSignUp = () => {
-    navigate("/signup");
-  };
-
   const emailError = touched.email && !!trimmedEmail && !isValidEmail;
   const passwordError = touched.password && !!password && !isValidPassword;
 
@@ -214,16 +210,6 @@ const Login = () => {
           </form>
 
           <div className="signin-footer">
-            <p className="signin-footer-text">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                className="signin-footer-link"
-                onClick={handleSignUp}
-              >
-                Sign Up
-              </button>
-            </p>
           </div>
         </div>
       </div>

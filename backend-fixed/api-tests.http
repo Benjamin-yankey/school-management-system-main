@@ -1,58 +1,394 @@
-### Login (admin)
-POST https://2e57-196-61-44-164.ngrok-free.app/auth/signin
+### School Management System API Tests
+
+# Variables
+@baseUrl = http://localhost:3000
+@adminEmail = vshxrdev@gmail.com
+@adminPassword = MyNewPassword123!
+@authToken = {{login.response.body.accessToken}}
+
+# ==================== AUTH ====================
+
+### 1. Sign In (Public)
+# @name login
+POST {{baseUrl}}/auth/signin
 Content-Type: application/json
-Origin: http://localhost:5173
 
 {
-  "email": "admin@accraacademy.com",
-  "password": "NewPassword123!"
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
 }
 
-### Login (superadmin)
-POST https://2e57-196-61-44-164.ngrok-free.app/auth/signin
+### 2. Sign Out
+POST {{baseUrl}}/auth/signout
+Authorization: Bearer {{authToken}}
+
+### 3. First Login Reset
+POST {{baseUrl}}/auth/first-login-reset
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
-Origin: http://localhost:5173
 
 {
-  "email": "superadmin@accraacademy.com",
-  "password": "SuperAdminPassword123!"
+  "currentPassword": "7699a0e2e22b05a4",
+  "newPassword": "MyNewPassword123!"
 }
 
-### Get Profile (replace YOUR_JWT_TOKEN)
-GET https://2e57-196-61-44-164.ngrok-free.app/profile/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MzQ3ODg4YS02N2UwLTRkYWItODhhNS1mNDRhNWVjYWY5OTQiLCJlbWFpbCI6ImFkbWluQGFjY3JhYWNhZGVteS5jb20iLCJyb2xlIjoiYWRtaW5pc3RyYXRpb24iLCJtdXN0UmVzZXRQYXNzd29yZCI6ZmFsc2UsImp0aSI6IjU2ODA1MzMzLTA3NWItNGEwNC05ODlmLWYyY2FlMGJmNDU0OSIsImlhdCI6MTc3NDUzNjcyOSwiZXhwIjoxNzc1MTQxNTI5fQ.vvh--9-wLCBQ63xMFsvUMynhJZZC4ZVNL0p9hYbMkk8
-Origin: http://localhost:5173
-
-### List Administrations (superadmin only)
-GET https://2e57-196-61-44-164.ngrok-free.app/superadmin/administrations
-Authorization: Bearer YOUR_JWT_TOKEN
-Origin: http://localhost:5173
-
-### Create Administration (superadmin only)
-POST https://2e57-196-61-44-164.ngrok-free.app/superadmin/create-administration
-Authorization: Bearer YOUR_JWT_TOKEN
+### 4. Change Password
+POST {{baseUrl}}/auth/change-password
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
-Origin: http://localhost:5173
 
 {
-  "email": "newadmin@accraacademy.com",
-  "schoolId": "27b3c1df-f524-4cc6-b449-702b9facbecb"
+  "currentPassword": "{{adminPassword}}",
+  "newPassword": "newPassword456!"
 }
 
-### List Users (administration only)
-GET https://2e57-196-61-44-164.ngrok-free.app/administration/users
-Authorization: Bearer YOUR_JWT_TOKEN
-Origin: http://localhost:5173
+# ==================== SUPERADMIN ====================
 
-### Create User (administration only)
-POST https://2e57-196-61-44-164.ngrok-free.app/administration/create-user
-Authorization: Bearer YOUR_JWT_TOKEN
+### 5. Create School
+# @name createSchool
+POST {{baseUrl}}/schools
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
-Origin: http://localhost:5173
 
 {
-  "email": "teacher@accraacademy.com",
-  "role": "teacher",
+  "name": "Springfield Elementary",
+  "address": "123 Main St, Springfield"
+}
+
+### 6. List All Schools
+GET {{baseUrl}}/schools
+Authorization: Bearer {{authToken}}
+
+### 7. Get Single School
+@schoolId = {{createSchool.response.body.id}}
+GET {{baseUrl}}/schools/{{schoolId}}
+Authorization: Bearer {{authToken}}
+
+### 8. Update School
+PATCH {{baseUrl}}/schools/{{schoolId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Springfield Elementary Updated",
+  "address": "456 Oak St, Springfield"
+}
+
+### 9. Create Administration Account
+POST {{baseUrl}}/superadmin/create-administration
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "admin@springfield.com",
+  "schoolId": "{{schoolId}}"
+}
+
+### 10. List All Administrations
+GET {{baseUrl}}/superadmin/administrations
+Authorization: Bearer {{authToken}}
+
+### 11. Reset Administration Password
+# Replace <userId> with a valid UUID from the listings above
+POST {{baseUrl}}/superadmin/reset-admin-password/<userId>
+Authorization: Bearer {{authToken}}
+
+### 12. Deactivate User (Superadmin)
+# Replace <userId> with a valid UUID
+PATCH {{baseUrl}}/superadmin/deactivate/<userId>
+Authorization: Bearer {{authToken}}
+
+### 13. Update Superadmin Credentials
+PATCH {{baseUrl}}/superadmin/update-credentials
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "{{adminPassword}}",
+  "newEmail": "newadmin@domain.com",
+  "newPassword": "newPassword123!"
+}
+
+# ==================== ADMINISTRATION ====================
+
+### 14. Create User (Teacher/Student/Parent)
+POST {{baseUrl}}/administration/create-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "teacher@springfield.com",
+  "role": "teacher"
+}
+
+### 15. List School Users
+GET {{baseUrl}}/administration/users
+Authorization: Bearer {{authToken}}
+
+### 16. Reset User Password (Administration)
+# Replace <userId> with a valid school-scoped UUID
+POST {{baseUrl}}/administration/reset-password/<userId>
+Authorization: Bearer {{authToken}}
+
+### 17. Deactivate User (Administration)
+# Replace <userId> with a valid school-scoped UUID
+PATCH {{baseUrl}}/administration/deactivate/<userId>
+Authorization: Bearer {{authToken}}
+
+# ==================== PROFILE ====================
+
+### 18. Get My Profile
+GET {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+
+### 19. Update My Profile
+PATCH {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
   "firstName": "John",
-  "lastName": "Doe"
+  "lastName": "Doe",
+  "phone": "+1234567890"
+}
+
+# ==================== ADMISSION ====================
+
+### 20. Get Current Open Admission Year (Public)
+GET {{baseUrl}}/admissions/current
+
+### 21. Apply (Public)
+POST {{baseUrl}}/admissions/apply
+Content-Type: application/json
+
+{
+  "firstName": "Kofi",
+  "lastName": "Mensah",
+  "middleName": "Agyei",
+  "email": "vshxr@gmail.com",
+  "phoneNumber": "+233241234566",
+  "dateOfBirth": "2010-05-15",
+  "areaOfInterest": "Sciences"
+}
+
+### 22. Create Admission Year
+# @name createAdmissionYear
+POST {{baseUrl}}/admissions/years
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "year": "2025/2025"
+}
+
+### 23. List All Admission Years
+GET {{baseUrl}}/admissions/years
+Authorization: Bearer {{authToken}}
+
+### 24. Open Admission Year
+@admissionYearId = {{createAdmissionYear.response.body.id}}
+PATCH {{baseUrl}}/admissions/years/{{admissionYearId}}/open
+Authorization: Bearer {{authToken}}
+
+### 25. Close Admission Year
+PATCH {{baseUrl}}/admissions/years/{{admissionYearId}}/close
+Authorization: Bearer {{authToken}}
+
+### 26. List Applications for a Year
+GET {{baseUrl}}/admissions/years/{{admissionYearId}}/applications
+Authorization: Bearer {{authToken}}
+
+### 27. Get Single Application
+# Replace <applicationId> with a valid UUID from listing above
+GET {{baseUrl}}/admissions/applications/afd0a1e1-bb7e-4f91-9600-2968514ed4f2
+Authorization: Bearer {{authToken}}
+
+### 28. Update Application Status
+# Replace <applicationId> with a valid UUID
+PATCH {{baseUrl}}/admissions/applications/<applicationId>/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+
+# ==================== ACADEMIC YEARS ====================
+
+### 29. Create Academic Year
+# @name createAcademicYear
+POST {{baseUrl}}/academic-years
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "year": "2025/2026"
+}
+
+### 30. List All Academic Years
+GET {{baseUrl}}/academic-years
+Authorization: Bearer {{authToken}}
+
+### 31. Get Active Academic Year
+GET {{baseUrl}}/academic-years/active
+Authorization: Bearer {{authToken}}
+
+### 32. Set Active Academic Year
+@academicYearId = {{createAcademicYear.response.body.id}}
+PATCH {{baseUrl}}/academic-years/{{academicYearId}}/activate
+Authorization: Bearer {{authToken}}
+
+# ==================== CLASS LEVELS ====================
+
+### 33. Seed All Class Levels (run once)
+POST {{baseUrl}}/classes/seed
+Authorization: Bearer {{authToken}}
+
+### 34. Create Custom Class Level
+POST {{baseUrl}}/classes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Primary 1",
+  "level": "primary",
+  "order": 1
+}
+
+### 35. List All Class Levels
+# @name listClasses
+GET {{baseUrl}}/classes
+Authorization: Bearer {{authToken}}
+
+### 36. Get Single Class Level
+# Replace <classLevelId> with a valid UUID
+GET {{baseUrl}}/classes/<classLevelId>
+Authorization: Bearer {{authToken}}
+
+### 37. Update Class Level
+# Replace <classLevelId> with a valid UUID
+PATCH {{baseUrl}}/classes/<classLevelId>
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Primary 1 Updated"
+}
+
+# ==================== SECTIONS ====================
+
+### 38. Create Section for a Class
+# Replace <classLevelId> with a valid UUID
+POST {{baseUrl}}/classes/<classLevelId>/sections
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "A",
+  "academicYearId": "{{academicYearId}}",
+  "capacity": 30
+}
+
+### 39. List Sections for a Class
+# Replace <classLevelId> with a valid UUID
+GET {{baseUrl}}/classes/<classLevelId>/sections
+Authorization: Bearer {{authToken}}
+
+### 40. Update Section
+# Replace <sectionId> with a valid UUID
+PATCH {{baseUrl}}/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "B",
+  "capacity": 25
+}
+
+### 41. Delete Section
+# Replace <sectionId> with a valid UUID
+DELETE {{baseUrl}}/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+
+# ==================== STUDENTS ====================
+
+### 42. Enroll Accepted Applicant as Student
+# @name enrollStudent
+POST {{baseUrl}}/students/enroll
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "applicantId": "<applicationId>",
+  "classLevelId": "<classLevelId>",
+  "academicYearId": "{{academicYearId}}",
+  "sectionId": "<sectionId>"
+}
+
+### 43. List All Students
+GET {{baseUrl}}/students
+Authorization: Bearer {{authToken}}
+
+### 44. Get Single Student
+# Replace <studentId> with a valid UUID
+GET {{baseUrl}}/students/<studentId>
+Authorization: Bearer {{authToken}}
+
+### 45. Get Student Enrollment History
+# Replace <studentId> with a valid UUID
+GET {{baseUrl}}/students/<studentId>/enrollments
+Authorization: Bearer {{authToken}}
+
+### 46. Update Student Info
+# Replace <studentId> with a valid UUID
+PATCH {{baseUrl}}/students/<studentId>
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Kofi",
+  "lastName": "Mensah",
+  "phoneNumber": "+233241234567"
+}
+
+### 47. Update Student Status
+# Replace <studentId> with a valid UUID
+PATCH {{baseUrl}}/students/<studentId>/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "active"
+}
+
+# ==================== PROMOTIONS ====================
+
+### 48. Preview Bulk Promotion
+# Replace <classLevelId> and <academicYearId> with valid UUIDs
+GET {{baseUrl}}/promotions/preview/<classLevelId>/{{academicYearId}}
+Authorization: Bearer {{authToken}}
+
+### 49. Bulk Promote Class
+POST {{baseUrl}}/promotions/bulk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "classLevelId": "<classLevelId>",
+  "fromAcademicYearId": "{{academicYearId}}",
+  "toAcademicYearId": "<nextAcademicYearId>"
+}
+
+### 50. Manual Promote / Repeat Single Student
+POST {{baseUrl}}/promotions/manual
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "studentId": "<studentId>",
+  "fromAcademicYearId": "{{academicYearId}}",
+  "toAcademicYearId": "<nextAcademicYearId>",
+  "classLevelId": "<classLevelId>",
+  "sectionId": "<sectionId>",
+  "isRepeating": false
 }
