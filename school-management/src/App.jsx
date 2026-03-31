@@ -34,7 +34,10 @@ export default function App() {
             path="/superadmin"
             element={
               <ProtectedRoute requiredRole="superadmin">
-                <SuperAdminDashboard />
+                <div className="app">
+                  <Header />
+                  <SuperAdminDashboard />
+                </div>
               </ProtectedRoute>
             }
           />
@@ -64,7 +67,7 @@ export default function App() {
           <Route
             path="/add-student"
             element={
-              <ProtectedRoute requiredRole={["admin", "administration"]}>
+              <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                 <div className="app">
                   <Header />
                   <AddStudent />
@@ -77,7 +80,7 @@ export default function App() {
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute requiredRole={["admin", "administration"]}>
+              <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                 <div className="app">
                   <Header />
                   <AdminDashboard />

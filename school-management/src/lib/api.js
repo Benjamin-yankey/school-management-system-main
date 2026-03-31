@@ -230,6 +230,24 @@ export async function forceResetPassword(currentPassword, newPassword) {
   return handleResponse(res);
 }
 
+// ==================== SUPERADMIN ====================
+
+export async function getAdministrations() {
+  const res = await fetch(`${API_BASE_URL}/superadmin/administrations`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createAdministration(adminData) {
+  const res = await fetch(`${API_BASE_URL}/superadmin/create-administration`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(adminData),
+  });
+  return handleResponse(res);
+}
+
 // ==================== DASHBOARD ====================
 
 export async function getDashboardStats() {
@@ -260,4 +278,6 @@ export default {
   getDashboardStats,
   getSchools,
   createSchool,
+  getAdministrations,
+  createAdministration,
 };

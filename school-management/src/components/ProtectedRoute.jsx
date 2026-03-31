@@ -20,18 +20,22 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   if (requiredRole) {
-    const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    if (!roles.includes(user?.role)) {
+    const roles = Array.isArray(requiredRole) 
+      ? requiredRole.map(r => r.toLowerCase()) 
+      : [requiredRole.toLowerCase()];
+    
+    const userRole = user?.role?.toLowerCase();
+
+    if (!userRole || !roles.includes(userRole)) {
       // Redirect to user's dashboard if they don't have required role
-      const userRole = user?.role;
       if (userRole === "superadmin") {
         return <Navigate to="/superadmin" replace />;
+      } else if (userRole === "admin" || userRole === "administration") {
+        return <Navigate to="/admin/dashboard" replace />;
       } else if (userRole) {
-        // Handle special mapping for administration -> admin if needed
-        const dashboardPrefix = userRole === "administration" ? "admin" : userRole;
-        return <Navigate to={`/${dashboardPrefix}/dashboard`} replace />;
+        return <Navigate to={`/${userRole}/dashboard`} replace />;
       } else {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/signin" replace />;
       }
     }
   }

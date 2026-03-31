@@ -40,12 +40,15 @@ const SignIn = () => {
         
         if (result.user.mustResetPassword) {
           navigate("/force-reset");
-        } else if (userRole === "superadmin") {
-          navigate("/superadmin");
         } else {
-          // Map administration to admin dashboard
-          const dashboardPrefix = userRole === "administration" ? "admin" : userRole;
-          navigate(`/${dashboardPrefix}/dashboard`);
+          const userRole = result.user.role?.toLowerCase();
+          if (userRole === "superadmin") {
+            navigate("/superadmin");
+          } else {
+            // Map administration to admin dashboard
+            const dashboardPrefix = userRole === "administration" ? "admin" : userRole;
+            navigate(`/${dashboardPrefix}/dashboard`);
+          }
         }
         return;
       }
