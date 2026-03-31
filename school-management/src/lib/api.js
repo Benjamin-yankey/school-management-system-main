@@ -248,7 +248,76 @@ export async function createAdministration(adminData) {
   return handleResponse(res);
 }
 
-// ==================== DASHBOARD ====================
+export async function getSchoolUsers(schoolId) {
+  const res = await fetch(`${API_BASE_URL}/superadmin/schools/${schoolId}/users`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createUserForSchool(schoolId, userData) {
+  const res = await fetch(`${API_BASE_URL}/superadmin/schools/${schoolId}/users`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(userData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteUser(id) {
+  const res = await fetch(`${API_BASE_URL}/administration/deactivate/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+// ==================== DASHBOARD & PORTALS ====================
+export async function getStudentPortalMe() {
+  const res = await fetch(`${API_BASE_URL}/student-portal/me`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentEnrollments() {
+  const res = await fetch(`${API_BASE_URL}/student-portal/enrollments`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentAttendanceSummary(studentId, termId = "") {
+  const res = await fetch(`${API_BASE_URL}/attendance/student/${studentId}/summary?termId=${termId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentReportCard(studentId, termId = "") {
+  const res = await fetch(`${API_BASE_URL}/grades/report-card/${studentId}?termId=${termId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentFees(studentId = "", termId = "") {
+  const queryParams = new URLSearchParams();
+  if (studentId) queryParams.append("studentId", studentId);
+  if (termId) queryParams.append("termId", termId);
+  
+  const res = await fetch(`${API_BASE_URL}/fees?${queryParams.toString()}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentFeeBalance(studentId) {
+  const res = await fetch(`${API_BASE_URL}/fees/balance/${studentId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
 
 export async function getDashboardStats() {
   // Get counts from users endpoint
@@ -280,4 +349,13 @@ export default {
   createSchool,
   getAdministrations,
   createAdministration,
+  getSchoolUsers,
+  createUserForSchool,
+  deleteUser,
+  getStudentPortalMe,
+  getStudentEnrollments,
+  getStudentAttendanceSummary,
+  getStudentReportCard,
+  getStudentFees,
+  getStudentFeeBalance,
 };

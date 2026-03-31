@@ -12,6 +12,10 @@ import ForceResetPassword from "./components/ForceResetPassword";
 import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import StudentDashboard from "./components/dashboards/StudentDashboard";
+import StudentAssignments from "./components/student/Assignments";
+import StudentGrades from "./components/student/Grades";
+import StudentTimetable from "./components/student/Timetable";
+import StudentPayments from "./components/student/Payments";
 import ParentDashboard from "./components/dashboards/ParentDashboard";
 import SuperAdminDashboard from "./components/SuperAdminDashboard";
 import AcademyLandingPage from "./AcademyLandingPage";
@@ -114,6 +118,50 @@ export default function App() {
                 <div className="app">
                   <Header />
                   <StudentDashboard />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/assignments"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentAssignments />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/grades"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentGrades />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/timetable"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentTimetable />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/payments"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <div className="app">
+                  <Header />
+                  <StudentPayments />
                 </div>
               </ProtectedRoute>
             }

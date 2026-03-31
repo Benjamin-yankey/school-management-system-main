@@ -32,12 +32,16 @@
   gap: 1rem;
 }
 
-.school-logo-img {
+.school-logo-icon {
   width: 44px;
   height: 44px;
+  background: var(--role-color, #2563eb);
   border-radius: 12px;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  flex-shrink: 0;
 }
 
 .school-logo-text {

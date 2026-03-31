@@ -8,6 +8,7 @@ import {
   Microscope,
   Palette,
   Sparkles,
+  Building2
 } from "lucide-react";
 import "./AcademyPages.css";
 
@@ -63,11 +64,9 @@ const ProgramsPage = () => {
       <header className={`academy-page-nav ${isMenuOpen ? 'mobile-active' : ''}`}>
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="school-logo-container">
-            <img
-              src="/images/schoolLogo.jpeg"
-              alt="School Logo"
-              className="school-logo-img"
-            />
+            <div className="school-logo-icon" style={{width: 32, height: 32, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Building2 size={18} color="#fff" />
+            </div>
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>

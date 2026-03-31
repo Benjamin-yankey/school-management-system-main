@@ -219,8 +219,8 @@ const AcademyLandingPage = () => {
       <nav className={`navbar-modern ${isMobileMenuOpen ? 'mobile-active' : ''}`}>
         <div className="nav-container">
           <Link to="/" className="nav-logo">
-            <span className="logo-icon">A</span>
-            <span className="logo-text">THE ACADEMY</span>
+            <span className="logo-icon">G</span>
+            <span className="logo-text">GEOZIIE INTERNATIONAL SCHOOL</span>
           </Link>
           
           <div className="nav-toggle" onClick={toggleMobileMenu}>
@@ -245,9 +245,7 @@ const AcademyLandingPage = () => {
 
         {isMobileMenuOpen && (
           <div className="mobile-menu">
-            <Link to="/original" className="mobile-nav-link active" onClick={() => setIsMobileMenuOpen(false)}>Original</Link>
-            <Link to="/" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-            <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+            <Link to="/home" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Experience</Link>
             <Link to="/signin" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
           </div>
         )}
@@ -273,7 +271,7 @@ const AcademyLandingPage = () => {
               <span className="neon-text">Future Mind</span>
             </h1>
             <p className="hero-subtitle-modern animate-slide-up delay-1">
-              Welcome to a sanctuary of radical innovation and classical wisdom. Where we don't just teach the future—we build it.
+              Welcome to GEOZIIE INTERNATIONAL SCHOOL, a sanctuary of radical innovation and classical wisdom. Where we don't just teach the future—we build it.
             </p>
             <div className="hero-buttons-modern animate-slide-up delay-2">
               <button className="primary-cta" onClick={openModal}>Start Your Application</button>
@@ -412,7 +410,7 @@ const AcademyLandingPage = () => {
                         <span className="event-time">
                           <span className="material-symbols-outlined">schedule</span> {event.time}
                         </span>
-                        <button className="event-add-btn" onClick={() => alert('📅 Event added to your calendar (demo)')}>
+                        <button className="event-add-btn" onClick={() => alert('📅 Event added to your calendar!')}>
                           Add to Calendar <span className="material-symbols-outlined">add</span>
                         </button>
                       </div>
@@ -466,7 +464,7 @@ const AcademyLandingPage = () => {
         <div className="footer-container-modern">
           <div className="footer-top">
             <div className="footer-brand-modern">
-              <span className="logo-text">THE ACADEMY</span>
+              <span className="logo-text">GEOZIIE INTERNATIONAL SCHOOL</span>
               <p>A Century of Excellence, Re-engineered for the Digital Frontier.</p>
             </div>
             <div className="footer-nav-modern">
@@ -491,7 +489,7 @@ const AcademyLandingPage = () => {
             </div>
           </div>
           <div className="footer-bottom-modern">
-            <p>© 2024 The Academy. All Rights Reserved.</p>
+            <p>© 2024 GEOZIIE INTERNATIONAL SCHOOL. All Rights Reserved.</p>
             <div className="footer-legal">
               <a href="#">Privacy Policy</a>
               <a href="#">Terms of Service</a>

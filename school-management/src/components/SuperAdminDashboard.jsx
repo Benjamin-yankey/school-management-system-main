@@ -3,7 +3,9 @@ import api from "../lib/api";
 import { 
   Building2, Users, GraduationCap, DollarSign, Activity, 
   Plus, Search, Filter, MoreHorizontal, ShieldCheck,
-  TrendingUp, Calendar, AlertCircle, CheckCircle2, ChevronRight
+  TrendingUp, Calendar, AlertCircle, CheckCircle2, ChevronRight,
+  ArrowLeft, Mail, Trash2, UserPlus, UserCog, GraduationCap as StudentIcon,
+  Heart
 } from "lucide-react";
 import "./SuperAdminDashboard.css";
 
@@ -55,10 +57,20 @@ export default function SuperAdminDashboard() {
     name: "", location: "", principalName: "",
     adminEmail: "", adminPassword: "", adminName: ""
   });
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // School Deep Dive
+  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [schoolUsers, setSchoolUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [userFormData, setUserFormData] = useState({
+    email: "", role: "teacher", firstName: "", lastName: ""
+  });
 
   useEffect(() => {
     fetchGlobalData();
-  }, []);
+  }, [selectedSchool]); // Re-fetch on select or clear
 
   const fetchGlobalData = async () => {
     setLoading(true);
@@ -81,10 +93,27 @@ export default function SuperAdminDashboard() {
       setAlerts([
         { id: 1, type: 'info', msg: 'System Root active. Connectivity established.', time: 'Just now' }
       ]);
+
+      if (selectedSchool) {
+        fetchSchoolUsers(selectedSchool.id);
+      }
     } catch (error) {
       console.error("Sync failed:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSchoolUsers = async (schoolId) => {
+    setLoadingUsers(true);
+    try {
+      const users = await api.getSchoolUsers(schoolId);
+      setSchoolUsers(Array.isArray(users) ? users : []);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      setSchoolUsers([]);
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
@@ -121,6 +150,39 @@ export default function SuperAdminDashboard() {
       setOnboardLoading(false);
     }
   };
+
+  const handleAddUserSubmit = async (e) => {
+    e.preventDefault();
+    setOnboardLoading(true);
+    try {
+      await api.createUserForSchool(selectedSchool.id, userFormData);
+      setShowAddUserModal(false);
+      setUserFormData({ email: "", role: "teacher", firstName: "", lastName: "" });
+      fetchSchoolUsers(selectedSchool.id);
+    } catch (err) {
+      setOnboardError(err.message);
+    } finally {
+      setOnboardLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await api.deleteUser(userId);
+      fetchSchoolUsers(selectedSchool.id);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+
+  const filteredSchools = useMemo(() => {
+    return schools.filter(s => 
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [schools, searchTerm]);
 
   if (loading) {
     return (
@@ -169,8 +231,12 @@ export default function SuperAdminDashboard() {
       <main className="super-main-content">
         <header className="super-content-header">
           <div>
-            <h1>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
-            <p className="subtitle">Real-time system oversight and school management</p>
+            <h1>{selectedSchool ? selectedSchool.name : (activeTab.charAt(0).toUpperCase() + activeTab.slice(1))}</h1>
+            <p className="subtitle">
+              {selectedSchool 
+                ? `Managing users and oversight for ${selectedSchool.name}` 
+                : "Real-time system oversight and school management"}
+            </p>
           </div>
           <div className="header-actions">
             <button className="btn-sync" onClick={fetchGlobalData}><Activity size={16} /> Force Sync</button>
@@ -180,7 +246,7 @@ export default function SuperAdminDashboard() {
           </div>
         </header>
 
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' && !selectedSchool && (
           <div className="super-view-animate">
             <div className="super-stats-row">
               <StatCard title="Total Schools" value={stats.schools} color="#3b82f6" icon={Building2} trend={stats.schools > 0 ? 12 : 0} />
@@ -242,13 +308,18 @@ export default function SuperAdminDashboard() {
           </div>
         )}
 
-        {activeTab === 'schools' && (
+        {activeTab === 'schools' && !selectedSchool && (
           <div className="super-view-animate">
             <div className="super-panel main-table-panel">
               <div className="table-filters">
                 <div className="search-wrapper">
                   <Search size={18} />
-                  <input type="text" placeholder="Filter schools..." />
+                  <input 
+                    type="text" 
+                    placeholder="Filter schools (e.g. Yram)..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
                 <button className="btn-filter"><Filter size={16} /> Advanced</button>
               </div>
@@ -265,8 +336,8 @@ export default function SuperAdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {schools.map(school => (
-                      <tr key={school.id}>
+                    {filteredSchools.map(school => (
+                      <tr key={school.id} onClick={() => setSelectedSchool(school)} style={{ cursor: 'pointer' }}>
                         <td>
                           <div className="school-cell">
                             <strong>{school.name}</strong>
@@ -287,12 +358,93 @@ export default function SuperAdminDashboard() {
                           </div>
                         </td>
                         <td><span className="status-label active">Connected</span></td>
-                        <td><button className="btn-icon-more"><MoreHorizontal size={20} /></button></td>
+                        <td><button className="btn-icon-more" onClick={(e) => { e.stopPropagation(); setSelectedSchool(school); }}><ChevronRight size={20} /></button></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && !selectedSchool && (
+          <div className="super-view-animate">
+             <div className="super-panel main-table-panel">
+               <div className="table-filters">
+                <div className="search-wrapper">
+                  <Search size={18} />
+                  <input type="text" placeholder="Search across all institutions..." readOnly />
+                </div>
+              </div>
+              <div className="super-empty-state">
+                <Users size={48} />
+                <h4>Global User Directory</h4>
+                <p>Select a specific institution from the <strong>Institutions</strong> tab to deep-dive into its students, teachers, and admins.</p>
+                <button onClick={() => setActiveTab('schools')}>Go to Institutions</button>
+              </div>
+             </div>
+          </div>
+        )}
+
+        {selectedSchool && (
+          <div className="super-view-animate school-detail-view">
+            <div className="detail-view-header">
+              <button className="btn-back" onClick={() => setSelectedSchool(null)}><ArrowLeft size={20} /></button>
+              <div>
+                <h2>{selectedSchool.name}</h2>
+                <div className="school-meta">
+                  <span className="meta-pill"><Building2 size={14} /> {selectedSchool.location || 'No Location'}</span>
+                  <span className="meta-pill"><Users size={14} /> {selectedSchool.studentCount || 0} Students</span>
+                  <span className="meta-pill"><ShieldCheck size={14} /> License: Enterprise v2</span>
+                </div>
+              </div>
+              <div style={{ marginLeft: 'auto' }}>
+                 <button className="btn-primary-super" onClick={() => setShowAddUserModal(true)}>
+                  <Plus size={18} /> Add User
+                </button>
+              </div>
+            </div>
+
+            <div className="school-users-section">
+              {['admin', 'teacher', 'student', 'parent'].map(role => {
+                const users = schoolUsers.filter(u => u.role === role);
+                return (
+                  <section key={role} className="role-group">
+                    <div className="role-section-header">
+                      <h3>
+                        {role === 'admin' && <ShieldCheck size={20} color="#4338ca" />}
+                        {role === 'teacher' && <Users size={20} color="#b45309" />}
+                        {role === 'student' && <StudentIcon size={20} color="#15803d" />}
+                        {role === 'parent' && <Heart size={20} color="#be185d" />}
+                        {role.charAt(0).toUpperCase() + role.slice(1)}s
+                      </h3>
+                      <span className="count-badge">{users.length} Total</span>
+                    </div>
+                    {loadingUsers ? (
+                      <div className="loading-row">Synchronizing users...</div>
+                    ) : users.length > 0 ? (
+                      <div className="user-grid-super">
+                        {users.map(user => (
+                          <div key={user.id} className="user-card-super">
+                            <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
+                            <div className="user-info-super">
+                              <strong>{user.firstName} {user.lastName}</strong>
+                              <span>{user.email}</span>
+                              <div className={`role-badge-super ${role}`}>{role}</div>
+                            </div>
+                            <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="super-empty-state-small">No {role}s registered.</div>
+                    )}
+                  </section>
+                );
+              })}
             </div>
           </div>
         )}
@@ -354,6 +506,55 @@ export default function SuperAdminDashboard() {
                 <button type="button" className="btn-cancel-super" onClick={() => setShowOnboardModal(false)} disabled={onboardLoading}>Cancel</button>
                 <button type="submit" className="btn-action-super" disabled={onboardLoading}>
                   {onboardLoading ? <Activity className="spin" size={16} /> : (onboardStep === 1 ? "Next: Admin Setup" : "Complete Onboarding")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="super-modal-overlay">
+          <div className="super-modal-content">
+            <h3>Add New User to {selectedSchool.name}</h3>
+            <p className="modal-sub">Manually register a new account for this institution.</p>
+            
+            <form onSubmit={handleAddUserSubmit} className="onboard-form">
+              <div className="form-sections-wrap">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                   <div className="input-group-super">
+                    <label>First Name</label>
+                    <input required value={userFormData.firstName} onChange={e => setUserFormData({...userFormData, firstName: e.target.value})} placeholder="John" />
+                  </div>
+                  <div className="input-group-super">
+                    <label>Last Name</label>
+                    <input required value={userFormData.lastName} onChange={e => setUserFormData({...userFormData, lastName: e.target.value})} placeholder="Doe" />
+                  </div>
+                </div>
+                <div className="input-group-super">
+                  <label>Email Address</label>
+                  <input required type="email" value={userFormData.email} onChange={e => setUserFormData({...userFormData, email: e.target.value})} placeholder="user@school.com" />
+                </div>
+                <div className="input-group-super">
+                  <label>User Role</label>
+                  <select 
+                    value={userFormData.role} 
+                    onChange={e => setUserFormData({...userFormData, role: e.target.value})}
+                    style={{ padding: '0.85rem', borderRadius: '12px', border: '1.5px solid #e2e8f0' }}
+                  >
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                    <option value="parent">Parent</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-footer-btns">
+                <button type="button" className="btn-cancel-super" onClick={() => setShowAddUserModal(false)}>Cancel</button>
+                <button type="submit" className="btn-action-super" disabled={onboardLoading}>
+                  {onboardLoading ? <Activity className="spin" size={16} /> : "Create User"}
                 </button>
               </div>
             </form>

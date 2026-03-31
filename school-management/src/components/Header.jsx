@@ -14,7 +14,9 @@ import {
   Volume2,
   ShieldAlert,
   Info,
-  ChevronRight
+  ChevronRight,
+  Building2,
+  GraduationCap as SchoolIcon
 } from "lucide-react";
 import "./Header.css";
 
@@ -91,7 +93,9 @@ const Header = () => {
         <div className="header-content">
           <div className="header-brand">
             <div className="school-logo-container">
-              <img src="/images/schoolLogo.jpeg" alt="Logo" className="school-logo-img" />
+              <div className="school-logo-icon">
+                <Building2 size={24} color="#fff" />
+              </div>
               <span className="school-logo-text">GEOZIIE INTERNATIONAL SCHOOL</span>
             </div>
             <div className="header-title">

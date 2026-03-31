@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Building2 } from "lucide-react";
 import { generateAdmissionPDF } from "./generateAdmissionPDF";
 import "./AcademyPages.css";
 
@@ -95,7 +96,7 @@ const AdmissionsPage = () => {
       );
 
   const handleDownloadPDF = async () => {
-    const logo = await toBase64("/images/schoolLogo.jpeg");
+    const logo = await toBase64("https://upload.wikimedia.org/wikipedia/commons/4/47/Academic_Chapeau_Graphite.png");
     generateAdmissionPDF(logo, formData.childImage);
   };
 
@@ -136,11 +137,9 @@ const AdmissionsPage = () => {
       >
         <div className="academy-page-shell academy-page-nav-inner">
           <Link to="/" className="school-logo-container">
-            <img
-              src="/images/schoolLogo.jpeg"
-              alt="School Logo"
-              className="school-logo-img"
-            />
+            <div className="school-logo-icon" style={{width: 32, height: 32, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Building2 size={18} color="#fff" />
+            </div>
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>

@@ -487,3 +487,198 @@
 .brand-text { display: flex; flex-direction: column; gap: 0; }
 .brand-text small { font-size: 0.65rem; color: #64748b; font-weight: 500; }
 .subtitle { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
+
+/* School Detail View */
+.detail-view-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-back {
+    background: white;
+    border: 1px solid var(--super-border);
+    padding: 0.6rem;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #475569;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s;
+}
+
+.btn-back:hover { background: #f1f5f9; transform: translateX(-3px); }
+
+.school-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.meta-pill {
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.school-users-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.role-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.role-section-header h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-grid-super {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+}
+
+.user-card-super {
+    background: white;
+    border-radius: 18px;
+    padding: 1.25rem;
+    border: 1px solid var(--super-border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.user-card-super:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+    border-color: var(--super-primary);
+}
+
+.user-avatar-super {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #f1f5f9;
+    color: var(--super-primary);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.user-info-super {
+    flex: 1;
+}
+
+.user-info-super strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.user-info-super span {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.btn-user-action {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-user-action:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.role-badge-super {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.role-badge-super.admin { background: #e0e7ff; color: #4338ca; }
+.role-badge-super.teacher { background: #fef3c7; color: #b45309; }
+.role-badge-super.student { background: #dcfce7; color: #15803d; }
+.role-badge-super.parent { background: #fce7f3; color: #be185d; }
+
+.btn-add-user-small {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-add-user-small:hover {
+    background: var(--super-primary);
+    color: white;
+}
+
+.count-badge {
+    background: #f1f5f9;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.role-group {
+    margin-bottom: 2.5rem;
+}
+
+.loading-row {
+    padding: 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px dashed var(--super-border);
+}
+
+.super-empty-state-small {
+    padding: 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed var(--super-border);
+    font-size: 0.85rem;
+}

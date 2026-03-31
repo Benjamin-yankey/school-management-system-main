@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
+import { Building2 } from "lucide-react";
 import "./Home.css";
 
 const Home = () => {
@@ -244,11 +245,9 @@ const Home = () => {
       <nav className={`navbar ${isMenuOpen ? "mobile-active" : ""}`}>
         <div className="navbar-brand">
           <Link to="/" className="school-logo-container">
-            <img
-              src="/images/schoolLogo.jpeg"
-              alt="School Logo"
-              className="school-logo-img"
-            />
+            <div className="school-logo-icon" style={{width: 40, height: 40, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'}}>
+              <Building2 size={24} color="#fff" />
+            </div>
             <span className="school-logo-text">
               GEOZIIE INTERNATIONAL SCHOOL
             </span>
@@ -293,7 +292,7 @@ const Home = () => {
             <img
               alt="Campus Architecture"
               className="hero-image"
-              src="./images/schoolLogo.jpeg"
+              src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=2000"
             />
             <div className="hero-gradient-overlay"></div>
           </div>
@@ -641,11 +640,9 @@ const Home = () => {
         <div className="footer-container">
           <div className="footer-brand">
             <div className="school-logo-container">
-              <img
-                src="/images/schoolLogo.jpeg"
-                alt="School Logo"
-                className="school-logo-img"
-              />
+              <div className="school-logo-icon" style={{width: 36, height: 36, background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)'}}>
+                <Building2 size={20} color="#fff" />
+              </div>
               <span className="school-logo-text" style={{ color: "white" }}>
                 GEOZIIE INTERNATIONAL SCHOOL
               </span>
@@ -671,7 +668,7 @@ const Home = () => {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2024 The Academy. All Rights Reserved.</p>
+          <p>© 2024 GEOZIIE INTERNATIONAL SCHOOL. All Rights Reserved.</p>
         </div>
       </footer>
 
