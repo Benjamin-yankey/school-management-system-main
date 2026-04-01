@@ -76,7 +76,14 @@ export class UserService implements OnModuleInit {
     const user = await this.userRepo.save(
       this.userRepo.create({ email: dto.email, role: 'administration', schoolId: dto.schoolId, isActive: true }),
     );
-    await this.profileRepo.save(this.profileRepo.create({ userId: user.id }));
+    await this.profileRepo.save(
+      this.profileRepo.create({
+        userId: user.id,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        middleName: dto.middleName,
+      }),
+    );
 
     this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
     this.kafkaClient.emit('notification.email', { type: 'welcome', to: dto.email, tempPassword });
@@ -131,7 +138,14 @@ export class UserService implements OnModuleInit {
     const user = await this.userRepo.save(
       this.userRepo.create({ email: dto.email, role: dto.role, schoolId, isActive: true }),
     );
-    await this.profileRepo.save(this.profileRepo.create({ userId: user.id }));
+    await this.profileRepo.save(
+      this.profileRepo.create({
+        userId: user.id,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        middleName: dto.middleName,
+      }),
+    );
 
     this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
     this.kafkaClient.emit('notification.email', { type: 'welcome', to: dto.email, tempPassword });

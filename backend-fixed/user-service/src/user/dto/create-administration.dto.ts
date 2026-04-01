@@ -1,4 +1,4 @@
-import { IsEmail, IsUUID } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateAdministrationDto {
   @IsEmail()
@@ -6,4 +6,16 @@ export class CreateAdministrationDto {
 
   @IsUUID()
   schoolId: string;
+
+  @IsString()
+  @IsOptional()
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
+  @IsString()
+  @IsOptional()
+  middleName?: string;
 }

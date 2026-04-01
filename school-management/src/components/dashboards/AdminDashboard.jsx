@@ -134,8 +134,10 @@ function AdminStatusBadge({ isActive }) {
   );
 }
 
-function AdminAvatar({ email, size = 36 }) {
-  const initials = email ? email[0].toUpperCase() : "?";
+function AdminAvatar({ email, name, size = 36 }) {
+  const initials = name 
+    ? name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    : (email ? email[0].toUpperCase() : "?");
   return (
     <div
       style={{
@@ -267,25 +269,28 @@ function RecentUsersTable({ users = [], loading }) {
         </tr>
       </thead>
       <tbody>
-        {users.map((u) => (
-          <tr key={u.id}>
-            <td>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <AdminAvatar email={u.email} size={34} />
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
-                    {u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : u.email}
+        {users.map((u) => {
+          const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ");
+          return (
+            <tr key={u.id}>
+              <td>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <AdminAvatar email={u.email} name={fullName} size={34} />
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
+                      {fullName || u.email}
+                    </div>
+                    {fullName && (
+                      <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{u.email}</div>
+                    )}
                   </div>
-                  {(u.firstName || u.lastName) && (
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{u.email}</div>
-                  )}
                 </div>
-              </div>
-            </td>
-            <td><AdminRoleBadge role={u.role} /></td>
-            <td><AdminStatusBadge isActive={u.isActive} /></td>
-          </tr>
-        ))}
+              </td>
+              <td><AdminRoleBadge role={u.role} /></td>
+              <td><AdminStatusBadge isActive={u.isActive} /></td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -627,22 +632,22 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
       )}
 
       {filtered.map((u) => {
-        const fullName = `${u.firstName || ""} ${u.lastName || ""}`.trim();
+        const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ");
         return (
           <div
             key={u.id}
             onClick={() => onSelectUser(u)}
-            style={{ 
-              display: "flex", alignItems: "center", padding: "12px 16px", 
-              borderRadius: 12, border: "1px solid var(--border)", 
+            style={{
+              display: "flex", alignItems: "center", padding: "12px 16px",
+              borderRadius: 12, border: "1px solid var(--border)",
               marginBottom: 8, transition: "all 0.2s", cursor: "pointer",
-              background: "var(--glass)" 
+              background: "var(--glass)"
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-muted)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "var(--glass)")}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 2 }}>
-              <AdminAvatar email={u.email} />
+              <AdminAvatar email={u.email} name={fullName} />
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
                   {fullName || u.email}
@@ -651,8 +656,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
                   <p style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{u.email}</p>
                 )}
               </div>
-            </div>
-            <div style={{ flex: 1 }}><AdminRoleBadge role={u.role} /></div>
+            </div>            <div style={{ flex: 1 }}><AdminRoleBadge role={u.role} /></div>
             <div style={{ flex: 1 }}><AdminStatusBadge isActive={u.isActive} /></div>
             <div style={{ flex: 2, textAlign: "right" }}>
               <code style={{ fontSize: 10, color: "#A0AEC0", letterSpacing: 0.5 }}>{u.id}</code>

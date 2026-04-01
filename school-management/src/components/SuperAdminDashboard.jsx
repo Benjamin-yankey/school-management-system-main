@@ -630,19 +630,22 @@ export default function SuperAdminDashboard() {
                       <div className="loading-row">Synchronizing users...</div>
                     ) : users.length > 0 ? (
                       <div className="user-grid-super">
-                        {users.map(user => (
-                          <div key={user.id} className="user-card-super">
-                            <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
-                            <div className="user-info-super">
-                              <strong>{user.firstName} {user.lastName}</strong>
-                              <span>{user.email}</span>
-                              <div className={`role-badge-super ${role}`}>{role}</div>
+                        {users.map(user => {
+                          const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ");
+                          return (
+                            <div key={user.id} className="user-card-super">
+                              <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
+                              <div className="user-info-super">
+                                <strong>{fullName || user.email.split("@")[0]}</strong>
+                                <span>{user.email}</span>
+                                <div className={`role-badge-super ${role}`}>{role}</div>
+                              </div>
+                              <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
+                                <Trash2 size={16} />
+                              </button>
                             </div>
-                            <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="super-empty-state-small">No {role}s registered.</div>
