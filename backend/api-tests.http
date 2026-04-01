@@ -1,0 +1,561 @@
+### School Management System — API Tests
+# Variables
+@baseUrl = http://localhost:3000
+@adminEmail = admin@yourdomain.com
+@adminPassword = StrongPasswordHere123!
+@authToken = {{login.response.body.accessToken}}
+
+# ==================== AUTH ====================
+
+### 1. Sign In
+# @name login
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### 2. Sign Out
+POST {{baseUrl}}/auth/signout
+Authorization: Bearer {{authToken}}
+
+### 3. First Login Reset
+POST {{baseUrl}}/auth/first-login-reset
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "tempPasswordFromEmail",
+  "newPassword": "MyNewPassword123!"
+}
+
+### 4. Change Password
+POST {{baseUrl}}/auth/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "MyNewPassword123!",
+  "newPassword": "AnotherPassword456!"
+}
+
+# ==================== SUPERADMIN ====================
+
+### 5. Create School
+# @name createSchool
+POST {{baseUrl}}/schools
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Springfield Elementary",
+  "address": "123 Main St, Springfield"
+}
+
+### 6. List All Schools
+GET {{baseUrl}}/schools
+Authorization: Bearer {{authToken}}
+
+### 7. Get Single School
+@schoolId = {{createSchool.response.body.id}}
+GET {{baseUrl}}/schools/{{schoolId}}
+Authorization: Bearer {{authToken}}
+
+### 8. Update School
+PATCH {{baseUrl}}/schools/{{schoolId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Springfield Elementary Updated"
+}
+
+### 9. Create Administration Account
+POST {{baseUrl}}/superadmin/create-administration
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "admin@springfield.edu",
+  "schoolId": "{{schoolId}}"
+}
+
+### 10. List All Administrations
+GET {{baseUrl}}/superadmin/administrations
+Authorization: Bearer {{authToken}}
+
+### 11. Reset Administration Password
+POST {{baseUrl}}/superadmin/reset-admin-password/<userId>
+Authorization: Bearer {{authToken}}
+
+### 12. Deactivate User (Superadmin)
+PATCH {{baseUrl}}/superadmin/deactivate/<userId>
+Authorization: Bearer {{authToken}}
+
+### 13. Reactivate User (Superadmin)
+PATCH {{baseUrl}}/superadmin/activate/<userId>
+Authorization: Bearer {{authToken}}
+
+### 14. Update Superadmin Credentials
+PATCH {{baseUrl}}/superadmin/update-credentials
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "{{adminPassword}}",
+  "newEmail": "newadmin@domain.com",
+  "newPassword": "NewPassword123!"
+}
+
+# ==================== ADMINISTRATION ====================
+
+### 15. Create User (Teacher / Student / Parent)
+POST {{baseUrl}}/administration/create-user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "teacher@springfield.edu",
+  "role": "teacher"
+}
+
+### 16. List School Users
+GET {{baseUrl}}/administration/users
+Authorization: Bearer {{authToken}}
+
+### 17. Reset User Password
+POST {{baseUrl}}/administration/reset-password/<userId>
+Authorization: Bearer {{authToken}}
+
+### 18. Deactivate User
+PATCH {{baseUrl}}/administration/deactivate/<userId>
+Authorization: Bearer {{authToken}}
+
+### 19. Reactivate User
+PATCH {{baseUrl}}/administration/activate/<userId>
+Authorization: Bearer {{authToken}}
+
+# ==================== PROFILE ====================
+
+### 20. Get My Profile
+GET {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+
+### 21. Update My Profile
+PATCH {{baseUrl}}/profile/me
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+233241234567"
+}
+
+# ==================== ADMISSION ====================
+
+### 22. Get Current Open Admission Year (Public)
+GET {{baseUrl}}/admissions/current
+
+### 23. Apply (Public) — age must be 3–30
+POST {{baseUrl}}/admissions/apply
+Content-Type: application/json
+
+{
+  "firstName": "Kofi",
+  "lastName": "Mensah",
+  "middleName": "Agyei",
+  "email": "kofi@gmail.com",
+  "phoneNumber": "+233241234566",
+  "dateOfBirth": "2015-05-15",
+  "areaOfInterest": "Sciences"
+}
+
+### 24. Create Admission Year — must be YYYY/YYYY, second = first+1
+# @name createAdmissionYear
+POST {{baseUrl}}/admissions/years
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "year": "2025/2026"
+}
+
+### 25. List All Admission Years
+GET {{baseUrl}}/admissions/years
+Authorization: Bearer {{authToken}}
+
+### 26. Open Admission Year
+@admissionYearId = {{createAdmissionYear.response.body.id}}
+PATCH {{baseUrl}}/admissions/years/{{admissionYearId}}/open
+Authorization: Bearer {{authToken}}
+
+### 27. Close Admission Year
+PATCH {{baseUrl}}/admissions/years/{{admissionYearId}}/close
+Authorization: Bearer {{authToken}}
+
+### 28. List Applications for a Year
+GET {{baseUrl}}/admissions/years/{{admissionYearId}}/applications
+Authorization: Bearer {{authToken}}
+
+### 29. Get Single Application
+GET {{baseUrl}}/admissions/applications/<applicationId>
+Authorization: Bearer {{authToken}}
+
+### 30. Update Application Status
+PATCH {{baseUrl}}/admissions/applications/<applicationId>/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+
+# ==================== ACADEMIC YEARS ====================
+
+### 31. Create Academic Year
+# @name createAcademicYear
+POST {{baseUrl}}/academic-years
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "year": "2025/2026"
+}
+
+### 32. List All Academic Years
+GET {{baseUrl}}/academic-years
+Authorization: Bearer {{authToken}}
+
+### 33. Get Active Academic Year
+GET {{baseUrl}}/academic-years/active
+Authorization: Bearer {{authToken}}
+
+### 34. Activate Academic Year
+@academicYearId = {{createAcademicYear.response.body.id}}
+PATCH {{baseUrl}}/academic-years/{{academicYearId}}/activate
+Authorization: Bearer {{authToken}}
+
+# ==================== ACADEMIC TERMS ====================
+
+### 35. Create Academic Term
+# @name createTerm
+POST {{baseUrl}}/academic-terms
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Term 1",
+  "startDate": "2025-09-01",
+  "endDate": "2025-12-20",
+  "academicYearId": "{{academicYearId}}",
+  "isCurrent": true
+}
+
+### 36. List Terms for a Year
+GET {{baseUrl}}/academic-terms?academicYearId={{academicYearId}}
+Authorization: Bearer {{authToken}}
+
+### 37. Set Active Term
+@termId = {{createTerm.response.body.id}}
+PATCH {{baseUrl}}/academic-terms/{{termId}}/activate
+Authorization: Bearer {{authToken}}
+
+# ==================== CLASS LEVELS ====================
+
+### 38. Seed All Class Levels (run once)
+POST {{baseUrl}}/classes/seed
+Authorization: Bearer {{authToken}}
+
+### 39. List All Class Levels
+# @name listClasses
+GET {{baseUrl}}/classes
+Authorization: Bearer {{authToken}}
+
+### 40. Get Single Class Level
+GET {{baseUrl}}/classes/<classLevelId>
+Authorization: Bearer {{authToken}}
+
+# ==================== SECTIONS ====================
+
+### 41. Create Section
+POST {{baseUrl}}/classes/<classLevelId>/sections
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "A",
+  "academicYearId": "{{academicYearId}}",
+  "capacity": 30
+}
+
+### 42. List Sections for a Class
+GET {{baseUrl}}/classes/<classLevelId>/sections
+Authorization: Bearer {{authToken}}
+
+### 43. Update Section
+PATCH {{baseUrl}}/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "capacity": 35
+}
+
+### 44. Delete Section
+DELETE {{baseUrl}}/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+
+# ==================== STUDENTS ====================
+
+### 45. Enroll Accepted Applicant as Student
+# @name enrollStudent
+POST {{baseUrl}}/students/enroll
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "applicantId": "<applicationId>",
+  "classLevelId": "<classLevelId>",
+  "academicYearId": "{{academicYearId}}",
+  "sectionId": "<sectionId>",
+  "parentUserId": "<parentUserId>"
+}
+
+### 46. List Students (paginated + filtered)
+GET {{baseUrl}}/students?page=1&limit=20&academicYearId={{academicYearId}}
+Authorization: Bearer {{authToken}}
+
+### 47. Get Single Student
+GET {{baseUrl}}/students/<studentId>
+Authorization: Bearer {{authToken}}
+
+### 48. Get Enrollment History
+GET {{baseUrl}}/students/<studentId>/enrollments
+Authorization: Bearer {{authToken}}
+
+### 49. Update Student Info
+PATCH {{baseUrl}}/students/<studentId>
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Kofi",
+  "lastName": "Mensah",
+  "phoneNumber": "+233241234567"
+}
+
+### 50. Update Student Status
+PATCH {{baseUrl}}/students/<studentId>/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "active"
+}
+
+### 51. Withdraw Student
+PATCH {{baseUrl}}/students/<studentId>/withdraw
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "reason": "Family relocation"
+}
+
+# ==================== PROMOTIONS ====================
+
+### 52. Preview Bulk Promotion
+GET {{baseUrl}}/promotions/preview/<classLevelId>/{{academicYearId}}
+Authorization: Bearer {{authToken}}
+
+### 53. Bulk Promote Class
+POST {{baseUrl}}/promotions/bulk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "classLevelId": "<classLevelId>",
+  "fromAcademicYearId": "{{academicYearId}}",
+  "toAcademicYearId": "<nextAcademicYearId>"
+}
+
+### 54. Manual Promote / Repeat Single Student
+POST {{baseUrl}}/promotions/manual
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "studentId": "<studentId>",
+  "fromAcademicYearId": "{{academicYearId}}",
+  "toAcademicYearId": "<nextAcademicYearId>",
+  "classLevelId": "<classLevelId>",
+  "sectionId": "<sectionId>",
+  "isRepeating": false
+}
+
+# ==================== TEACHER MANAGEMENT (Administration) ====================
+
+### 55. Assign Teacher to Section
+POST {{baseUrl}}/administration/teachers/<teacherUserId>/sections
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "sectionId": "<sectionId>"
+}
+
+### 56. List Teachers in a Section
+GET {{baseUrl}}/administration/sections/<sectionId>/teachers
+Authorization: Bearer {{authToken}}
+
+### 57. Unassign Teacher from Section
+DELETE {{baseUrl}}/administration/teachers/<teacherUserId>/sections/<sectionId>
+Authorization: Bearer {{authToken}}
+
+# ==================== TEACHER PORTAL ====================
+
+### 58. My Assigned Sections
+GET {{baseUrl}}/teacher/sections
+Authorization: Bearer {{authToken}}
+
+### 59. All My Students (across sections)
+GET {{baseUrl}}/teacher/students
+Authorization: Bearer {{authToken}}
+
+### 60. Students in a Specific Section
+GET {{baseUrl}}/teacher/sections/<sectionId>/students
+Authorization: Bearer {{authToken}}
+
+# ==================== STUDENT PORTAL ====================
+
+### 61. My Student Record
+GET {{baseUrl}}/student-portal/me
+Authorization: Bearer {{authToken}}
+
+### 62. My Enrollment History
+GET {{baseUrl}}/student-portal/enrollments
+Authorization: Bearer {{authToken}}
+
+# ==================== PARENT PORTAL ====================
+
+### 63. Link a Student to My Account
+POST {{baseUrl}}/parent/children
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "studentId": "<studentId>",
+  "relationship": "mother"
+}
+
+### 64. List My Linked Children
+GET {{baseUrl}}/parent/children
+Authorization: Bearer {{authToken}}
+
+### 65. Get a Specific Child
+GET {{baseUrl}}/parent/children/<studentId>
+Authorization: Bearer {{authToken}}
+
+### 66. Unlink a Child
+DELETE {{baseUrl}}/parent/children/<studentId>
+Authorization: Bearer {{authToken}}
+
+# ==================== ATTENDANCE ====================
+
+### 67. Record Bulk Attendance (teacher or admin)
+POST {{baseUrl}}/attendance/bulk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "sectionId": "<sectionId>",
+  "termId": "{{termId}}",
+  "date": "2025-10-01",
+  "attendance": [
+    { "studentId": "<studentId1>", "status": "present" },
+    { "studentId": "<studentId2>", "status": "absent", "note": "No reason given" },
+    { "studentId": "<studentId3>", "status": "late" }
+  ]
+}
+
+### 68. Get Student Attendance Summary
+GET {{baseUrl}}/attendance/student/<studentId>/summary?termId={{termId}}
+Authorization: Bearer {{authToken}}
+
+# ==================== GRADES ====================
+
+### 69. Record Bulk Grades for a Subject
+POST {{baseUrl}}/grades/bulk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "termId": "{{termId}}",
+  "classLevelId": "<classLevelId>",
+  "subject": "Mathematics",
+  "grades": [
+    { "studentId": "<studentId1>", "score": 88, "teacherNote": "Good progress" },
+    { "studentId": "<studentId2>", "score": 62 },
+    { "studentId": "<studentId3>", "score": 45, "teacherNote": "Needs improvement" }
+  ]
+}
+
+### 70. Get Student Report Card
+GET {{baseUrl}}/grades/report-card/<studentId>?termId={{termId}}
+Authorization: Bearer {{authToken}}
+
+# ==================== FEES ====================
+
+### 71. Create a Fee for a Student
+POST {{baseUrl}}/fees
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Tuition Fee — Term 1",
+  "academicTermId": "{{termId}}",
+  "category": "tuition",
+  "amount": 500.00,
+  "studentId": "<studentId>"
+}
+
+### 72. List Fees for a Student
+GET {{baseUrl}}/fees?studentId=<studentId>&termId={{termId}}
+Authorization: Bearer {{authToken}}
+
+### 73. Record Payment on a Specific Fee
+PATCH {{baseUrl}}/fees/<feeId>/pay
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "amountPaid": 250.00,
+  "reference": "REC-2025-001",
+  "note": "Part payment"
+}
+
+### 74. Waive a Fee
+PATCH {{baseUrl}}/fees/<feeId>/waive
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "note": "Scholarship waiver approved"
+}
+
+### 75. Get Student Balance Summary
+GET {{baseUrl}}/fees/balance/<studentId>
+Authorization: Bearer {{authToken}}
+
+### 76. Lump-Sum Payment (distributed across all pending fees)
+POST {{baseUrl}}/fees/student/<studentId>/pay
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "amount": 750.00,
+  "reference": "REC-2025-BULK-001"
+}
