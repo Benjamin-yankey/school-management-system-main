@@ -25,6 +25,21 @@ import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import AddStudent from "./pages/AddStudent";
+import { useAuth } from "./contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+// Helper component to wire up TeacherDashboard with props
+const TeacherDashboardRoute = () => {
+  const token = localStorage.getItem("token");
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+  return (
+    <TeacherDashboard
+      token={token}
+      baseUrl={baseUrl}
+    />
+  );
+};
 
 export default function App() {
   return (
@@ -104,10 +119,7 @@ export default function App() {
               path="/teacher/dashboard"
               element={
                 <ProtectedRoute requiredRole="teacher">
-                  <div className="app">
-                    <Header />
-                    <TeacherDashboard />
-                  </div>
+                  <TeacherDashboardRoute />
                 </ProtectedRoute>
               }
             />

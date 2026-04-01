@@ -55,6 +55,25 @@ body[data-theme="dark"] {
   --header-shadow: 0 12px 32px rgba(2, 6, 23, 0.35);
   --danger: #f87171;
   --danger-bg: rgba(127, 29, 29, 0.6);
+  
+  /* Dashboard Specifics */
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --input-focus: rgba(37, 99, 235, 0.15);
+  --text-muted: #94a3b8;
+  --card-glow: 0 0 20px rgba(37, 99, 235, 0.05);
+}
+
+:root {
+  /* Light mode extensions */
+  --glass: rgba(15, 23, 42, 0.02);
+  --glass-border: rgba(15, 23, 42, 0.06);
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --text-muted: #64748b;
+  --card-glow: 0 0 15px rgba(0, 0, 0, 0.02);
 }
 /* App shell */
 .app {

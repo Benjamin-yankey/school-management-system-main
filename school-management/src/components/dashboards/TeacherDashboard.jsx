@@ -1,270 +1,151 @@
+// TeacherDashboard.jsx — Root component with Theme Support & Mobile Responsiveness
+
 import React, { useState, useEffect } from "react";
-import api from "../../lib/api";
-import "../Dashboard.css";
-import "./DashboardStyles.css";
-import {
-  Calendar,
-  Clock,
-  Users,
-  BookOpen,
-  CheckSquare,
-  MessageSquare,
-  TrendingUp,
-} from "lucide-react";
+import { T } from "./teacher/theme";
+import { api } from "./teacher/hooks/useApi";
+import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
+import Header    from "../Header";
+import Sidebar   from "./teacher/components/Sidebar";
+import HomePage       from "./teacher/pages/HomePage";
+import AttendancePage from "./teacher/pages/AttendancePage";
+import AssignmentPage from "./teacher/pages/AssignmentPage";
+import GradesPage     from "./teacher/pages/GradesPage";
+import NoticePage     from "./teacher/pages/NoticePage";
 
-const TeacherDashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState([]);
-  const [students, setStudents] = useState([]);
+const DEFAULT_BASE = "http://localhost:3000";
 
+export default function TeacherDashboard({
+  token,
+  baseUrl = DEFAULT_BASE,
+}) {
+  const { user } = useAuth();
+  const { isDarkMode } = useTheme();
+  const [page,         setPage]        = useState("home");
+  const [sections,     setSections]    = useState([]);
+  const [sidebarOpen,  setSidebarOpen] = useState(false);
+
+  const teacher = {
+    name: user?.name || "Teacher",
+    role: user?.role || "Teacher",
+    department: user?.department || "Academic",
+  };
+
+  // Load real sections from the backend
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const [studentsData, statsData] = await Promise.all([
-          api.getStudents(),
-          api.getDashboardStats()
-        ]);
-        
-        setStudents(Array.isArray(studentsData) ? studentsData : []);
-        
-        setStats([
-          { title: "My Classes", value: 0, change: 0, color: "#10b981", icon: "📚" },
-          {
-            title: "Total Students",
-            value: studentsData.length || 0,
-            change: 0,
-            color: "#3b82f6",
-            icon: "👥",
-          },
-          {
-            title: "Pending Grades",
-            value: 0,
-            change: 0,
-            color: "#f59e0b",
-            icon: "📝",
-          },
-          {
-            title: "Upcoming Meetings",
-            value: 0,
-            change: 0,
-            color: "#8b5cf6",
-            icon: "👨‍👩‍👧‍👦",
-          },
-        ]);
-      } catch (err) {
-        console.error("Failed to load teacher dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+    api(baseUrl, token, "GET", "/teacher/sections")
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.data || [];
+        setSections(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load sections:", err);
+        setSections([]);
+      });
+  }, [baseUrl, token]);
 
-  const myClasses = [
-    {
-      name: "Mathematics 10-A",
-      students: 32,
-      attendance: 94,
-      nextClass: "10:00 AM",
-    },
-  ];
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar  = () => setSidebarOpen(false);
 
-  const todaysSchedule = [
-    {
-      time: "09:00",
-      subject: "Mathematics 10-A",
-      room: "Room 101",
-      duration: "50 min",
-    },
-  ];
-
-  const pendingGrades = [];
-  const upcomingMeetings = [];
-
-  const quickActions = [
-    { label: "Mark Attendance", icon: "✅", color: "#10b981" },
-    { label: "Create Assignment", icon: "📝", color: "#3b82f6" },
-    { label: "Enter Grades", icon: "📊", color: "#f59e0b" },
-    { label: "Send Notice", icon: "📢", color: "#8b5cf6" },
-  ];
-
-  if (loading) {
-    return (
-      <div className="dashboard">
-        <div className="dashboard-header">
-          <h2>Teacher Dashboard</h2>
-          <div className="dashboard-sub">Loading...</div>
-        </div>
-        <div className="loading-container">
-          <div className="loading"></div>
-        </div>
-      </div>
-    );
-  }
+  const pageProps = { base: baseUrl, token, sections };
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>Teacher Dashboard</h2>
-        <div className="dashboard-sub">
-          Welcome back! Manage your classes and students effectively.
-        </div>
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: T.bg,
+        fontFamily: "'Inter','Segoe UI',sans-serif",
+        color: T.text1,
+        transition: "background 0.3s ease, color 0.3s ease",
+      }}
+    >
+      <style>{`
+        /* Global Reset & Utils */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+          display: none;
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: ${T.accent};
+          color: white;
+          border: none;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          z-index: 100;
+          cursor: pointer;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.2s;
+        }
+        .mobile-menu-btn:active { transform: scale(0.9); }
 
-      {/* Quick Actions */}
-      <div className="quick-actions">
-        {quickActions.map((action, index) => (
-          <button key={index} className="action-btn">
-            <div
-              className="icon"
-              style={{ backgroundColor: `${action.color}20` }}
-            >
-              {action.icon}
-            </div>
-            <div className="text">{action.label}</div>
-          </button>
-        ))}
-      </div>
+        @media (max-width: 900px) {
+          .mobile-menu-btn { display: flex; }
+          .main-content { padding: 20px 16px !important; }
+        }
+      `}</style>
 
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="stat-card"
-            style={{ borderLeftColor: stat.color }}
-          >
-            <div className="stat-card-icon">{stat.icon}</div>
-            <div className="stat-card-title">{stat.title}</div>
-            <div className="stat-card-value">{stat.value}</div>
-            {typeof stat.change !== "undefined" && (
-              <div
-                className={`stat-card-change ${
-                  stat.change >= 0 ? "positive" : "negative"
-                }`}
-              >
-                {stat.change >= 0 ? "▲" : "▼"} {Math.abs(stat.change)}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* Global Header */}
+      <Header />
 
-      {/* Main Panels */}
-      <div className="panels">
-        {/* My Classes */}
-        <section className="panel">
-          <h3>My Classes</h3>
-          <div className="classes-list">
-            {myClasses.map((cls, index) => (
-              <div key={index} className="class-item">
-                <div className="class-info">
-                  <h4 className="class-name">{cls.name}</h4>
-                  <div className="class-stats">
-                    <span className="stat">👥 {cls.students} students</span>
-                    <span className="stat">
-                      📊 {cls.attendance}% attendance
-                    </span>
-                  </div>
-                </div>
-                <div className="class-next">
-                  <div className="next-time">{cls.nextClass}</div>
-                  <button className="view-btn">View Class</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+      <div style={{ display: "flex", height: "calc(100vh - 60px)", position: "relative" }}>
+        
+        {/* Sidebar Navigation */}
+        <Sidebar 
+          active={page} 
+          onNavigate={(p) => { setPage(p); closeSidebar(); }} 
+          isOpen={sidebarOpen} 
+          onClose={closeSidebar}
+        />
 
-        {/* Today's Schedule */}
-        <section className="panel">
-          <h3>Today's Schedule</h3>
-          <div className="schedule-list">
-            {todaysSchedule.map((item, index) => (
-              <div key={index} className="schedule-item">
-                <div className="schedule-time">{item.time}</div>
-                <div className="schedule-details">
-                  <div className="schedule-subject">{item.subject}</div>
-                  <div className="schedule-room">
-                    📍 {item.room} • {item.duration}
-                  </div>
-                </div>
-                <div className="schedule-status">
-                  {index === 0 ? (
-                    <span
-                      className="status-badge"
-                      style={{ backgroundColor: "#fef5e7", color: "#744210" }}
-                    >
-                      Current
-                    </span>
-                  ) : index === 1 ? (
-                    <span
-                      className="status-badge"
-                      style={{ backgroundColor: "#e6f3ff", color: "#1e40af" }}
-                    >
-                      Next
-                    </span>
-                  ) : (
-                    <span
-                      className="status-badge"
-                      style={{ backgroundColor: "#f0f0f0", color: "#6b7280" }}
-                    >
-                      Upcoming
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Main Content Area */}
+        <main 
+          className="main-content"
+          style={{ 
+            flex: 1, 
+            overflowY: "auto", 
+            padding: "28px 32px",
+            background: T.bg,
+            transition: "all 0.3s ease",
+          }}
+        >
+          {page === "home"       && <HomePage       teacher={teacher} onNavigate={setPage} sections={sections} {...pageProps} />}
+          {page === "attendance" && <AttendancePage {...pageProps} />}
+          {page === "assignment" && <AssignmentPage {...pageProps} />}
+          {page === "grades"     && <GradesPage     {...pageProps} />}
+          {page === "notice"     && <NoticePage     {...pageProps} />}
+        </main>
 
-        {/* Pending Grades */}
-        <section className="panel">
-          <h3>Pending Grades</h3>
-          <div className="grades-list">
-            {pendingGrades.map((grade, index) => (
-              <div key={index} className="grade-item">
-                <div className="grade-info">
-                  <div className="grade-student">{grade.student}</div>
-                  <div className="grade-assignment">{grade.assignment}</div>
-                  <div className="grade-subject">{grade.subject}</div>
-                </div>
-                <div className="grade-due">
-                  <div className="due-text">Due: {grade.due}</div>
-                  <button className="view-btn">Grade</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Floating Mobile Toggle */}
+        <button className="mobile-menu-btn" onClick={toggleSidebar}>
+          {sidebarOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          )}
+        </button>
 
-        {/* Upcoming Meetings */}
-        <section className="panel">
-          <h3>Upcoming Parent Meetings</h3>
-          <div className="meetings-list">
-            {upcomingMeetings.map((meeting, index) => (
-              <div key={index} className="meeting-item">
-                <div className="meeting-info">
-                  <div className="meeting-parent">{meeting.parent}</div>
-                  <div className="meeting-student">
-                    Student: {meeting.student}
-                  </div>
-                  <div className="meeting-subject">
-                    Subject: {meeting.subject}
-                  </div>
-                </div>
-                <div className="meeting-time">
-                  <div className="meeting-date">{meeting.date}</div>
-                  <div className="meeting-time-text">{meeting.time}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            onClick={closeSidebar}
+            style={{
+              position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+              background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)",
+              zIndex: 80, display: "block"
+            }}
+          />
+        )}
       </div>
     </div>
   );
-};
-
-export default TeacherDashboard;
+}

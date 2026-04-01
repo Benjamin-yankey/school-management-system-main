@@ -117,7 +117,7 @@ const Header = () => {
                 />
               </div>
               <span className="school-logo-text">
-                GEOZIIE INTERNATIONAL SCHOOL
+                SchoolSync
               </span>
             </div>
             <div className="header-title">
