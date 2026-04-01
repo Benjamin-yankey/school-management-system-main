@@ -65,6 +65,34 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
+.header-academic-year {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4A5568;
+  margin-top: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.header-academic-year svg {
+  color: var(--role-color);
+  opacity: 0.8;
+}
+
+.header-academic-year.warning {
+  color: #E53E3E;
+  background: rgba(229, 62, 62, 0.05);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(229, 62, 62, 0.1);
+}
+
+.header-academic-year.warning svg {
+  color: #E53E3E;
+}
+
 .header-actions {
   display: flex;
   align-items: center;

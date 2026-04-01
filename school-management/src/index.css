@@ -95,12 +95,12 @@ body[data-theme="dark"] {
 .brand h1 {
   margin: 0;
   font-size: 1.25rem;
-  color: #0f1724;
+  color: var(--text);
 }
 .brand .tag {
   margin-left: 0.5rem;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 /* Topbar */
@@ -168,7 +168,7 @@ body[data-theme="dark"] {
   font-size: 1.125rem;
 }
 .dashboard-sub {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 .stats-grid {
@@ -197,12 +197,12 @@ body[data-theme="dark"] {
 .stat-card-value {
   font-size: 1.6rem;
   margin-top: 0.5rem;
-  color: #0f1724;
+  color: var(--text);
 }
 .stat-card-change {
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: #0f1724;
+  color: var(--text);
 }
 .stat-card-change.positive {
   color: #059669;
@@ -230,14 +230,14 @@ body[data-theme="dark"] {
 .recent-table td {
   padding: 0.6rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #eef6fb;
+  border-bottom: 1px solid var(--border);
 }
 .recent-table thead th {
-  color: #475569;
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 .recent-table tbody tr:hover {
-  background: linear-gradient(90deg, #fbfdff, #f7fbff);
+  background: var(--glass);
 }
 .attendance-list {
   display: flex;
@@ -253,7 +253,7 @@ body[data-theme="dark"] {
   font-weight: 600;
 }
 .attendance-bar {
-  background: #eef6fb;
+  background: var(--border);
   border-radius: 999px;
   height: 12px;
   overflow: hidden;
@@ -329,7 +329,7 @@ body[data-theme="dark"] {
 .nav-item {
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  color: #0f1724;
+  color: var(--text);
   cursor: pointer;
   font-weight: 600;
 }
@@ -349,7 +349,7 @@ body[data-theme="dark"] {
   }
 }
 .nav-item.active {
-  background: linear-gradient(90deg, #eef9ff, #eefbff);
+  background: var(--glass);
   color: var(--accent);
   box-shadow: inset 3px 0 0 var(--accent);
 }
@@ -370,7 +370,7 @@ body[data-theme="dark"] {
   margin: 0;
 }
 .attendance-header .muted {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 .attendance-controls {
@@ -382,8 +382,9 @@ body[data-theme="dark"] {
 .attendance-controls select {
   padding: 0.45rem 0.6rem;
   border-radius: 8px;
-  border: 1px solid #e6eef7;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
 }
 .attendance-table {
   width: 100%;
@@ -392,13 +393,13 @@ body[data-theme="dark"] {
 }
 .attendance-table thead th {
   padding: 0.8rem;
-  border-bottom: 1px solid #eef6fb;
-  color: #475569;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
   text-align: left;
 }
 .attendance-table td {
   padding: 0.7rem;
-  border-bottom: 1px solid #f4fbff;
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
   text-align: left;
 }
@@ -505,7 +506,9 @@ body[data-theme="dark"] {
 .login-form input {
   padding: 0.6rem;
   border-radius: 8px;
-  border: 1px solid #e6eef7;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
   margin-top: 0.35rem;
 }
 .login-actions {
@@ -553,16 +556,18 @@ body[data-theme="dark"] {
 .students-table th,
 .students-table td {
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #eef6fb;
+  border-bottom: 1px solid var(--border);
   text-align: left;
 }
 .students-table input {
   padding: 0.35rem;
   border-radius: 6px;
-  border: 1px solid #e6eef7;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
 }
 .editing-row {
-  background: linear-gradient(90deg, #fbfdff, #f7fbff);
+  background: var(--glass);
 }
 
 /* Teachers page styles */
@@ -594,13 +599,15 @@ body[data-theme="dark"] {
 .teachers-table th,
 .teachers-table td {
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #eef6fb;
+  border-bottom: 1px solid var(--border);
   text-align: left;
 }
 .teachers-table input {
   padding: 0.35rem;
   border-radius: 6px;
-  border: 1px solid #e6eef7;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
 }
 
 /* Sidebar styles */

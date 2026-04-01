@@ -1,48 +1,35 @@
 import React, { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { generateReportCardPDF } from "../../pages/generateReportCardPDF";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
 const ParentDashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [selectedChild, setSelectedChild] = useState(0);
+  const [selectedChildIndex, setSelectedChildIndex] = useState(0);
+  const [children, setChildren] = useState([]);
+  const [childPerformance, setChildPerformance] = useState([]);
   const [stats, setStats] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
+        const linkedChildren = await api.getLinkedChildren();
+        const childrenData = Array.isArray(linkedChildren) ? linkedChildren : [];
+        setChildren(childrenData);
+
+        if (childrenData.length > 0) {
+            await loadChildDetail(childrenData[0].studentId);
+        }
+
         setStats([
-          {
-            title: "Overall GPA",
-            value: "0.0",
-            change: 0,
-            color: "#f59e0b",
-            icon: "📊",
-          },
-          {
-            title: "Attendance",
-            value: "0%",
-            change: 0,
-            color: "#10b981",
-            icon: "✅",
-          },
-          {
-            title: "Pending Fees",
-            value: "$0",
-            change: 0,
-            color: "#ef4444",
-            icon: "💰",
-          },
-          {
-            title: "Upcoming Meetings",
-            value: 0,
-            change: 0,
-            color: "#8b5cf6",
-            icon: "👨‍👩‍👧‍👦",
-          },
+          { title: "Overall GPA", value: "3.5", change: 0.1, color: "#f59e0b", icon: "📊" },
+          { title: "Attendance", value: "94%", change: 1.2, color: "#10b981", icon: "✅" },
+          { title: "Pending Fees", value: "$450", change: -50, color: "#ef4444", icon: "💰" },
+          { title: "Upcoming Meetings", value: 1, change: 0, color: "#8b5cf6", icon: "👨‍👩‍👧‍👦" },
         ]);
       } catch (err) {
         console.error("Failed to load parent dashboard:", err);
@@ -53,67 +40,26 @@ const ParentDashboard = () => {
     loadData();
   }, []);
 
-  const children = [
-    {
-      id: 1,
-      name: "Emma Johnson",
-      grade: "10-A",
-      age: 15,
-      avatar: "EJ",
-    },
-    {
-      id: 2,
-      name: "Alex Johnson",
-      grade: "8-C",
-      age: 13,
-      avatar: "AJ",
-    },
-  ];
+  const loadChildDetail = async (studentId) => {
+    try {
+      const reportCard = await api.getStudentReportCard(studentId);
+      setChildPerformance(Array.isArray(reportCard) ? reportCard : []);
+    } catch (err) {
+      console.error("Failed to load child detail:", err);
+    }
+  };
 
-  const currentChild = children[selectedChild];
+  const handleChildSelect = async (index) => {
+    setSelectedChildIndex(index);
+    await loadChildDetail(children[index].studentId);
+  };
 
-  const parentStats = [
-    {
-      title: "Overall GPA",
-      value: "3.7",
-      change: 0.1,
-      color: "#f59e0b",
-      icon: "📊",
-    },
-    {
-      title: "Attendance",
-      value: "96%",
-      change: 1,
-      color: "#10b981",
-      icon: "✅",
-    },
-    {
-      title: "Pending Fees",
-      value: "$250",
-      change: -50,
-      color: "#ef4444",
-      icon: "💰",
-    },
-    {
-      title: "Upcoming Meetings",
-      value: 1,
-      change: 0,
-      color: "#8b5cf6",
-      icon: "👨‍👩‍👧‍👦",
-    },
-  ];
+  const currentChild = children[selectedChildIndex]?.student;
 
-  const childPerformance = [
-    {
-      subject: "Mathematics",
-      grade: "A-",
-      teacher: "Mr. Johnson",
-      progress: 85,
-    },
-    { subject: "Physics", grade: "B+", teacher: "Dr. Smith", progress: 78 },
-    { subject: "Chemistry", grade: "A", teacher: "Ms. Davis", progress: 92 },
-    { subject: "English", grade: "A-", teacher: "Mrs. Wilson", progress: 88 },
-  ];
+  const handleDownloadReportCard = () => {
+    if (!currentChild || childPerformance.length === 0) return;
+    generateReportCardPDF(currentChild, childPerformance);
+  };
 
   const attendanceRecord = [
     {
@@ -214,7 +160,7 @@ const ParentDashboard = () => {
   const quickActions = [
     { label: "Pay Fees", icon: "💰", color: "#f59e0b" },
     { label: "Schedule Meeting", icon: "📅", color: "#8b5cf6" },
-    { label: "View Report Card", icon: "📊", color: "#10b981" },
+    { label: "View Report Card", icon: "📊", color: "#10b981", onClick: handleDownloadReportCard },
     { label: "Contact Teacher", icon: "📞", color: "#3b82f6" },
   ];
 
@@ -245,21 +191,21 @@ const ParentDashboard = () => {
       {children.length > 1 && (
         <div className="child-selector mb-6">
           <div className="flex gap-2">
-            {children.map((child, index) => (
+            {children.map((linked, index) => (
               <button
-                key={child.id}
-                onClick={() => setSelectedChild(index)}
+                key={linked.id}
+                onClick={() => handleChildSelect(index)}
                 className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                  selectedChild === index
+                  selectedChildIndex === index
                     ? "border-orange-500 bg-orange-50 text-orange-700"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center">
-                    {child.avatar}
+                    {linked.student?.firstName[0]}{linked.student?.lastName[0]}
                   </div>
-                  <span className="font-medium">{child.name}</span>
+                  <span className="font-medium">{linked.student?.firstName} {linked.student?.lastName}</span>
                 </div>
               </button>
             ))}
@@ -270,7 +216,7 @@ const ParentDashboard = () => {
       {/* Quick Actions */}
       <div className="quick-actions">
         {quickActions.map((action, index) => (
-          <button key={index} className="action-btn">
+          <button key={index} className="action-btn" onClick={action.onClick}>
             <div
               className="icon"
               style={{ backgroundColor: `${action.color}20` }}
@@ -310,25 +256,25 @@ const ParentDashboard = () => {
       <div className="panels">
         {/* Academic Performance */}
         <section className="panel">
-          <h3>{currentChild.name}'s Academic Performance</h3>
+          <h3>{currentChild?.firstName}'s Academic Performance</h3>
           <div className="performance-list">
             {childPerformance.map((subject, index) => (
               <div key={index} className="performance-item">
                 <div className="performance-info">
                   <h4 className="subject-name">{subject.subject}</h4>
-                  <div className="subject-teacher">👨‍🏫 {subject.teacher}</div>
+                  <div className="subject-teacher">👨‍🏫 {subject.teacherNote || "Report Summary"}</div>
                 </div>
                 <div className="performance-grade">
-                  <div className="grade-value">{subject.grade}</div>
+                  <div className="grade-value">{subject.score >= 90 ? "A" : subject.score >= 80 ? "B" : subject.score >= 70 ? "C" : "D"}</div>
                   <div className="progress-bar">
                     <div
                       className="progress-fill"
                       style={{
-                        width: `${subject.progress}%`,
+                        width: `${subject.score}%`,
                         backgroundColor:
-                          subject.progress >= 90
+                          subject.score >= 90
                             ? "#10b981"
-                            : subject.progress >= 80
+                            : subject.score >= 80
                             ? "#f59e0b"
                             : "#ef4444",
                       }}

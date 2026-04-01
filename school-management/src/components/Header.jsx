@@ -22,7 +22,7 @@ import {
 import "./Header.css";
 
 const Header = () => {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, logout, updateProfile, activeAcademicYear, currentTerm } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -122,6 +122,19 @@ const Header = () => {
             </div>
             <div className="header-title">
               <p className="header-role-badge">{roleLabel} Portal</p>
+              {activeAcademicYear ? (
+                <div className="header-academic-year">
+                  <Calendar size={14} />
+                  <span>{activeAcademicYear.year} {currentTerm ? `— ${currentTerm.name}` : ""}</span>
+                </div>
+              ) : (
+                (user?.role === "admin" || user?.role === "administration" || user?.role === "superadmin") && (
+                  <div className="header-academic-year warning">
+                    <ShieldAlert size={14} />
+                    <span>No Active Year</span>
+                  </div>
+                )
+              )}
             </div>
           </div>
 

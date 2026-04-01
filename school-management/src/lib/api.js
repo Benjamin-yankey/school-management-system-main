@@ -203,6 +203,237 @@ export async function saveAttendance(date, attendanceData) {
   return handleResponse(res);
 }
 
+export async function getActiveAcademicYear() {
+  const res = await fetch(`${API_BASE_URL}/academic-years/active`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getAcademicTerms(academicYearId) {
+  const res = await fetch(`${API_BASE_URL}/academic-terms?academicYearId=${academicYearId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getClassLevels() {
+  const res = await fetch(`${API_BASE_URL}/classes`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getClassSections(classLevelId) {
+  const res = await fetch(`${API_BASE_URL}/classes/${classLevelId}/sections`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createSchoolUser(userData) {
+  const res = await fetch(`${API_BASE_URL}/administration/create-user`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(userData),
+  });
+  return handleResponse(res);
+}
+
+export async function getAdministrationUsers() {
+  const res = await fetch(`${API_BASE_URL}/administration/users`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function assignTeacherToSection(teacherUserId, sectionId) {
+  const res = await fetch(`${API_BASE_URL}/administration/teachers/${teacherUserId}/sections`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ sectionId }),
+  });
+  return handleResponse(res);
+}
+
+export async function enrollStudent(enrollmentData) {
+  const res = await fetch(`${API_BASE_URL}/students/enroll`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(enrollmentData),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentsPaginated(params = {}) {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.append("page", params.page);
+  if (params.limit) queryParams.append("limit", params.limit);
+  if (params.academicYearId) queryParams.append("academicYearId", params.academicYearId);
+  if (params.classLevelId) queryParams.append("classLevelId", params.classLevelId);
+
+  const res = await fetch(`${API_BASE_URL}/students?${queryParams.toString()}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createFee(feeData) {
+  const res = await fetch(`${API_BASE_URL}/fees`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(feeData),
+  });
+  return handleResponse(res);
+}
+
+export async function payFee(feeId, paymentData) {
+  const res = await fetch(`${API_BASE_URL}/fees/${feeId}/pay`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(paymentData),
+  });
+  return handleResponse(res);
+}
+
+export async function resetUserPassword(userId) {
+  const res = await fetch(`${API_BASE_URL}/administration/reset-password/${userId}`, {
+    method: "POST",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function deactivateUser(userId) {
+  const res = await fetch(`${API_BASE_URL}/administration/deactivate/${userId}`, {
+    method: "PATCH",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function activateUser(userId) {
+  const res = await fetch(`${API_BASE_URL}/administration/activate/${userId}`, {
+    method: "PATCH",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function withdrawStudent(studentId, reason) {
+  const res = await fetch(`${API_BASE_URL}/students/${studentId}/withdraw`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify({ reason }),
+  });
+  return handleResponse(res);
+}
+
+export async function signOut() {
+  const res = await fetch(`${API_BASE_URL}/auth/signout`, {
+    method: "POST",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+// ==================== TEACHER ROLE ====================
+
+export async function getTeacherSections() {
+  const res = await fetch(`${API_BASE_URL}/teacher/sections`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getTeacherStudents() {
+  const res = await fetch(`${API_BASE_URL}/teacher/students`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getSectionStudents(sectionId) {
+  const res = await fetch(`${API_BASE_URL}/teacher/sections/${sectionId}/students`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function bulkRecordAttendance(attendanceData) {
+  const res = await fetch(`${API_BASE_URL}/attendance/bulk`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(attendanceData),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentAttendanceSummary(studentId, termId) {
+  const res = await fetch(`${API_BASE_URL}/attendance/student/${studentId}/summary?termId=${termId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function bulkRecordGrades(gradeData) {
+  const res = await fetch(`${API_BASE_URL}/grades/bulk`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(gradeData),
+  });
+  return handleResponse(res);
+}
+
+export async function getStudentReportCard(studentId, termId) {
+  const res = await fetch(`${API_BASE_URL}/grades/report-card/${studentId}?termId=${termId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  return handleResponse(res);
+}
+
+// ==================== PARENT ROLE ====================
+
+export async function linkChild(studentId, relationship = "") {
+  const res = await fetch(`${API_BASE_URL}/parent/children`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ studentId, relationship }),
+  });
+  return handleResponse(res);
+}
+
+export async function getLinkedChildren() {
+  const res = await fetch(`${API_BASE_URL}/parent/children`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function getLinkedChild(childStudentId) {
+  const res = await fetch(`${API_BASE_URL}/parent/children/${childStudentId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function unlinkChild(childStudentId) {
+  const res = await fetch(`${API_BASE_URL}/parent/children/${childStudentId}`, {
+    method: "DELETE",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 // ==================== SCHOOLS (Superadmin only) ====================
 
 export async function getSchools() {
@@ -272,6 +503,7 @@ export async function deleteUser(id) {
   return handleResponse(res);
 }
 
+
 // ==================== DASHBOARD & PORTALS ====================
 export async function getStudentPortalMe() {
   const res = await fetch(`${API_BASE_URL}/student-portal/me`, {
@@ -282,20 +514,6 @@ export async function getStudentPortalMe() {
 
 export async function getStudentEnrollments() {
   const res = await fetch(`${API_BASE_URL}/student-portal/enrollments`, {
-    headers: headers(),
-  });
-  return handleResponse(res);
-}
-
-export async function getStudentAttendanceSummary(studentId, termId = "") {
-  const res = await fetch(`${API_BASE_URL}/attendance/student/${studentId}/summary?termId=${termId}`, {
-    headers: headers(),
-  });
-  return handleResponse(res);
-}
-
-export async function getStudentReportCard(studentId, termId = "") {
-  const res = await fetch(`${API_BASE_URL}/grades/report-card/${studentId}?termId=${termId}`, {
     headers: headers(),
   });
   return handleResponse(res);
@@ -400,4 +618,31 @@ export default {
   createAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,
+  getActiveAcademicYear,
+  getAcademicTerms,
+  getClassLevels,
+  getClassSections,
+  createSchoolUser,
+  getAdministrationUsers,
+  assignTeacherToSection,
+  enrollStudent,
+  getStudentsPaginated,
+  createFee,
+  payFee,
+  resetUserPassword,
+  deactivateUser,
+  activateUser,
+  withdrawStudent,
+  signOut,
+  getTeacherSections,
+  getTeacherStudents,
+  getSectionStudents,
+  bulkRecordAttendance,
+  bulkRecordGrades,
+  getStudentReportCard,
+  changePassword,
+  linkChild,
+  getLinkedChildren,
+  getLinkedChild,
+  unlinkChild,
 };

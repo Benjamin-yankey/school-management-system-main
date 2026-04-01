@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../lib/api";
 import { Link } from "react-router-dom";
-import { ArrowLeft, TrendingUp, BookOpen, Clock, CheckCircle, AlertCircle, BarChart3, GraduationCap, Inbox } from "lucide-react";
+import { ArrowLeft, TrendingUp, BookOpen, Clock, CheckCircle, AlertCircle, BarChart3, GraduationCap, Inbox, Download } from "lucide-react";
+import { generateReportCardPDF } from "../../pages/generateReportCardPDF";
 import "./StudentFeatures.css";
 
 const StudentGrades = () => {
@@ -10,12 +11,14 @@ const StudentGrades = () => {
     const [grades, setGrades] = useState([]);
     const [gpa, setGpa] = useState("0.0");
     const [loading, setLoading] = useState(true);
+    const [studentProfile, setStudentProfile] = useState(null);
 
     useEffect(() => {
         const fetchGrades = async () => {
             setLoading(true);
             try {
                 const student = await api.getStudentPortalMe();
+                setStudentProfile(student);
                 const reportCard = await api.getStudentReportCard(student.id);
                 const gradesData = Array.isArray(reportCard) ? reportCard : [];
                 
@@ -46,6 +49,11 @@ const StudentGrades = () => {
         fetchGrades();
     }, []);
 
+    const handleDownloadPDF = () => {
+        if (!studentProfile || grades.length === 0) return;
+        generateReportCardPDF(studentProfile, grades);
+    };
+
     if (loading) {
         return (
             <div className="student-portal-detail">
@@ -64,7 +72,14 @@ const StudentGrades = () => {
                     <ArrowLeft size={18} /> Back to Dashboard
                 </Link>
                 <h1>Check Grades</h1>
-                <p>Monitor your academic performance</p>
+                <div className="header-actions">
+                    <p>Monitor your academic performance</p>
+                    {grades.length > 0 && (
+                        <button onClick={handleDownloadPDF} className="download-btn-header">
+                            <Download size={16} /> Download PDF Report
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="detail-content">

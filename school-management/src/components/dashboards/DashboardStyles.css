@@ -131,7 +131,7 @@
 
 .attendance-summary h3 {
   margin-bottom: 1rem;
-  color: #2d3748;
+  color: var(--text);
 }
 
 .attendance-stats {
@@ -150,7 +150,7 @@
 
 .attendance-class-name {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
@@ -164,16 +164,16 @@
 .present-count {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #2d3748;
+  color: var(--text);
 }
 
 .total-count {
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .attendance-percentage {
   font-weight: 600;
-  color: #4a5568;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -229,13 +229,13 @@
 }
 
 .class-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
   transform: translateX(4px);
 }
 
 .class-info h4 {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text);
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
 }
@@ -277,7 +277,7 @@
 
 .modal-header h2 {
   margin: 0;
-  color: #2d3748;
+  color: var(--text);
   font-size: 1.5rem;
 }
 
@@ -412,7 +412,7 @@
 }
 
 .schedule-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .schedule-time {
@@ -461,7 +461,7 @@
 }
 
 .grade-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .grade-info {
@@ -511,7 +511,7 @@
 }
 
 .meeting-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .meeting-info {
@@ -574,7 +574,7 @@
 }
 
 .subject-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .subject-info {
@@ -632,7 +632,7 @@
 }
 
 .assignment-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .assignment-info {
@@ -681,7 +681,7 @@
 }
 
 .exam-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .exam-info {
@@ -739,7 +739,7 @@
 }
 
 .announcement-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .announcement-title {
@@ -782,7 +782,7 @@
 }
 
 .performance-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .performance-info {
@@ -820,7 +820,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -835,20 +835,20 @@
 
 .attendance-date {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .attendance-subject {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
 .attendance-teacher {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .attendance-status {
@@ -867,7 +867,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -882,20 +882,20 @@
 
 .fee-month {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .fee-amount {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   margin-bottom: 0.125rem;
 }
 
 .fee-due {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .fee-status {
@@ -904,7 +904,7 @@
 
 .fee-paid {
   font-size: 0.625rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   margin-top: 0.125rem;
 }
 
@@ -920,7 +920,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f7fafc;
+  background: var(--surface-muted);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -935,14 +935,14 @@
 
 .event-title {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .event-type {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 .event-time {
@@ -951,14 +951,14 @@
 
 .event-date {
   font-weight: 500;
-  color: #2d3748;
+  color: var(--text);
   font-size: 0.875rem;
   margin-bottom: 0.125rem;
 }
 
 .event-time-text {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 /* Responsive Design */
@@ -1034,9 +1034,9 @@ body[data-theme="dark"] .view-more-link {
 .empty-state {
   padding: 2rem;
   text-align: center;
-  color: #4a5568;
+  color: var(--text-secondary);
   font-style: italic;
-  background: rgba(247, 250, 252, 0.5);
+  background: var(--surface-muted);
   border-radius: 8px;
-  border: 1px dashed #cbd5e0;
+  border: 1px dashed var(--border);
 }

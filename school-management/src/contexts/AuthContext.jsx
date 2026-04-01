@@ -13,13 +13,65 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [activeAcademicYear, setActiveAcademicYear] = useState(null);
+  const [currentTerm, setCurrentTerm] = useState(null);
+  const [classLevels, setClassLevels] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchActiveYear = async () => {
+    try {
+      const year = await api.getActiveAcademicYear();
+      if (year && year.id) {
+        setActiveAcademicYear(year);
+        localStorage.setItem("activeAcademicYear", JSON.stringify(year));
+        
+        // Fetch terms for this year
+        const terms = await api.getAcademicTerms(year.id);
+        const current = terms.find(t => t.isCurrent);
+        if (current) {
+          setCurrentTerm(current);
+          localStorage.setItem("currentTerm", JSON.stringify(current));
+        } else {
+          setCurrentTerm(null);
+          localStorage.removeItem("currentTerm");
+        }
+      } else {
+        setActiveAcademicYear(null);
+        setCurrentTerm(null);
+        localStorage.removeItem("activeAcademicYear");
+        localStorage.removeItem("currentTerm");
+      }
+      
+      // Fetch class levels
+      const levels = await api.getClassLevels();
+      setClassLevels(levels);
+      localStorage.setItem("classLevels", JSON.stringify(levels));
+      
+    } catch (error) {
+      console.error("Failed to fetch academic context:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if user is logged in from localStorage (set by our API)
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+      
+      const savedYear = localStorage.getItem("activeAcademicYear");
+      if (savedYear) {
+        setActiveAcademicYear(JSON.parse(savedYear));
+      }
+      const savedTerm = localStorage.getItem("currentTerm");
+      if (savedTerm) {
+        setCurrentTerm(JSON.parse(savedTerm));
+      }
+      const savedLevels = localStorage.getItem("classLevels");
+      if (savedLevels) {
+        setClassLevels(JSON.parse(savedLevels));
+      }
+      // Re-fetch to ensure it's up to date
+      fetchActiveYear();
     }
     setLoading(false);
   }, []);
@@ -87,6 +139,10 @@ export const AuthProvider = ({ children }) => {
 
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
+        
+        // Fetch academic year after login
+        await fetchActiveYear();
+        
         setLoading(false);
         return { success: true, user: userData };
       }
@@ -111,11 +167,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.signOut();
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
     setUser(null);
-    localStorage.removeItem("user");
+    setActiveAcademicYear(null);
+    setCurrentTerm(null);
     localStorage.removeItem("token");
-    api.logout();
+    localStorage.removeItem("user");
+    localStorage.removeItem("activeAcademicYear");
+    localStorage.removeItem("currentTerm");
   };
 
   const updateProfile = async (updates = {}) => {
@@ -148,6 +212,10 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     loading,
     isAuthenticated: !!user,
+    activeAcademicYear,
+    currentTerm,
+    classLevels,
+    refreshActiveYear: fetchActiveYear,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
