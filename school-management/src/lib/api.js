@@ -660,6 +660,15 @@ export async function manualPromoteStudent(data) {
   return handleResponse(res);
 }
 
+export async function apply(applyData) {
+  const res = await fetch(`${API_BASE_URL}/admissions/apply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(applyData),
+  });
+  return handleResponse(res);
+}
+
 export async function getDashboardStats() {
   // Get counts from users endpoint
   const users = await getStudents();
@@ -742,4 +751,5 @@ export default {
   getPromotionPreview,
   bulkPromoteClass,
   manualPromoteStudent,
+  apply,
 };

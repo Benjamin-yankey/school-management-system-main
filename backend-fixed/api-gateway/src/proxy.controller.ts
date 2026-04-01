@@ -85,7 +85,7 @@ export class ProxyController {
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
-  @All("/admissions/*")
+  @All(["/admissions", "/admissions/*", "/admissions/applications", "/admissions/all-applications"])
   proxyAdmissionsProtected(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }

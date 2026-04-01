@@ -77,6 +77,10 @@ export class AdmissionService {
     });
   }
 
+  findAllApplications(): Promise<Application[]> {
+    return this.appRepo.find({ order: { submittedAt: 'DESC' } });
+  }
+
   getApplicationsByStatus(status: ApplicationStatus): Promise<Application[]> {
     return this.appRepo.find({
       where: { status },

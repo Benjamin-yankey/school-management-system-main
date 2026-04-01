@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Sun, Moon } from "lucide-react";
+import api from "../lib/api";
 import { generateAdmissionPDF } from "./generateAdmissionPDF";
 import { useTheme } from "../contexts/ThemeContext";
 import "./AcademyPages.css";
@@ -104,18 +105,19 @@ const AdmissionsPage = () => {
     generateAdmissionPDF(logo, formData.childImage);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (
       !formData.childFullName ||
       !formData.childDob ||
       !formData.program ||
-      !formData.startDate
+      !formData.startDate ||
+      (!formData.motherEmail && !formData.fatherEmail)
     ) {
       setStatus({
         type: "error",
-        message: "Please complete all required child and program details.",
+        message: "Please complete all required child and program details, including at least one parent email.",
       });
       return;
     }
@@ -123,15 +125,38 @@ const AdmissionsPage = () => {
     setStatus(null);
     setSubmitting(true);
 
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      // Split name into first, middle, last if possible, or just use as first name
+      const nameParts = formData.childFullName.trim().split(/\s+/);
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "Student";
+      const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "";
+
+      await api.apply({
+        firstName,
+        lastName,
+        middleName,
+        email: formData.motherEmail || formData.fatherEmail,
+        phoneNumber: formData.childPhone || formData.motherWorkPhone || formData.fatherWorkPhone || "0000000000",
+        dateOfBirth: formData.childDob,
+        areaOfInterest: formData.program,
+      });
+
       setStatus({
         type: "success",
         message:
           "Registration submitted successfully. We will contact you shortly.",
       });
       setFormData(initialState);
-    }, 1500);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err.message || "Failed to submit registration. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

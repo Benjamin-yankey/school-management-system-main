@@ -1416,7 +1416,8 @@ function EnrollmentSection({ onBack }) {
 
     try {
       await api.enrollStudent(enrollmentData);
-      setFeedback({ type: "success", message: `Successfully enrolled ${selectedApplicant.applicantName || 'Student'}!` });
+      const name = [selectedApplicant.firstName, selectedApplicant.middleName, selectedApplicant.lastName].filter(Boolean).join(" ");
+      setFeedback({ type: "success", message: `Successfully enrolled ${name || 'Student'}!` });
       // Clear form
       setSelectedApplicant(null);
       setSelectedClassId("");
@@ -1479,28 +1480,31 @@ function EnrollmentSection({ onBack }) {
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "500px", overflowY: "auto", paddingRight: "4px" }}>
-              {applicants.map(app => (
-                <div 
-                  key={app.id}
-                  onClick={() => setSelectedApplicant(app)}
-                  style={{
-                    padding: "12px",
-                    borderRadius: "10px",
-                    border: `1px solid ${selectedApplicant?.id === app.id ? "var(--accent)" : "var(--border)"}`,
-                    background: selectedApplicant?.id === app.id ? "rgba(102, 126, 234, 0.05)" : "var(--surface-muted)",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 600, fontSize: 14 }}>{app.applicantName || app.studentName || app.name || "Unknown Applicant"}</span>
-                    <span style={{ fontSize: 11, background: "#C0DD97", color: "#3B6D11", padding: "2px 8px", borderRadius: "12px", fontWeight: 600 }}>Accepted</span>
+              {applicants.map(app => {
+                const name = [app.firstName, app.middleName, app.lastName].filter(Boolean).join(" ");
+                return (
+                  <div 
+                    key={app.id}
+                    onClick={() => setSelectedApplicant(app)}
+                    style={{
+                      padding: "12px",
+                      borderRadius: "10px",
+                      border: `1px solid ${selectedApplicant?.id === app.id ? "var(--accent)" : "var(--border)"}`,
+                      background: selectedApplicant?.id === app.id ? "rgba(102, 126, 234, 0.05)" : "var(--surface-muted)",
+                      cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{name || "Unknown Applicant"}</span>
+                      <span style={{ fontSize: 11, background: "#C0DD97", color: "#3B6D11", padding: "2px 8px", borderRadius: "12px", fontWeight: 600 }}>Accepted</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                      ID: {app.id.substring(0,8)}... | Applied: {new Date(app.createdAt || app.applicationDate || app.submittedAt || Date.now()).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-                    ID: {app.id.substring(0,8)}... | Applied: {new Date(app.createdAt || app.applicationDate || Date.now()).toLocaleDateString()}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1516,7 +1520,7 @@ function EnrollmentSection({ onBack }) {
             <div>
               <p style={css.cardTitle}>Enroll Student</p>
               <p style={css.cardSub}>
-                {selectedApplicant ? `Enrolling ${selectedApplicant.applicantName || 'selected applicant'}` : 'Select an applicant first'}
+                {selectedApplicant ? `Enrolling ${[selectedApplicant.firstName, selectedApplicant.middleName, selectedApplicant.lastName].filter(Boolean).join(" ") || 'selected applicant'}` : 'Select an applicant first'}
               </p>
             </div>
           </div>

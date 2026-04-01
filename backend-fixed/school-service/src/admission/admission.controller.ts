@@ -71,7 +71,7 @@ export class AdmissionController {
     if (status) {
       return this.admissionService.getApplicationsByStatus(status);
     }
-    return this.admissionService.findAllYears(); // Fallback to all years if no status
+    return this.admissionService.findAllApplications();
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
