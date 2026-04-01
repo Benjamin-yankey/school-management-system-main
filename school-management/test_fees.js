@@ -1,0 +1,48 @@
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch({ 
+    headless: "new",
+    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+  });
+  const page = await browser.newPage();
+  
+  await page.setViewport({ width: 1200, height: 800 });
+  await page.goto('http://localhost:5174/admin/dashboard', { waitUntil: 'networkidle0' });
+  
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Open Student Directory
+  const buttons = await page.$$('button');
+  for (const btn of buttons) {
+    const text = await page.evaluate(el => el.textContent, btn);
+    if (text.includes('Student Directory')) {
+      await btn.click();
+      break;
+    }
+  }
+
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Click the first "Charge Fee" button
+  const feeButtons = await page.$$('button');
+  for (const btn of feeButtons) {
+    const text = await page.evaluate(el => el.textContent, btn);
+    if (text.includes('Charge Fee')) {
+      await btn.click();
+      console.log("Clicked Charge Fee button");
+      break;
+    }
+  }
+
+  // Wait for modal to render
+  await new Promise(r => setTimeout(r, 1000));
+
+  await page.screenshot({ 
+    path: '/Users/huey/.gemini/antigravity/brain/f180c634-01a6-44bd-a2c3-bdf412efe3bf/admin_fee_modal.png',
+    fullPage: false 
+  });
+  
+  console.log("Screenshot saved.");
+  await browser.close();
+})();

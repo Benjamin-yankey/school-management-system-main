@@ -203,8 +203,32 @@ export async function saveAttendance(date, attendanceData) {
   return handleResponse(res);
 }
 
+export async function getAcademicYears() {
+  const res = await fetch(`${API_BASE_URL}/academic-years`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createAcademicYear(yearData) {
+  const res = await fetch(`${API_BASE_URL}/academic-years`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(yearData),
+  });
+  return handleResponse(res);
+}
+
 export async function getActiveAcademicYear() {
   const res = await fetch(`${API_BASE_URL}/academic-years/active`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function setActiveAcademicYear(id) {
+  const res = await fetch(`${API_BASE_URL}/academic-years/${id}/activate`, {
+    method: "PATCH",
     headers: headers(),
   });
   return handleResponse(res);
@@ -217,8 +241,33 @@ export async function getAcademicTerms(academicYearId) {
   return handleResponse(res);
 }
 
+export async function createAcademicTerm(termData) {
+  const res = await fetch(`${API_BASE_URL}/academic-terms`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(termData),
+  });
+  return handleResponse(res);
+}
+
+export async function setActiveAcademicTerm(id) {
+  const res = await fetch(`${API_BASE_URL}/academic-terms/${id}/activate`, {
+    method: "PATCH",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function getClassLevels() {
   const res = await fetch(`${API_BASE_URL}/classes`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function seedClassLevels() {
+  const res = await fetch(`${API_BASE_URL}/classes/seed`, {
+    method: "POST",
     headers: headers(),
   });
   return handleResponse(res);
@@ -261,6 +310,13 @@ export async function enrollStudent(enrollmentData) {
     method: "POST",
     headers: headers(),
     body: JSON.stringify(enrollmentData),
+  });
+  return handleResponse(res);
+}
+
+export async function getAcceptedApplicants() {
+  const res = await fetch(`${API_BASE_URL}/admissions/applications?status=accepted`, {
+    headers: headers(),
   });
   return handleResponse(res);
 }
@@ -575,6 +631,35 @@ export async function deleteAnnouncement(id) {
   return handleResponse(res);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PROMOTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function getPromotionPreview(classLevelId, academicYearId) {
+  const res = await fetch(`${API_BASE_URL}/promotions/preview/${classLevelId}/${academicYearId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function bulkPromoteClass(data) {
+  const res = await fetch(`${API_BASE_URL}/promotions/bulk`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function manualPromoteStudent(data) {
+  const res = await fetch(`${API_BASE_URL}/promotions/manual`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
 export async function getDashboardStats() {
   // Get counts from users endpoint
   const users = await getStudents();
@@ -618,9 +703,15 @@ export default {
   createAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,
+  getAcademicYears,
+  createAcademicYear,
   getActiveAcademicYear,
+  setActiveAcademicYear,
   getAcademicTerms,
+  createAcademicTerm,
+  setActiveAcademicTerm,
   getClassLevels,
+  seedClassLevels,
   getClassSections,
   createSchoolUser,
   getAdministrationUsers,
@@ -645,4 +736,10 @@ export default {
   getLinkedChildren,
   getLinkedChild,
   unlinkChild,
+  getAcceptedApplicants,
+  
+  // Promotions
+  getPromotionPreview,
+  bulkPromoteClass,
+  manualPromoteStudent,
 };

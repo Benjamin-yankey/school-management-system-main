@@ -12,7 +12,8 @@ import {
   CheckCircle, 
   Clipboard, 
   BarChart, 
-  UserCheck 
+  UserCheck,
+  Calendar
 } from "lucide-react";
 
 function StatCard({ label, value, color, icon: Icon, loading }) {
@@ -72,7 +73,7 @@ function QuickAction({ label, color, icon: Icon, onClick }) {
   );
 }
 
-export default function HomePage({ teacher, onNavigate, sections, base, token }) {
+export default function HomePage({ teacher, onNavigate, sections, base, token, activeAcademicYear }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -101,10 +102,10 @@ export default function HomePage({ teacher, onNavigate, sections, base, token })
   const totalStudents = sections.reduce((s, c) => s + (c.studentCount || 0), 0);
 
   const cards = [
+    { label: "Current Session", value: activeAcademicYear?.year || "None Set", color: T.purple, icon: Calendar },
     { label: "My Sections",     value: sections.length,                   color: T.accent,  icon: BookOpen },
     { label: "Total Students",  value: stats?.totalStudents ?? totalStudents, color: T.green,   icon: Users },
     { label: "Pending Grades",  value: stats?.pendingGrades ?? 0,          color: T.amber,   icon: Edit3 },
-    { label: "Notices Posted",  value: stats?.notices ?? 0,                color: T.purple,  icon: Megaphone },
   ];
 
   const quickActions = [

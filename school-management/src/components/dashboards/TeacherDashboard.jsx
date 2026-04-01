@@ -19,7 +19,7 @@ export default function TeacherDashboard({
   token,
   baseUrl = DEFAULT_BASE,
 }) {
-  const { user } = useAuth();
+  const { user, activeAcademicYear } = useAuth();
   const { isDarkMode } = useTheme();
   const [page,         setPage]        = useState("home");
   const [sections,     setSections]    = useState([]);
@@ -47,7 +47,7 @@ export default function TeacherDashboard({
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar  = () => setSidebarOpen(false);
 
-  const pageProps = { base: baseUrl, token, sections };
+  const pageProps = { base: baseUrl, token, sections, activeAcademicYear };
 
   return (
     <div

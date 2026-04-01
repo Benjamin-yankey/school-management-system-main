@@ -700,3 +700,208 @@ body[data-theme="dark"] {
     border: 1px dashed var(--super-border);
     font-size: 0.85rem;
 }
+
+/* Academic Management Styles */
+.terms-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.term-pill {
+    padding: 4px 10px;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+}
+
+.term-pill.active {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+.btn-add-pill {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1.5px dashed #cbd5e1;
+    background: transparent;
+    color: #94a3b8;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add-pill:hover {
+    border-color: var(--super-primary);
+    color: var(--super-primary);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.btn-ghost-super {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--super-primary);
+    color: var(--super-primary);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-ghost-super:hover {
+    background: var(--super-primary);
+    color: white;
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.checkbox-group-super {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.status-label.inactive {
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 99px;
+}
+
+/* Mobile Responsiveness */
+.mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 1.25rem;
+    left: 1.25rem;
+    z-index: 1000;
+    background: var(--super-panel);
+    border: 1px solid var(--super-border);
+    padding: 0.5rem;
+    border-radius: 8px;
+    color: var(--super-text);
+    cursor: pointer;
+    box-shadow: var(--super-shadow);
+}
+
+.sidebar-close {
+    display: none;
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 900;
+}
+
+@media (max-width: 1024px) {
+    .super-sidebar {
+        position: fixed;
+        left: -300px;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+    }
+
+    .super-sidebar.open {
+        left: 0;
+    }
+
+    .mobile-toggle, .sidebar-close {
+        display: block;
+    }
+
+    .mobile-overlay.open {
+        display: block;
+    }
+
+    .super-main-content {
+        padding: 5rem 1.5rem 2rem;
+    }
+
+    .super-content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .super-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .super-stats-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .super-table-wrapper {
+        margin-top: 1rem;
+    }
+
+    .super-main-content {
+        padding-top: 5rem;
+    }
+
+    .user-grid-super {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-view-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .school-meta {
+        width: 100%;
+    }
+
+    .super-modal-content {
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+
+    .modal-footer-btns {
+        flex-direction: column;
+    }
+
+    .btn-cancel-super, .btn-action-super {
+        width: 100%;
+    }
+}

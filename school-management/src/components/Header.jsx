@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { NotificationBell } from "../lib/NotificationService";
 import {
   LogOut,
   Bell,
+  Calendar,
   Settings,
   Moon,
   Sun,
@@ -22,9 +25,10 @@ import {
 import "./Header.css";
 
 const Header = () => {
-  const { user, logout, updateProfile, activeAcademicYear, currentTerm } = useAuth();
+  const { user, logout, updateProfile, activeAcademicYear, currentTerm } =
+    useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [prefs, setPrefs] = useState({
     sounds: true,
@@ -33,17 +37,10 @@ const Header = () => {
   });
 
   const fileInputRef = useRef(null);
-  const notificationsRef = useRef(null);
   const settingsRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(event.target)
-      ) {
-        setIsNotificationsOpen(false);
-      }
       if (settingsRef.current && !settingsRef.current.contains(event.target)) {
         setIsSettingsOpen(false);
       }
@@ -117,7 +114,7 @@ const Header = () => {
                 />
               </div>
               <span className="school-logo-text">
-                SchoolSync
+                GEOZIIE INTERNATIONAL SCHOOL
               </span>
             </div>
             <div className="header-title">
@@ -125,10 +122,15 @@ const Header = () => {
               {activeAcademicYear ? (
                 <div className="header-academic-year">
                   <Calendar size={14} />
-                  <span>{activeAcademicYear.year} {currentTerm ? `— ${currentTerm.name}` : ""}</span>
+                  <span>
+                    {activeAcademicYear.year}{" "}
+                    {currentTerm ? `— ${currentTerm.name}` : ""}
+                  </span>
                 </div>
               ) : (
-                (user?.role === "admin" || user?.role === "administration" || user?.role === "superadmin") && (
+                (user?.role === "admin" ||
+                  user?.role === "administration" ||
+                  user?.role === "superadmin") && (
                   <div className="header-academic-year warning">
                     <ShieldAlert size={14} />
                     <span>No Active Year</span>
@@ -140,27 +142,15 @@ const Header = () => {
 
           <div className="header-actions">
             <div className="header-toolbar">
-              <div className="toolbar-item" ref={notificationsRef}>
-                <button
-                  type="button"
-                  className={`toolbar-btn ${isNotificationsOpen ? "active" : ""}`}
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                >
-                  <Bell size={20} />
-                </button>
-                {isNotificationsOpen && (
-                  <div className="toolbar-panel">
-                    <div className="panel-header">
-                      <h3>Notifications</h3>
-                      <span>0 New</span>
-                    </div>
-                    <div className="panel-content empty">
-                      <BellOff size={32} strokeWidth={1.5} />
-                      <p>No new notifications.</p>
-                      <span>Real-time alerts will appear here.</span>
-                    </div>
-                  </div>
-                )}
+              <div className="toolbar-item">
+                <NotificationBell
+                  token={localStorage.getItem("token")}
+                  serviceUrl={
+                    import.meta.env.VITE_NOTIFICATION_URL ||
+                    "http://localhost:3001"
+                  }
+                  onOpenCenter={() => navigate("/notifications")}
+                />
               </div>
 
               <div className="toolbar-item" ref={settingsRef}>

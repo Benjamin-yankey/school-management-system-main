@@ -25,6 +25,7 @@ import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import AddStudent from "./pages/AddStudent";
+import NotificationServicePage from "./lib/NotificationService";
 import { useAuth } from "./contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -38,6 +39,21 @@ const TeacherDashboardRoute = () => {
       token={token}
       baseUrl={baseUrl}
     />
+  );
+};
+
+const NotificationsRoute = () => {
+  const { user } = useAuth();
+  const token = localStorage.getItem("token");
+  const serviceUrl = import.meta.env.VITE_NOTIFICATION_URL || "http://localhost:3001";
+
+  return (
+    <div className="app">
+      <Header />
+      <div className="app-main-content" style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <NotificationServicePage token={token} serviceUrl={serviceUrl} userId={user?.id} />
+      </div>
+    </div>
   );
 };
 
@@ -70,6 +86,15 @@ export default function App() {
             <Route
               path="/superadmin-dashboard"
               element={<SuperAdminDashboard />}
+            />
+
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsRoute />
+                </ProtectedRoute>
+              }
             />
 
             <Route path="/home" element={<Navigate to="/" replace />} />

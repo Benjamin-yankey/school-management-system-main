@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../lib/api";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
@@ -93,12 +96,12 @@ function AdminAlert({ type, message, onClose }) {
 
 function AdminRoleBadge({ role }) {
   const map = {
-    teacher: { bg: "#E6F1FB", color: "#185FA5" },
-    student: { bg: "#FAEEDA", color: "#854F0B" },
-    parent:  { bg: "#EAF3DE", color: "#3B6D11" },
-    admin:   { bg: "#EEEDFE", color: "#534AB7" },
+    teacher: { bg: "rgba(230, 241, 251, 0.15)", color: "#4299e1" },
+    student: { bg: "rgba(250, 238, 218, 0.15)", color: "#ed8936" },
+    parent:  { bg: "rgba(234, 243, 222, 0.15)", color: "#48bb78" },
+    admin:   { bg: "rgba(238, 237, 254, 0.15)", color: "#805ad5" },
   };
-  const s = map[role?.toLowerCase()] || { bg: "#F1EFE8", color: "#5F5E5A" };
+  const s = map[role?.toLowerCase()] || { bg: "var(--surface-muted)", color: "var(--text-secondary)" };
   return (
     <span
       style={{
@@ -106,6 +109,7 @@ function AdminRoleBadge({ role }) {
         padding: "3px 9px", borderRadius: 99,
         fontSize: 11, fontWeight: 600, textTransform: "uppercase",
         background: s.bg, color: s.color,
+        border: `1px solid ${s.color}44`,
       }}
     >
       {role || "—"}
@@ -120,8 +124,9 @@ function AdminStatusBadge({ isActive }) {
         display: "inline-flex", alignItems: "center",
         padding: "3px 9px", borderRadius: 99,
         fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-        background: isActive ? "#EAF3DE" : "#FCEBEB",
-        color:      isActive ? "#3B6D11" : "#A32D2D",
+        background: isActive ? "rgba(72, 187, 120, 0.15)" : "rgba(245, 101, 101, 0.15)",
+        color:      isActive ? "#48bb78" : "#f56565",
+        border: isActive ? "1px solid rgba(72, 187, 120, 0.3)" : "1px solid rgba(245, 101, 101, 0.3)",
       }}
     >
       {isActive ? "Active" : "Inactive"}
@@ -135,10 +140,10 @@ function AdminAvatar({ email, size = 36 }) {
     <div
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: "#E6F1FB", color: "#185FA5",
+        background: "var(--accent)", color: "#fff",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontWeight: 600, fontSize: size * 0.38, flexShrink: 0,
-        border: "1.5px solid #B5D4F4",
+        border: "1.5px solid var(--border)",
       }}
     >
       {initials}
@@ -226,7 +231,7 @@ function StatCard({ title, value, color, icon, loading }) {
     <div className="stat-card" style={{ ...css.card, borderLeft: `5px solid ${color}`, minWidth: 200 }}>
       <div className="stat-card-icon" style={{ fontSize: 24, marginBottom: 12 }}>{icon}</div>
       <div className="stat-card-title" style={css.cardSub}>{title}</div>
-      <div className="stat-card-value" style={{ fontSize: 28, fontWeight: 800, color: "#1A202C", marginTop: 4 }}>
+      <div className="stat-card-value" style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", marginTop: 4 }}>
         {loading ? <AdminSpinner size={18} /> : (value?.toLocaleString() ?? "0")}
       </div>
     </div>
@@ -268,11 +273,11 @@ function RecentUsersTable({ users = [], loading }) {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <AdminAvatar email={u.email} size={34} />
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#1A202C" }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
                     {u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : u.email}
                   </div>
                   {(u.firstName || u.lastName) && (
-                    <div style={{ fontSize: 11, color: "#718096" }}>{u.email}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{u.email}</div>
                   )}
                 </div>
               </div>
@@ -291,7 +296,7 @@ function RecentUsersTable({ users = [], loading }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function CreateUserSection({ onCreated }) {
-  const [form, setForm]         = useState({ email: "", role: "teacher" });
+  const [form, setForm]         = useState({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
   const [loading, setLoading]   = useState(false);
   const [success, setSuccess]   = useState(null);
   const [error, setError]       = useState(null);
@@ -307,6 +312,8 @@ function CreateUserSection({ onCreated }) {
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const validate = () => {
+    if (!form.firstName.trim()) return "First name is required.";
+    if (!form.lastName.trim()) return "Last name is required.";
     if (!form.email.trim()) return "Email is required.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Enter a valid email address.";
     return null;
@@ -320,9 +327,12 @@ function CreateUserSection({ onCreated }) {
       const data = await adminRequest("POST", "/administration/create-user", {
         email: form.email.trim(),
         role:  form.role,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        middleName: form.middleName.trim(),
       });
       setSuccess(`User created. A temporary password has been sent to ${data.email || form.email}.`);
-      setForm({ email: "", role: "teacher" });
+      setForm({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
       onCreated?.();
     } catch (e) {
       setError(e.message);
@@ -334,7 +344,15 @@ function CreateUserSection({ onCreated }) {
   // Show a warning banner if this admin has no schoolId — creation will always 500
   const preflightWarning = preflight === "no-school" ? (
     <div style={{ background: "#FFF8E1", border: "1px solid #FFD54F", borderRadius: 9, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#7C5800" }}>
-      ⚠️ <strong>Account not linked to a school.</strong> Your admin account has no school assignment in the database.
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <strong>Account not linked to a school.</strong>
+      </div>
+      Your admin account has no school assignment in the database.
       User creation will fail until a superadmin assigns your account to a school via the Superadmin panel.
     </div>
   ) : null;
@@ -364,6 +382,36 @@ function CreateUserSection({ onCreated }) {
       <div style={css.divider} />
 
       {preflightWarning}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+        <AdminField label="First Name" required>
+          <input
+            style={css.input}
+            type="text"
+            value={form.firstName}
+            onChange={update("firstName")}
+            placeholder="e.g. John"
+          />
+        </AdminField>
+        <AdminField label="Middle Name">
+          <input
+            style={css.input}
+            type="text"
+            value={form.middleName}
+            onChange={update("middleName")}
+            placeholder="e.g. Quincy"
+          />
+        </AdminField>
+        <AdminField label="Last Name" required>
+          <input
+            style={css.input}
+            type="text"
+            value={form.lastName}
+            onChange={update("lastName")}
+            placeholder="e.g. Doe"
+          />
+        </AdminField>
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <AdminField label="Email address" required hint="The user's login email.">
@@ -418,7 +466,7 @@ function CreateUserSection({ onCreated }) {
         </button>
         <button
           style={css.btnGhost}
-          onClick={() => { setForm({ email: "", role: "teacher" }); setError(null); setSuccess(null); }}
+          onClick={() => { setForm({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" }); setError(null); setSuccess(null); }}
           disabled={loading}
         >
           Clear
@@ -586,21 +634,21 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
             onClick={() => onSelectUser(u)}
             style={{ 
               display: "flex", alignItems: "center", padding: "12px 16px", 
-              borderRadius: 12, border: "1px solid rgba(237, 242, 247, 0.8)", 
+              borderRadius: 12, border: "1px solid var(--border)", 
               marginBottom: 8, transition: "all 0.2s", cursor: "pointer",
-              background: "rgba(255, 255, 255, 0.4)" 
+              background: "var(--glass)" 
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(102, 126, 234, 0.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.4)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-muted)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--glass)")}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 2 }}>
               <AdminAvatar email={u.email} />
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#1A202C" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
                   {fullName || u.email}
                 </p>
                 {fullName && (
-                  <p style={{ fontSize: 11, color: "#718096", marginTop: 2 }}>{u.email}</p>
+                  <p style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{u.email}</p>
                 )}
               </div>
             </div>
@@ -634,6 +682,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
+  const { classLevels } = useAuth();
   const [userId, setUserId]             = useState("");
   const [loadingReset, setLoadingReset] = useState(false);
   const [loadingDeact, setLoadingDeact] = useState(false);
@@ -641,7 +690,28 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
   const [resetResult, setResetResult]   = useState(null);
   const [confirm, setConfirm]           = useState(null);
   const [feedback, setFeedback]         = useState(null);
+ 
+  // Teacher assignment state
+  const [loadingAssign, setLoadingAssign] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [sections, setSections] = useState([]);
+  const [loadingSections, setLoadingSections] = useState(false);
+  const [selectedSectionId, setSelectedSectionId] = useState("");
+ 
   const inputRef = useRef(null);
+ 
+  useEffect(() => {
+    if (selectedClassId) {
+      setLoadingSections(true);
+      api.getClassSections(selectedClassId)
+        .then(setSections)
+        .catch(console.error)
+        .finally(() => setLoadingSections(false));
+    } else {
+      setSections([]);
+    }
+    setSelectedSectionId("");
+  }, [selectedClassId]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -690,6 +760,21 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
       setFeedback({ type: "error", message: e.message });
     } finally { setLoadingReact(false); }
   };
+ 
+  const doAssignSection = async () => {
+    if (!selectedSectionId) return;
+    setLoadingAssign(true); setFeedback(null);
+    try {
+      await api.assignTeacherToSection(activeId, selectedSectionId);
+      setFeedback({ type: "success", message: "Teacher assigned to section successfully." });
+      setSelectedClassId("");
+      setSelectedSectionId("");
+    } catch (e) {
+      setFeedback({ type: "error", message: e.message });
+    } finally {
+      setLoadingAssign(false);
+    }
+  };
 
   const isInactive = selectedUser ? selectedUser.isActive === false : false;
   const anyLoading = loadingReset || loadingDeact || loadingReact;
@@ -724,9 +809,8 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
       <div style={css.card}>
         <div style={css.cardHeader}>
           <div style={css.iconWrap("#FAEEDA")}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="2.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
           <div>
@@ -737,10 +821,10 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
         <div style={css.divider} />
 
         {selectedUser && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#F7FAFC", border: "1px solid #E2E8F0", borderRadius: 9, padding: "10px 14px", marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 9, padding: "10px 14px", marginBottom: 16 }}>
             <AdminAvatar email={selectedUser.email} size={32} />
             <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 600, fontSize: 13 }}>{selectedUser.email}</p>
+              <p style={{ fontWeight: 600, fontSize: 13, color: "var(--text)" }}>{selectedUser.email}</p>
               <div style={{ display: "flex", gap: 6, marginTop: 3 }}>
                 <AdminRoleBadge role={selectedUser.role} />
                 <AdminStatusBadge isActive={selectedUser.isActive} />
@@ -822,6 +906,59 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
           </div>
         </div>
 
+        {/* Assign Teacher to Section - Only for teachers */}
+        {selectedUser?.role === "teacher" && (
+          <div style={{ marginTop: 24, padding: 20, background: "var(--surface-muted)", borderRadius: 14, border: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#E6F1FB", color: "#185FA5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+              </div>
+              <div>
+                <p style={{ fontWeight: 700, margin: 0, fontSize: 14 }}>Assign to Section</p>
+                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>Step 11: Link this teacher to a specific class section.</p>
+              </div>
+            </div>
+ 
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <AdminField label="Select Class" required>
+                <select 
+                  style={css.input} 
+                  value={selectedClassId} 
+                  onChange={(e) => setSelectedClassId(e.target.value)}
+                  disabled={loadingAssign}
+                >
+                  <option value="">-- Choose Class --</option>
+                  {classLevels?.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
+                  ))}
+                </select>
+              </AdminField>
+              <AdminField label="Select Section" required>
+                <select 
+                  style={css.input} 
+                  value={selectedSectionId} 
+                  onChange={(e) => setSelectedSectionId(e.target.value)}
+                  disabled={!selectedClassId || loadingSections || loadingAssign}
+                >
+                  <option value="">{loadingSections ? "Loading..." : "-- Choose Section --"}</option>
+                  {sections.map(s => (
+                    <option key={s.id} value={s.id}>Section {s.name} (Cap: {s.capacity})</option>
+                  ))}
+                </select>
+              </AdminField>
+            </div>
+ 
+            <button 
+              style={{ ...css.btnPrimary, width: "100%", opacity: !selectedSectionId ? 0.6 : 1 }} 
+              onClick={doAssignSection}
+              disabled={!selectedSectionId || loadingAssign}
+            >
+              {loadingAssign && <AdminSpinner />}
+              {loadingAssign ? "Assigning..." : "Confirm Section Assignment"}
+            </button>
+          </div>
+        )}
+ 
         {feedback && (
           <AdminAlert type={feedback.type} message={feedback.message} onClose={() => setFeedback(null)} />
         )}
@@ -830,6 +967,1315 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
         )}
       </div>
     </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACADEMIC OVERVIEW COMPONENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ClassSectionsList({ classLevelId }) {
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!classLevelId) return;
+    setLoading(true);
+    api.getClassSections(classLevelId)
+      .then(setSections)
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [classLevelId]);
+
+  if (loading) return <div style={{ padding: "10px 0" }}><AdminSpinner /> Loading sections...</div>;
+  if (error) return <div style={{ padding: "10px 0", color: "#e53e3e" }}>{error}</div>;
+  if (!sections.length) return <div style={{ padding: "10px 0", color: "var(--text-secondary)", fontStyle: "italic" }}>No sections defined.</div>;
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10, marginTop: 10 }}>
+      {sections.map(s => (
+        <div key={s.id} style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px", textAlign: "center" }}>
+          <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>Section {s.name}</p>
+          <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "4px 0 0" }}>Cap: {s.capacity}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AcademicOverviewSection({ onBack }) {
+  const { activeAcademicYear, currentTerm, classLevels, refreshActiveYear } = useAuth();
+  const [expandedClass, setExpandedClass] = useState(null);
+  const [terms, setTerms] = useState([]);
+  const [termsLoading, setTermsLoading] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  // New Management states
+  const [allYears, setAllYears] = useState([]);
+  const [yearsLoading, setYearsLoading] = useState(false);
+  const [showYearModal, setShowYearModal] = useState(false);
+  const [newYearName, setNewYearName] = useState("");
+  const [showTermModal, setShowTermModal] = useState(false);
+  const [selectedYearForTerm, setSelectedYearForTerm] = useState(null);
+  const [newTermData, setNewTermData] = useState({ name: "", startDate: "", endDate: "", isCurrent: false });
+  const [error, setError] = useState("");
+
+  const fetchAllYears = useCallback(async () => {
+    setYearsLoading(true);
+    try {
+      const years = await api.getAcademicYears();
+      const yearsWithTerms = await Promise.all(
+        years.map(async (y) => {
+          const t = await api.getAcademicTerms(y.id);
+          return { ...y, terms: t };
+        })
+      );
+      setAllYears(yearsWithTerms);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setYearsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllYears();
+    if (activeAcademicYear?.id) {
+      setTermsLoading(true);
+      api.getAcademicTerms(activeAcademicYear.id)
+        .then(setTerms)
+        .catch(console.error)
+        .finally(() => setTermsLoading(false));
+    }
+  }, [activeAcademicYear, fetchAllYears]);
+
+  const handleCreateYear = async (e) => {
+    e.preventDefault();
+    try {
+      await api.createAcademicYear({ year: newYearName });
+      setNewYearName("");
+      setShowYearModal(false);
+      fetchAllYears();
+      refreshActiveYear();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleActivateYear = async (id) => {
+    try {
+      await api.setActiveAcademicYear(id);
+      fetchAllYears();
+      refreshActiveYear();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCreateTerm = async (e) => {
+    e.preventDefault();
+    try {
+      await api.createAcademicTerm({ ...newTermData, academicYearId: selectedYearForTerm.id });
+      setNewTermData({ name: "", startDate: "", endDate: "", isCurrent: false });
+      setShowTermModal(false);
+      fetchAllYears();
+      refreshActiveYear();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleActivateTerm = async (id) => {
+    try {
+      await api.setActiveAcademicTerm(id);
+      fetchAllYears();
+      refreshActiveYear();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      await api.seedClassLevels();
+      await refreshActiveYear();
+    } catch (err) {
+      console.error("Failed to seed classes:", err);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Academic Management</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.5 }}>
+            View academic years, terms, and the school's class structure.
+          </p>
+        </div>
+        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+      </div>
+
+      {/* 1. Academic Year & Terms */}
+      <div style={css.card}>
+        <div style={css.cardHeader}>
+          <div style={css.iconWrap("#FAEEDA")}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <p style={css.cardTitle}>Academic Years & Sessions</p>
+            <p style={css.cardSub}>Manage institutional sessions and their active status.</p>
+          </div>
+          <button 
+            onClick={() => setShowYearModal(true)} 
+            style={{ ...css.btnSmall, marginLeft: "auto", background: "var(--accent)", color: "#fff" }}
+          >
+            + New Session
+          </button>
+        </div>
+        <div style={css.divider} />
+
+        {yearsLoading ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}><AdminSpinner size={24} /></div>
+        ) : !allYears.length ? (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-secondary)", fontSize: 14 }}>
+            <p style={{ marginBottom: 16 }}>No academic sessions have been defined yet.</p>
+            <button 
+              onClick={() => setShowYearModal(true)} 
+              style={{ ...css.btnSmall, padding: "10px 20px", background: "var(--accent)", color: "#fff" }}
+            >
+              Create First Session
+            </button>
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left" }}>
+                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Session</th>
+                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Terms</th>
+                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Status</th>
+                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allYears.map(y => (
+                  <tr key={y.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "12px 8px", fontWeight: 700 }}>{y.year}</td>
+                    <td style={{ padding: "12px 8px" }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                        {y.terms?.map(t => (
+                          <span 
+                            key={t.id} 
+                            onClick={() => handleActivateTerm(t.id)}
+                            style={{ 
+                              fontSize: 10, padding: "2px 8px", borderRadius: 4, cursor: "pointer",
+                              background: t.isCurrent ? "var(--accent)" : "var(--surface-muted)",
+                              color: t.isCurrent ? "#fff" : "var(--text-secondary)",
+                              fontWeight: 700, border: "1px solid var(--border)"
+                            }}
+                            title={t.isCurrent ? "Current Term" : "Click to set as current"}
+                          >
+                            {t.name}
+                          </span>
+                        ))}
+                        <button 
+                          onClick={() => { setSelectedYearForTerm(y); setShowTermModal(true); }}
+                          style={{ width: 18, height: 18, borderRadius: "50%", border: "1px dashed var(--border)", background: "none", cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td style={{ padding: "12px 8px" }}>
+                      <span style={{ 
+                        fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 12,
+                        background: y.isActive ? "#dcfce7" : "#f1f5f9",
+                        color: y.isActive ? "#15803d" : "#64748b"
+                      }}>
+                        {y.isActive ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px 8px" }}>
+                      {!y.isActive && (
+                        <button 
+                          onClick={() => handleActivateYear(y.id)}
+                          style={{ ...css.btnSmall, fontSize: 11, padding: "4px 8px" }}
+                        >
+                          Activate
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Class Levels & Sections */}
+      <div style={css.card}>
+        <div style={css.cardHeader}>
+          <div style={css.iconWrap("#E6F1FB")}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div>
+            <p style={css.cardTitle}>Class Levels & Sections</p>
+            <p style={css.cardSub}>View established classes and their respective sections.</p>
+          </div>
+        </div>
+        <div style={css.divider} />
+
+        {!classLevels?.length ? (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-secondary)", fontSize: 14 }}>
+            <p style={{ marginBottom: 16 }}>No class levels found. Define the school structure to proceed.</p>
+            <button 
+              onClick={handleSeed} 
+              style={{ ...css.btnSmall, padding: "10px 20px", background: "var(--accent)", color: "#fff" }}
+              disabled={seeding}
+            >
+              {seeding ? "Seeding..." : "Seed Standard Classes"}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {classLevels.map(cls => (
+              <div key={cls.id} style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+                <div 
+                  onClick={() => setExpandedClass(expandedClass === cls.id ? null : cls.id)}
+                  style={{ 
+                    padding: "14px 18px", background: "var(--glass)", display: "flex", 
+                    justifyContent: "space-between", alignItems: "center", cursor: "pointer",
+                    transition: "background 0.2s"
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-muted)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "var(--glass)")}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12 }}>
+                      {cls.order}
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 700, margin: 0, fontSize: 14 }}>{cls.name}</p>
+                      <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0, textTransform: "capitalize" }}>Level: {cls.level}</p>
+                    </div>
+                  </div>
+                  <div style={{ transform: expandedClass === cls.id ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </div>
+                </div>
+                {expandedClass === cls.id && (
+                  <div style={{ padding: "0 18px 18px", borderTop: "1px solid var(--border)" }}>
+                    <ClassSectionsList classLevelId={cls.id} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {showYearModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "grid", placeItems: "center", zIndex: 3000, padding: 20 }}>
+          <div style={{ ...css.card, width: "100%", maxWidth: 400, padding: 30 }}>
+            <h3 style={{ margin: "0 0 8px" }}>New Academic Session</h3>
+            <p style={{ ...css.cardSub, marginBottom: 20 }}>Define a new year (e.g., 2025/2026)</p>
+            <form onSubmit={handleCreateYear}>
+              <AdminField label="Session Format (YYYY/YYYY)" required>
+                <input 
+                  required style={css.input} placeholder="2025/2026" 
+                  value={newYearName} onChange={e => setNewYearName(e.target.value)}
+                />
+              </AdminField>
+              {error && <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</p>}
+              <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                <button type="button" onClick={() => { setShowYearModal(false); setError(""); }} style={{ ...css.btnGhost, flex: 1 }}>Cancel</button>
+                <button type="submit" style={{ ...css.btnGhost, flex: 1, background: "var(--accent)", color: "#fff", border: "none" }}>Create</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showTermModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "grid", placeItems: "center", zIndex: 3000, padding: 20 }}>
+          <div style={{ ...css.card, width: "100%", maxWidth: 450, padding: 30 }}>
+            <h3 style={{ margin: "0 0 8px" }}>Add Term to {selectedYearForTerm?.year}</h3>
+            <p style={{ ...css.cardSub, marginBottom: 20 }}>Define a new academic period</p>
+            <form onSubmit={handleCreateTerm}>
+              <AdminField label="Term Name" required>
+                <input 
+                  required style={css.input} placeholder="e.g. Term 1" 
+                  value={newTermData.name} onChange={e => setNewTermData({...newTermData, name: e.target.value})}
+                />
+              </AdminField>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+                <AdminField label="Start Date" required>
+                  <input type="date" required style={css.input} value={newTermData.startDate} onChange={e => setNewTermData({...newTermData, startDate: e.target.value})} />
+                </AdminField>
+                <AdminField label="End Date" required>
+                  <input type="date" required style={css.input} value={newTermData.endDate} onChange={e => setNewTermData({...newTermData, endDate: e.target.value})} />
+                </AdminField>
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, cursor: "pointer" }}>
+                <input type="checkbox" checked={newTermData.isCurrent} onChange={e => setNewTermData({...newTermData, isCurrent: e.target.checked})} />
+                Set as Current Term
+              </label>
+              {error && <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</p>}
+              <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                <button type="button" onClick={() => { setShowTermModal(false); setError(""); }} style={{ ...css.btnGhost, flex: 1 }}>Cancel</button>
+                <button type="submit" style={{ ...css.btnGhost, flex: 1, background: "var(--accent)", color: "#fff", border: "none" }}>Add Term</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STUDENT ENROLLMENT COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+function EnrollmentSection({ onBack }) {
+  const { classLevels, activeAcademicYear } = useAuth();
+  const [applicants, setApplicants] = useState([]);
+  const [loadingApplicants, setLoadingApplicants] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Form State
+  const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [sections, setSections] = useState([]);
+  const [loadingSections, setLoadingSections] = useState(false);
+  const [selectedSectionId, setSelectedSectionId] = useState("");
+  const [parentUserId, setParentUserId] = useState("");
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    fetchApplicants();
+  }, []);
+
+  const fetchApplicants = () => {
+    setLoadingApplicants(true);
+    setError(null);
+    api.getAcceptedApplicants()
+      .then(data => setApplicants(Array.isArray(data) ? data : []))
+      .catch(e => setError(e.message))
+      .finally(() => setLoadingApplicants(false));
+  };
+
+  useEffect(() => {
+    if (selectedClassId) {
+      setLoadingSections(true);
+      api.getClassSections(selectedClassId)
+        .then(setSections)
+        .catch(console.error)
+        .finally(() => setLoadingSections(false));
+    } else {
+      setSections([]);
+    }
+    setSelectedSectionId("");
+  }, [selectedClassId]);
+
+  const handleEnroll = async (e) => {
+    e.preventDefault();
+    if (!selectedApplicant || !selectedClassId || !activeAcademicYear) return;
+
+    setIsEnrolling(true);
+    setFeedback(null);
+
+    const enrollmentData = {
+      applicantId: selectedApplicant.id,
+      classLevelId: selectedClassId,
+      academicYearId: activeAcademicYear.id,
+      ...(selectedSectionId && { sectionId: selectedSectionId }),
+      ...(parentUserId && { parentUserId }),
+    };
+
+    try {
+      await api.enrollStudent(enrollmentData);
+      setFeedback({ type: "success", message: `Successfully enrolled ${selectedApplicant.applicantName || 'Student'}!` });
+      // Clear form
+      setSelectedApplicant(null);
+      setSelectedClassId("");
+      setSelectedSectionId("");
+      setParentUserId("");
+      // Refresh list
+      fetchApplicants();
+    } catch (err) {
+      setFeedback({ type: "error", message: err.message || "Enrollment failed." });
+    } finally {
+      setIsEnrolling(false);
+    }
+  };
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Student Enrollment</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.5 }}>
+            Process accepted applicants and enroll them into classes for the active academic year.
+          </p>
+        </div>
+        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+      </div>
+
+      {!activeAcademicYear && (
+        <div style={{ background: "#FFF8E1", border: "1px solid #FFD54F", borderRadius: 9, padding: "16px", marginBottom: 20, fontSize: 13, color: "#7C5800" }}>
+          ⚠️ <strong>Enrollment Blocked:</strong> No active academic year found. Students cannot be enrolled without an active academic year.
+        </div>
+      )}
+
+      {feedback && (
+        <AdminAlert type={feedback.type} message={feedback.message} onClose={() => setFeedback(null)} />
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        {/* Left Column: Applicant List */}
+        <div style={css.card}>
+          <div style={css.cardHeader}>
+             <div style={css.iconWrap("#E6F1FB")}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div>
+              <p style={css.cardTitle}>Accepted Applicants</p>
+              <p style={css.cardSub}>Select an applicant to begin enrollment.</p>
+            </div>
+          </div>
+          <div style={css.divider} />
+
+          {loadingApplicants ? (
+            <div style={{ textAlign: "center", padding: "20px" }}><AdminSpinner /> Loading applicants...</div>
+          ) : error ? (
+            <div style={{ color: "#e53e3e", fontSize: 13, textAlign: "center", padding: "10px" }}>{error}</div>
+          ) : applicants.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)", fontSize: 14 }}>
+              No accepted applicants pending enrollment.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "500px", overflowY: "auto", paddingRight: "4px" }}>
+              {applicants.map(app => (
+                <div 
+                  key={app.id}
+                  onClick={() => setSelectedApplicant(app)}
+                  style={{
+                    padding: "12px",
+                    borderRadius: "10px",
+                    border: `1px solid ${selectedApplicant?.id === app.id ? "var(--accent)" : "var(--border)"}`,
+                    background: selectedApplicant?.id === app.id ? "rgba(102, 126, 234, 0.05)" : "var(--surface-muted)",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontWeight: 600, fontSize: 14 }}>{app.applicantName || app.studentName || app.name || "Unknown Applicant"}</span>
+                    <span style={{ fontSize: 11, background: "#C0DD97", color: "#3B6D11", padding: "2px 8px", borderRadius: "12px", fontWeight: 600 }}>Accepted</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                    ID: {app.id.substring(0,8)}... | Applied: {new Date(app.createdAt || app.applicationDate || Date.now()).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Enrollment Form */}
+        <div style={{ ...css.card, opacity: !selectedApplicant || !activeAcademicYear ? 0.6 : 1, pointerEvents: !selectedApplicant || !activeAcademicYear ? "none" : "auto" }}>
+          <div style={css.cardHeader}>
+             <div style={css.iconWrap("#FAEEDA")}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#854F0B" strokeWidth="2.5">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+            </div>
+            <div>
+              <p style={css.cardTitle}>Enroll Student</p>
+              <p style={css.cardSub}>
+                {selectedApplicant ? `Enrolling ${selectedApplicant.applicantName || 'selected applicant'}` : 'Select an applicant first'}
+              </p>
+            </div>
+          </div>
+          <div style={css.divider} />
+
+          <form onSubmit={handleEnroll} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+             <AdminField label="Academic Year" required disabled>
+               <input 
+                 style={{ ...css.input, background: "var(--surface-muted)", color: "var(--text-secondary)" }} 
+                 value={activeAcademicYear?.year || "None Active"} 
+                 readOnly 
+                 disabled 
+               />
+             </AdminField>
+
+             <AdminField label="Class Level" required>
+               <select 
+                 style={css.input} 
+                 value={selectedClassId} 
+                 onChange={(e) => setSelectedClassId(e.target.value)}
+                 required
+               >
+                 <option value="">-- Choose Class --</option>
+                 {classLevels?.map(c => (
+                   <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
+                 ))}
+               </select>
+             </AdminField>
+
+             <AdminField label="Section (Optional)">
+               <select 
+                 style={css.input} 
+                 value={selectedSectionId} 
+                 onChange={(e) => setSelectedSectionId(e.target.value)}
+                 disabled={!selectedClassId || loadingSections}
+               >
+                 <option value="">{loadingSections ? "Loading..." : "-- Choose Section --"}</option>
+                 {sections.map(s => (
+                   <option key={s.id} value={s.id}>Section {s.name} (Cap: {s.capacity})</option>
+                 ))}
+               </select>
+               {selectedSectionId && <span style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, display: "block" }}>Note: Enrollment will fail with 400 if section is full.</span>}
+             </AdminField>
+
+             <AdminField label="Parent User ID (Optional)">
+               <input 
+                 style={css.input}
+                 placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+                 value={parentUserId}
+                 onChange={(e) => setParentUserId(e.target.value)}
+               />
+               <span style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, display: "block" }}>UUID of an existing parent account to auto-link.</span>
+             </AdminField>
+
+             <button 
+               type="submit"
+               style={{ ...css.btnPrimary, width: "100%", marginTop: "10px" }}
+               disabled={isEnrolling || !selectedClassId}
+             >
+               {isEnrolling && <AdminSpinner />}
+               {isEnrolling ? "Enrolling Student..." : "Complete Enrollment"}
+             </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN FEE MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+
+function AdminFeeModal({ open, student, currentTerm, onClose, onSuccess }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "tuition",
+    amount: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (open) {
+      setFormData({ name: "", category: "tuition", amount: "" });
+      setError(null);
+    }
+  }, [open]);
+
+  if (!open || !student) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentTerm) {
+      setError("No active academic term found. Cannot create fee.");
+      return;
+    }
+    
+    const amountNum = parseFloat(formData.amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      setError("Please enter a valid amount greater than 0.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await api.createFee({
+        name: formData.name.trim(),
+        category: formData.category,
+        amount: amountNum,
+        studentId: student.id,
+        academicTermId: currentTerm.id
+      });
+      onSuccess();
+    } catch (err) {
+      setError(err.message || "Failed to create fee.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const nameStr = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || "Student";
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      animation: "fadeIn 0.2s"
+    }}>
+      <div style={{
+        ...css.card, width: 450, maxWidth: "90%", position: "relative"
+      }}>
+        <button
+          onClick={onClose}
+          style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "var(--text-secondary)" }}
+        >
+          &times;
+        </button>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: "var(--text)", marginBottom: 8 }}>
+          Assess Fee
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: 14, marginBottom: 20 }}>
+          Create a new fee for <strong>{nameStr}</strong> ({student.studentId || student.id.substring(0,8)}).
+        </p>
+
+        {error && (
+          <div style={{ ...css.alertError, marginBottom: 16 }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <AdminField label="Fee Name" required>
+            <input
+              type="text"
+              style={css.input}
+              placeholder="e.g. Tuition Fee — Term 1"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+          </AdminField>
+
+          <AdminField label="Category" required>
+            <select
+              style={css.input}
+              value={formData.category}
+              onChange={e => setFormData({ ...formData, category: e.target.value })}
+              required
+            >
+              <option value="tuition">Tuition</option>
+              <option value="registration">Registration</option>
+              <option value="exam">Exam</option>
+              <option value="sports">Sports</option>
+              <option value="other">Other</option>
+            </select>
+          </AdminField>
+
+          <AdminField label="Amount ($)" required>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              style={css.input}
+              placeholder="0.00"
+              value={formData.amount}
+              onChange={e => setFormData({ ...formData, amount: e.target.value })}
+              required
+            />
+          </AdminField>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 8 }}>
+            <button type="button" style={css.btnGhost} onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+            <button type="submit" style={css.btnPrimary} disabled={loading}>
+              {loading ? "Saving..." : "Create Fee"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STUDENT DIRECTORY COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+function StudentDirectorySection({ onBack }) {
+  const { classLevels, activeAcademicYear, currentTerm } = useAuth();
+  
+  const [studentsData, setStudentsData] = useState({ data: [], total: 0, page: 1, limit: 20 });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [limit, setLimit] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  const [feeModalOpen, setFeeModalOpen] = useState(false);
+  const [selectedFeeStudent, setSelectedFeeStudent] = useState(null);
+
+  useEffect(() => {
+    fetchStudents(currentPage, limit, selectedClassId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, limit, selectedClassId, activeAcademicYear]);
+
+  const fetchStudents = (page, lmt, classLevelId) => {
+    setLoading(true);
+    setError(null);
+    const params = {
+      page,
+      limit: lmt,
+      ...(activeAcademicYear && { academicYearId: activeAcademicYear.id }),
+      ...(classLevelId && { classLevelId }),
+    };
+
+    api.getStudentsPaginated(params)
+      .then(res => {
+         if (res && res.data) {
+           setStudentsData({
+             data: res.data,
+             total: res.total || 0,
+             page: res.page || 1,
+             limit: res.limit || 20
+           });
+         } else if (Array.isArray(res)) {
+           setStudentsData({ data: res, total: res.length, page: 1, limit: res.length });
+         } else {
+           setStudentsData({ data: [], total: 0, page: 1, limit: 20 });
+         }
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(p => p - 1);
+  };
+
+  const handleNextPage = () => {
+    const totalPages = Math.ceil(studentsData.total / limit);
+    if (currentPage < totalPages) setCurrentPage(p => p + 1);
+  };
+
+  const handleOpenFeeModal = (student) => {
+    setSelectedFeeStudent(student);
+    setFeeModalOpen(true);
+  };
+
+  const handleFeeSuccess = () => {
+    setFeeModalOpen(false);
+    setSelectedFeeStudent(null);
+    setSuccessMessage("Fee successfully assessed to the student.");
+    setTimeout(() => setSuccessMessage(null), 3000);
+  };
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Student Directory</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+            Browse and filter all enrolled students in the active academic year.
+          </p>
+        </div>
+        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+      </div>
+
+      <div style={{ ...css.card, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 16 }}>
+          <AdminField label="Filter by Class">
+            <select style={{ ...css.input, minWidth: 200 }} value={selectedClassId} onChange={(e) => { setSelectedClassId(e.target.value); setCurrentPage(1); }}>
+              <option value="">All Classes</option>
+              {classLevels?.map(c => (
+                <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
+              ))}
+            </select>
+          </AdminField>
+          <AdminField label="Items per page">
+            <select style={{ ...css.input, width: 100 }} value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setCurrentPage(1); }}>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </AdminField>
+        </div>
+
+        {error && <div style={{ color: "#e53e3e", marginBottom: 16, fontSize: 13 }}>{error}</div>}
+        {successMessage && <div style={{ marginBottom: 16 }}><AdminAlert type="success" message={successMessage} /></div>}
+
+        <div className="table-outer">
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Email / Contact</th>
+                <th>Class Information</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+               {loading ? (
+                 <tr>
+                   <td colSpan={6} style={{ textAlign: "center", padding: "40px 0" }}>
+                     <AdminSpinner />
+                   </td>
+                 </tr>
+               ) : studentsData.data.length === 0 ? (
+                 <tr>
+                   <td colSpan={6} style={{ textAlign: "center", padding: "40px 0", color: "var(--text-secondary)" }}>
+                     No students found matching your criteria.
+                   </td>
+                 </tr>
+               ) : (
+                 studentsData.data.map((student) => {
+                   const { id, studentId, firstName, lastName, email, phone, status, isActive, enrollments } = student;
+                   const name = `${firstName || ''} ${lastName || ''}`.trim() || student.name || "Unknown";
+                   
+                   let classInfo = "Unassigned";
+                   if (enrollments && enrollments.length > 0) {
+                     const currentEnr = enrollments[0]; 
+                     classInfo = `${currentEnr.classLevel?.name || "Unknown Class"}`;
+                     if (currentEnr.section) classInfo += ` - Section ${currentEnr.section.name || ""}`;
+                   } else if (student.classLevel) {
+                     classInfo = student.classLevel.name || "";
+                   }
+
+                   return (
+                     <tr key={id}>
+                       <td style={{ fontWeight: 600, fontSize: 13 }}>{studentId || id.substring(0,8)}</td>
+                       <td>
+                         <div style={{ fontWeight: 600, color: "var(--text)" }}>{name}</div>
+                       </td>
+                       <td style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                         {email || phone || "N/A"}
+                       </td>
+                       <td style={{ fontSize: 13, color: "var(--text-secondary)" }}>{classInfo}</td>
+                       <td>
+                         <AdminStatusBadge isActive={isActive === true || status === "active" || status === "Active"} />
+                       </td>
+                       <td>
+                         <button
+                           style={{ ...css.btnGhost, padding: "4px 8px", fontSize: 12, display: "flex", alignItems: "center", gap: 6, color: "#667eea", borderColor: "rgba(102, 126, 234, 0.3)" }}
+                           onClick={() => handleOpenFeeModal(student)}
+                           title="Assess Fee"
+                         >
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                           Charge Fee
+                         </button>
+                       </td>
+                     </tr>
+                   );
+                 })
+               )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Controls */}
+        {!loading && studentsData.total > 0 && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, studentsData.total)} of {studentsData.total} students
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button 
+                style={{ ...css.btnGhost, padding: "6px 12px", opacity: currentPage === 1 ? 0.5 : 1 }} 
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <button 
+                style={{ ...css.btnGhost, padding: "6px 12px", opacity: currentPage * limit >= studentsData.total ? 0.5 : 1 }} 
+                onClick={handleNextPage}
+                disabled={currentPage * limit >= studentsData.total}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROMOTIONS SECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+function PromotionsSection({ onBack }) {
+  const { classLevels, activeAcademicYear } = useAuth();
+  
+  const [activeTab, setActiveTab] = useState("bulk");
+  const [academicYears, setAcademicYears] = useState([]);
+  
+  // Bulk State
+  const [bulkClassId, setBulkClassId] = useState("");
+  const [bulkToYearId, setBulkToYearId] = useState("");
+  const [bulkPreview, setBulkPreview] = useState(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkError, setBulkError] = useState(null);
+  const [bulkSuccess, setBulkSuccess] = useState(null);
+
+  // Manual State
+  const [manualClassId, setManualClassId] = useState(""); // For filtering students
+  const [manualStudents, setManualStudents] = useState([]);
+  const [manualSelectedStudentId, setManualSelectedStudentId] = useState("");
+  const [manualToYearId, setManualToYearId] = useState("");
+  const [manualToClassId, setManualToClassId] = useState("");
+  const [manualSectionId, setManualSectionId] = useState("");
+  const [manualSections, setManualSections] = useState([]);
+  const [manualIsRepeating, setManualIsRepeating] = useState(false);
+  
+  const [manualLoading, setManualLoading] = useState(false);
+  const [manualError, setManualError] = useState(null);
+  const [manualSuccess, setManualSuccess] = useState(null);
+
+  // Fetch Academic Years on Mount
+  useEffect(() => {
+    api.getAcademicYears().then(res => {
+      setAcademicYears(Array.isArray(res) ? res : res.data || []);
+    }).catch(console.error);
+  }, []);
+
+  // Fetch Manual Students when manualClassId changes
+  useEffect(() => {
+    if (!manualClassId) {
+      setManualStudents([]);
+      setManualSelectedStudentId("");
+      return;
+    }
+    const params = { limit: 1000, classLevelId: manualClassId };
+    if (activeAcademicYear) params.academicYearId = activeAcademicYear.id;
+    
+    api.getStudentsPaginated(params).then(res => {
+      setManualStudents(Array.isArray(res) ? res : res.data || []);
+    }).catch(console.error);
+  }, [manualClassId, activeAcademicYear]);
+
+  // Fetch specific sections when manualToClassId changes
+  useEffect(() => {
+    if (!manualToClassId) {
+      setManualSections([]);
+      setManualSectionId("");
+      return;
+    }
+    api.getClassSections(manualToClassId).then(data => {
+      setManualSections(Array.isArray(data) ? data : []);
+    }).catch(console.error);
+  }, [manualToClassId]);
+
+  // Handle Bulk Preview
+  const handleBulkPreview = async () => {
+    if (!bulkClassId || !activeAcademicYear) {
+      setBulkError("Please select a class. Active Academic Year must be set.");
+      return;
+    }
+    setBulkError(null);
+    setBulkSuccess(null);
+    setBulkLoading(true);
+    setBulkPreview(null);
+    
+    try {
+      const res = await api.getPromotionPreview(bulkClassId, activeAcademicYear.id);
+      setBulkPreview(Array.isArray(res) ? res : res.data || []);
+    } catch (err) {
+      setBulkError(err.message || "Failed to fetch promotion preview.");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  // Handle Bulk Execute
+  const handleBulkExecute = async () => {
+    if (!bulkClassId || !bulkToYearId || !activeAcademicYear) {
+      setBulkError("Class and Target Academic Year must be selected.");
+      return;
+    }
+    setBulkError(null);
+    setBulkLoading(true);
+    
+    try {
+      await api.bulkPromoteClass({
+        classLevelId: bulkClassId,
+        fromAcademicYearId: activeAcademicYear.id,
+        toAcademicYearId: bulkToYearId
+      });
+      setBulkSuccess("Bulk promotion executed successfully.");
+      setBulkPreview(null); // Clear preview after success
+    } catch (err) {
+      setBulkError(err.message || "Failed to execute bulk promotion.");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  // Handle Manual Execute
+  const handleManualExecute = async (e) => {
+    e.preventDefault();
+    if (!manualSelectedStudentId || !manualToYearId || !manualToClassId || !activeAcademicYear) {
+      setManualError("Please fill out all required fields.");
+      return;
+    }
+    setManualError(null);
+    setManualLoading(true);
+    
+    try {
+      await api.manualPromoteStudent({
+        studentId: manualSelectedStudentId,
+        fromAcademicYearId: activeAcademicYear.id,
+        toAcademicYearId: manualToYearId,
+        classLevelId: manualToClassId,
+        sectionId: manualSectionId || undefined,
+        isRepeating: manualIsRepeating
+      });
+      setManualSuccess("Manual promotion recorded successfully.");
+      
+      // Reset some fields
+      setManualSelectedStudentId("");
+      setManualIsRepeating(false);
+    } catch (err) {
+      setManualError(err.message || "Failed to execute manual promotion.");
+    } finally {
+      setManualLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Student Promotions</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+            Manage end-of-year class promotions or manual student repetitions.
+          </p>
+        </div>
+        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+      </div>
+
+      <div style={{ ...css.card, marginBottom: 20 }}>
+        {/* Tabs */}
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 24 }}>
+          <button
+            style={{ 
+              padding: "12px 24px", 
+              background: "none", 
+              border: "none", 
+              borderBottom: activeTab === "bulk" ? "2px solid #667eea" : "2px solid transparent",
+              color: activeTab === "bulk" ? "#667eea" : "var(--text-secondary)",
+              fontWeight: activeTab === "bulk" ? 600 : 400,
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onClick={() => setActiveTab("bulk")}
+          >
+            Bulk Class Promotion
+          </button>
+          <button
+            style={{ 
+              padding: "12px 24px", 
+              background: "none", 
+              border: "none", 
+              borderBottom: activeTab === "manual" ? "2px solid #667eea" : "2px solid transparent",
+              color: activeTab === "manual" ? "#667eea" : "var(--text-secondary)",
+              fontWeight: activeTab === "manual" ? 600 : 400,
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onClick={() => setActiveTab("manual")}
+          >
+            Manual Override / Repeat
+          </button>
+        </div>
+
+        {/* Bulk Tab Content */}
+        {activeTab === "bulk" && (
+          <div style={{ animation: "fadeIn 0.3s ease-out" }}>
+            {bulkError && <div style={{ marginBottom: 16 }}><AdminAlert type="error" message={bulkError} /></div>}
+            {bulkSuccess && <div style={{ marginBottom: 16 }}><AdminAlert type="success" message={bulkSuccess} /></div>}
+            
+            {!activeAcademicYear && (
+              <div style={{ marginBottom: 16 }}>
+                <AdminAlert type="error" message="No active academic year is set. Promotions cannot be processed." />
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 24 }}>
+              <AdminField label="Current Class Level" required>
+                <select style={{ ...css.input, minWidth: 200 }} value={bulkClassId} onChange={e => setBulkClassId(e.target.value)}>
+                  <option value="">-- Select Class to Promote --</option>
+                  {classLevels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </AdminField>
+              <AdminField label="Target Academic Year" required>
+                <select style={{ ...css.input, minWidth: 200 }} value={bulkToYearId} onChange={e => setBulkToYearId(e.target.value)}>
+                  <option value="">-- Select Next Year --</option>
+                  {academicYears.map(y => <option key={y.id} value={y.id}>{y.year}</option>)}
+                </select>
+              </AdminField>
+              <button 
+                style={{ ...css.btnGhost, padding: "10px 20px" }} 
+                onClick={handleBulkPreview} 
+                disabled={bulkLoading || !activeAcademicYear}
+              >
+                {bulkLoading ? "Loading..." : "Preview Promotion"}
+              </button>
+            </div>
+
+            {bulkPreview && (
+              <div style={{ marginTop: 24, padding: 16, background: "var(--bg-secondary)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <h3 style={{ margin: "0 0 16px 0", fontSize: 16, color: "var(--text)", fontWeight: 600 }}>Preview Results</h3>
+                <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 16 }}>
+                  {bulkPreview.length} students found in this class eligible for promotion. 
+                </p>
+                <div className="table-outer" style={{ maxHeight: 300, overflowY: "auto", marginBottom: 16 }}>
+                  <table className="user-table">
+                    <thead>
+                      <tr>
+                        <th>Student Name</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkPreview.map((student, idx) => (
+                        <tr key={student.id || idx}>
+                          <td style={{ fontWeight: 500, color: "var(--text)" }}>
+                            {student.firstName || student.name} {student.lastName || ''}
+                          </td>
+                          <td style={{ color: "#48bb78", fontSize: 13 }}>Ready to Promote</td>
+                        </tr>
+                      ))}
+                      {bulkPreview.length === 0 && (
+                        <tr>
+                          <td colSpan={2} style={{ textAlign: "center", padding: "20px 0", color: "var(--text-secondary)" }}>No active students found in this class.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <button 
+                    style={{ ...css.btnPrimary, padding: "12px 24px" }} 
+                    onClick={handleBulkExecute}
+                    disabled={bulkLoading || bulkPreview.length === 0 || !bulkToYearId}
+                  >
+                    {bulkLoading ? "Processing..." : "Execute Bulk Promotion"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Manual Tab Content */}
+        {activeTab === "manual" && (
+          <div style={{ animation: "fadeIn 0.3s ease-out" }}>
+            {manualError && <div style={{ marginBottom: 16 }}><AdminAlert type="error" message={manualError} /></div>}
+            {manualSuccess && <div style={{ marginBottom: 16 }}><AdminAlert type="success" message={manualSuccess} /></div>}
+
+            {!activeAcademicYear && (
+              <div style={{ marginBottom: 16 }}>
+                <AdminAlert type="error" message="No active academic year is set. Promotions cannot be processed." />
+              </div>
+            )}
+
+            <form onSubmit={handleManualExecute}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
+                {/* Find Student Area */}
+                <div style={{ flex: 1, minWidth: 300, padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
+                  <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "var(--text)" }}>1. Select Student</h3>
+                  <AdminField label="Filter by Current Class">
+                    <select style={css.input} value={manualClassId} onChange={e => setManualClassId(e.target.value)}>
+                      <option value="">-- Select Class --</option>
+                      {classLevels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </AdminField>
+                  <AdminField label="Student" required>
+                    <select style={css.input} value={manualSelectedStudentId} onChange={e => setManualSelectedStudentId(e.target.value)} required disabled={!manualClassId}>
+                      <option value="">{manualClassId ? "-- Select Student --" : "Select Class first"}</option>
+                      {manualStudents.map(s => (
+                        <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.studentId})</option>
+                      ))}
+                    </select>
+                  </AdminField>
+                </div>
+
+                {/* Target Promotion Area */}
+                <div style={{ flex: 1, minWidth: 300, padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
+                  <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "var(--text)" }}>2. Promotion Target</h3>
+                  <AdminField label="Target Academic Year" required>
+                    <select style={css.input} value={manualToYearId} onChange={e => setManualToYearId(e.target.value)} required>
+                      <option value="">-- Select Year --</option>
+                      {academicYears.map(y => <option key={y.id} value={y.id}>{y.year}</option>)}
+                    </select>
+                  </AdminField>
+                  <AdminField label="Target Class Level" required>
+                    <select style={css.input} value={manualToClassId} onChange={e => setManualToClassId(e.target.value)} required>
+                      <option value="">-- Select Target Class --</option>
+                      {classLevels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </AdminField>
+                  <AdminField label="Assign Section (Optional)">
+                    <select style={css.input} value={manualSectionId} onChange={e => setManualSectionId(e.target.value)} disabled={!manualToClassId}>
+                      <option value="">-- Unassigned --</option>
+                      {manualSections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </AdminField>
+                  <div style={{ marginTop: 12 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text)", cursor: "pointer" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={manualIsRepeating} 
+                        onChange={e => setManualIsRepeating(e.target.checked)} 
+                        style={{ width: 16, height: 16 }}
+                      />
+                      Student is repeating the class
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button type="submit" style={{ ...css.btnPrimary, padding: "12px 24px" }} disabled={manualLoading || !activeAcademicYear}>
+                  {manualLoading ? "Processing..." : "Execute Manual Promotion"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -844,13 +2290,13 @@ function AdministrationView({ onBack }) {
   const triggerRefresh = () => setRefreshKey((k) => k + 1);
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: "100%", padding: "0 0 40px", color: "#2C2C2A" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: "100%", padding: "0 0 40px", color: "var(--text)" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#2C2C2A", margin: 0 }}>Administration</h1>
-          <p style={{ fontSize: 13, color: "#888780", marginTop: 4, lineHeight: 1.5 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Administration</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.5 }}>
             Manage teacher, student, and parent accounts for this school. All changes are applied immediately.
           </p>
         </div>
@@ -874,14 +2320,14 @@ function AdministrationView({ onBack }) {
 
 const css = {
   card: {
-    background: "rgba(255, 255, 255, 0.7)",
+    background: "var(--glass)",
     backdropFilter: "blur(12px)",
     WebkitBackdropFilter: "blur(12px)",
-    border: "1px solid rgba(232, 230, 223, 0.4)",
+    border: "1px solid var(--glass-border)",
     borderRadius: 16,
     padding: "24px",
     marginBottom: 20,
-    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.03)",
+    boxShadow: "var(--card-shadow)",
   },
   cardHeader: { display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 20 },
   iconWrap: (bg) => ({
@@ -890,13 +2336,13 @@ const css = {
     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
     boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
   }),
-  cardTitle: { fontSize: 16, fontWeight: 700, color: "#1A202C", margin: 0, marginBottom: 4 },
-  cardSub:   { fontSize: 13, color: "#718096", margin: 0, lineHeight: 1.6 },
-  divider:   { height: 1, background: "rgba(226, 232, 240, 0.6)", margin: "0 0 20px" },
+  cardTitle: { fontSize: 16, fontWeight: 700, color: "var(--text)", margin: 0, marginBottom: 4 },
+  cardSub:   { fontSize: 13, color: "var(--text-secondary)", margin: 0, lineHeight: 1.6 },
+  divider:   { height: 1, background: "var(--border)", margin: "0 0 20px" },
   input: {
     width: "100%", padding: "12px 16px",
-    border: "1.5px solid rgba(226, 232, 240, 0.8)", borderRadius: 10,
-    fontSize: 14, color: "#2D3748", background: "rgba(255, 255, 255, 0.6)",
+    border: "1.5px solid var(--border)", borderRadius: 10,
+    fontSize: 14, color: "var(--text)", background: "var(--input-bg)",
     outline: "none", transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
     boxSizing: "border-box",
   },
@@ -928,15 +2374,15 @@ const css = {
   btnGhost: {
     display: "inline-flex", alignItems: "center",
     padding: "10px 18px", borderRadius: 10, fontSize: 14, fontWeight: 500,
-    cursor: "pointer", background: "rgba(255, 255, 255, 0.4)",
-    border: "1px solid rgba(226, 232, 240, 0.8)", color: "#4A5568",
+    cursor: "pointer", background: "var(--glass)",
+    border: "1px solid var(--border)", color: "var(--text-secondary)",
     transition: "all 0.2s scale 0.1s",
     backdropFilter: "blur(4px)",
   },
   btnSmall: {
     padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-    cursor: "pointer", border: "1px solid rgba(226, 232, 240, 0.8)",
-    background: "rgba(237, 242, 247, 0.6)", color: "#4A5568",
+    cursor: "pointer", border: "1px solid var(--border)",
+    background: "var(--surface-muted)", color: "var(--text-secondary)",
     transition: "background 0.2s",
   },
 };
@@ -946,6 +2392,8 @@ const css = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
+  const { activeAcademicYear } = useAuth();
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState("dashboard");
   const [users, setUsers]             = useState([]);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -966,37 +2414,72 @@ export default function AdminDashboard() {
       <div className="dashboard admin-dashboard-container">
         <style>
           {`
-            @keyframes spin { to { transform: rotate(360deg); } }
             @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            
             .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
-            
-            /* Mobile Responsiveness */
             @media (max-width: 860px) {
               .dashboard { padding: 12px !important; }
-              .grid-stats { grid-template-columns: 1fr !important; gap: 12px !important; }
-              .grid-main { grid-template-columns: 1fr !important; gap: 20px !important; }
-              .administration-content { grid-template-columns: 1fr !important; gap: 24px !important; }
-              
-              .modal-content { width: 95% !important; margin: 10px !important; padding: 20px !important; border-radius: 20px !important; }
-              .form-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-              
-              .table-outer { overflow-x: auto !important; -webkit-overflow-scrolling: touch; border-radius: 12px; }
-              .user-table { min-width: 700px; }
-              
-              .card-header { flex-direction: column !important; align-items: stretch !important; gap: 14px; }
-              .header-actions { width: 100%; flex-direction: column; gap: 8px; }
-              .search-input { width: 100% !important; }
-              
-              .dashboard-header h2 { font-size: 1.5rem !important; }
             }
-            .table-outer::-webkit-scrollbar { height: 5px; }
-            .table-outer::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
           `}
         </style>
         <AdministrationView onBack={() => setCurrentView("dashboard")} />
       </div>
     );
+  }
+
+  if (currentView === "academic") {
+    return (
+      <div className="dashboard admin-dashboard-container">
+        <style>
+          {`
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          `}
+        </style>
+        <AcademicOverviewSection onBack={() => setCurrentView("dashboard")} />
+      </div>
+    );
+  }
+
+  if (currentView === "enrollment") {
+    return (
+       <div className="dashboard admin-dashboard-container">
+        <style>
+          {`
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          `}
+        </style>
+        <EnrollmentSection onBack={() => setCurrentView("dashboard")} />
+      </div>
+    )
+  }
+
+  if (currentView === "students") {
+    return (
+       <div className="dashboard admin-dashboard-container">
+        <style>
+          {`
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          `}
+        </style>
+        <StudentDirectorySection onBack={() => setCurrentView("dashboard")} />
+      </div>
+    )
+  }
+
+  if (currentView === "promotions") {
+    return (
+       <div className="dashboard admin-dashboard-container">
+        <style>
+          {`
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          `}
+        </style>
+        <PromotionsSection onBack={() => setCurrentView("dashboard")} />
+      </div>
+    )
   }
 
   const teachers = users.filter((u) => u.role === "teacher").length;
@@ -1005,10 +2488,27 @@ export default function AdminDashboard() {
   const inactive = users.filter((u) => !u.isActive).length;
 
   const statCards = [
-    { title: "Students",        value: students, color: "#667eea", icon: "👥" },
-    { title: "Teachers",        value: teachers, color: "#48bb78", icon: "👨‍🏫" },
-    { title: "Parents",         value: parents,  color: "#ed8936", icon: "👪" },
-    { title: "Inactive Users",  value: inactive, color: "#f56565", icon: "⚠️" },
+    {
+      title: "Current Session", value: activeAcademicYear?.year || "None Set", color: "#805ad5",
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    },
+    {
+      title: "Students", value: students, color: "#667eea",
+ 
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 
+    },
+    { 
+      title: "Teachers", value: teachers, color: "#48bb78", 
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> 
+    },
+    { 
+      title: "Parents", value: parents, color: "#ed8936", 
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 
+    },
+    { 
+      title: "Inactive Users", value: inactive, color: "#f56565", 
+      icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 
+    },
   ];
 
   const recentUsers = [...users].slice(0, 8);
@@ -1039,13 +2539,55 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Quick Action */}
-      <div style={{ marginBottom: 24 }}>
+      {/* Quick Actions */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
         <button
-          style={{ ...css.btnPrimary, padding: "12px 22px", fontSize: 14, gap: 8 }}
+          style={{ ...css.btnPrimary, padding: "12px 22px", fontSize: 14, gap: 10 }}
           onClick={() => setCurrentView("administration")}
         >
-          👤 Manage Users & Accounts
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          Manage Users & Accounts
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#667eea", borderColor: "#667eea" }}
+          onClick={() => setCurrentView("academic")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Academic Year & Classes
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#48bb78", borderColor: "#48bb78" }}
+          onClick={() => setCurrentView("enrollment")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Student Enrollment
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#854F0B", borderColor: "#854F0B" }}
+          onClick={() => setCurrentView("students")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Student Directory
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#ed8936", borderColor: "#ed8936" }}
+          onClick={() => setCurrentView("promotions")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="13 2 13 9 20 9"/><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="20"/>
+          </svg>
+          Student Promotions
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#805ad5", borderColor: "#805ad5" }}
+          onClick={() => navigate("/notifications")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          System Notifications
         </button>
       </div>
 
@@ -1077,18 +2619,36 @@ export default function AdminDashboard() {
           <h3>Account Summary</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
             {[
-              { label: "Total Users",    value: users.length,  color: "#667eea", icon: "👥" },
-              { label: "Active Users",   value: users.filter(u => u.isActive).length, color: "#48bb78", icon: "✅" },
-              { label: "Inactive Users", value: inactive,      color: "#f56565", icon: "🚫" },
-              { label: "Teachers",       value: teachers,      color: "#ed8936", icon: "👨‍🏫" },
-              { label: "Students",       value: students,      color: "#667eea", icon: "📚" },
-              { label: "Parents",        value: parents,       color: "#0F6E56", icon: "👪" },
+              { 
+                label: "Total Users", value: users.length, color: "#667eea", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 
+              },
+              { 
+                label: "Active Users", value: users.filter(u => u.isActive).length, color: "#48bb78", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 
+              },
+              { 
+                label: "Inactive Users", value: inactive, color: "#f56565", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 
+              },
+              { 
+                label: "Teachers", value: teachers, color: "#ed8936", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> 
+              },
+              { 
+                label: "Students", value: students, color: "#667eea", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 
+              },
+              { 
+                label: "Parents", value: parents, color: "#0F6E56", 
+                icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 
+              },
             ].map((item) => (
               <div
                 key={item.label}
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#F7FAFC", borderRadius: 9, border: "1px solid #EDF2F7" }}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "var(--surface-muted)", borderRadius: 9, border: "1px solid var(--border)" }}
               >
-                <span style={{ fontSize: 13, color: "#5F5E5A" }}>{item.icon} {item.label}</span>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{item.icon} {item.label}</span>
                 <span style={{ fontSize: 16, fontWeight: 700, color: item.color }}>
                   {statsLoading ? "…" : item.value}
                 </span>

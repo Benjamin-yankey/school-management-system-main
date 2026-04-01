@@ -77,6 +77,13 @@ export class AdmissionService {
     });
   }
 
+  getApplicationsByStatus(status: ApplicationStatus): Promise<Application[]> {
+    return this.appRepo.find({
+      where: { status },
+      order: { submittedAt: 'DESC' },
+    });
+  }
+
   async updateApplicationStatus(id: string, dto: UpdateApplicationStatusDto): Promise<Application> {
     const application = await this.appRepo.findOneBy({ id });
     if (!application) throw new NotFoundException('Application not found');

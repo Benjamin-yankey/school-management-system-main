@@ -121,11 +121,14 @@ export const AuthProvider = ({ children }) => {
             id: profile.id || payload?.sub,
             email: profile.email || payload?.email,
             name:
-              profile.firstName && profile.lastName
-                ? `${profile.firstName} ${profile.lastName}`
-                : (profile.email || payload?.email)?.split("@")[0] || "User",
+              [profile.firstName, profile.middleName, profile.lastName]
+                .filter(Boolean)
+                .join(" ") || 
+              (profile.email || payload?.email)?.split("@")[0] || 
+              "User",
             firstName: profile.firstName || "",
             lastName: profile.lastName || "",
+            middleName: profile.middleName || "",
             phone: profile.phone || "",
             role: profile.role || payload?.role || selectedRole,
             schoolId: profile.schoolId,
@@ -133,7 +136,7 @@ export const AuthProvider = ({ children }) => {
             avatar:
               profile.firstName && profile.lastName
                 ? `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase()
-                : (profile.email || payload?.email)?.[0].toUpperCase() || "U",
+                : (profile.firstName || (profile.email || payload?.email)?.[0] || "U").toUpperCase(),
           };
         }
 

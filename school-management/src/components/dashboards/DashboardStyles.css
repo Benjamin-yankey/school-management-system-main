@@ -1020,11 +1020,60 @@
 }
 
 .view-more-link:hover {
-  color: #7c3aed;
-  transform: translateX(2px);
+color: #7c3aed;
+transform: translateX(2px);
+}
+
+/* Admin Dashboard Specific Responsiveness */
+@media (max-width: 1024px) {
+.admin-dashboard-container {
+  flex-direction: column !important;
+}
+
+.admin-sidebar {
+  width: 100% !important;
+  height: auto !important;
+  position: relative !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 1rem !important;
+}
+
+.admin-main-content {
+  padding: 1.5rem !important;
+}
+}
+
+@media (max-width: 768px) {
+.admin-stat-cards {
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
+}
+
+.admin-header-row {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 1rem !important;
+}
+
+.admin-header-actions {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.5rem !important;
+}
+
+.admin-table-container {
+  overflow-x: auto !important;
+}
+
+.admin-grid-2col {
+  grid-template-columns: 1fr !important;
+}
 }
 
 body[data-theme="dark"] .panel-footer {
+
   border-top-color: #1f2937;
 }
 

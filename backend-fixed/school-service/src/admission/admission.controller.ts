@@ -5,12 +5,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AdmissionService } from './admission.service';
 import { CreateAdmissionYearDto } from './dto/create-admission-year.dto';
 import { ApplyDto } from './dto/apply.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
+import { ApplicationStatus } from './application.entity';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { MustResetGuard } from '../common/guards/must-reset.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -60,6 +62,16 @@ export class AdmissionController {
   @Patch('years/:id/close')
   closeYear(@Param('id') id: string) {
     return this.admissionService.closeYear(id);
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin', 'administration')
+  @Get('applications')
+  findAllApplications(@Query('status') status?: ApplicationStatus) {
+    if (status) {
+      return this.admissionService.getApplicationsByStatus(status);
+    }
+    return this.admissionService.findAllYears(); // Fallback to all years if no status
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)

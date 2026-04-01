@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { 
   Building2, Users, GraduationCap, DollarSign, Activity, 
   Plus, Search, Filter, MoreHorizontal, ShieldCheck,
   TrendingUp, Calendar, AlertCircle, CheckCircle2, ChevronRight,
   ArrowLeft, Mail, Trash2, UserPlus, UserCog, GraduationCap as StudentIcon,
-  Heart
+  Heart, Menu, X, Bell
 } from "lucide-react";
 import "./SuperAdminDashboard.css";
 
@@ -35,7 +36,9 @@ const StatCard = ({ title, value, subValue, icon: Icon, color, trend }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function SuperAdminDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState([]);
   const [stats, setStats] = useState({
@@ -65,12 +68,26 @@ export default function SuperAdminDashboard() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [userFormData, setUserFormData] = useState({
-    email: "", role: "teacher", firstName: "", lastName: ""
+    email: "", role: "teacher", firstName: "", lastName: "", middleName: ""
+  });
+
+  // Academic Management
+  const [academicYears, setAcademicYears] = useState([]);
+  const [activeYear, setActiveYear] = useState(null);
+  const [showYearModal, setShowYearModal] = useState(false);
+  const [newYearName, setNewYearName] = useState("");
+  const [showTermModal, setShowTermModal] = useState(false);
+  const [selectedYearForTerm, setSelectedYearForTerm] = useState(null);
+  const [newTermData, setNewTermData] = useState({
+    name: "", startDate: "", endDate: "", isCurrent: false
   });
 
   useEffect(() => {
     fetchGlobalData();
-  }, [selectedSchool]); // Re-fetch on select or clear
+    if (activeTab === 'academic') {
+      fetchAcademicData();
+    }
+  }, [selectedSchool, activeTab]); // Re-fetch on select, clear or tab change
 
   const fetchGlobalData = async () => {
     setLoading(true);
@@ -97,10 +114,95 @@ export default function SuperAdminDashboard() {
       if (selectedSchool) {
         fetchSchoolUsers(selectedSchool.id);
       }
+      
+      // Also fetch active year for the stats
+      const active = await api.getActiveAcademicYear();
+      setActiveYear(active);
+      
     } catch (error) {
       console.error("Sync failed:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAcademicData = async () => {
+    try {
+      const years = await api.getAcademicYears();
+      const yearsWithTerms = await Promise.all(
+        years.map(async (y) => {
+          const terms = await api.getAcademicTerms(y.id);
+          return { ...y, terms };
+        })
+      );
+      setAcademicYears(yearsWithTerms);
+      const active = await api.getActiveAcademicYear();
+      setActiveYear(active);
+    } catch (error) {
+      console.error("Failed to fetch academic data:", error);
+    }
+  };
+
+  const handleCreateYear = async (e) => {
+    e.preventDefault();
+    setOnboardLoading(true);
+    try {
+      await api.createAcademicYear({ year: newYearName });
+      setNewYearName("");
+      setShowYearModal(false);
+      fetchAcademicData();
+    } catch (err) {
+      setOnboardError(err.message);
+    } finally {
+      setOnboardLoading(false);
+    }
+  };
+
+  const handleActivateYear = async (yearId) => {
+    try {
+      await api.setActiveAcademicYear(yearId);
+      fetchAcademicData();
+    } catch (err) {
+      console.error("Failed to activate year:", err);
+    }
+  };
+
+  const handleCreateTerm = async (e) => {
+    e.preventDefault();
+    setOnboardLoading(true);
+    try {
+      await api.createAcademicTerm({
+        ...newTermData,
+        academicYearId: selectedYearForTerm.id
+      });
+      setNewTermData({ name: "", startDate: "", endDate: "", isCurrent: false });
+      setShowTermModal(false);
+      fetchAcademicData();
+    } catch (err) {
+      setOnboardError(err.message);
+    } finally {
+      setOnboardLoading(false);
+    }
+  };
+
+  const handleActivateTerm = async (termId) => {
+    try {
+      await api.setActiveAcademicTerm(termId);
+      fetchAcademicData();
+    } catch (err) {
+      console.error("Failed to activate term:", err);
+    }
+  };
+
+  const handleSeedClasses = async () => {
+    setOnboardLoading(true);
+    try {
+      await api.seedClassLevels();
+      fetchAcademicData();
+    } catch (err) {
+      console.error("Failed to seed classes:", err);
+    } finally {
+      setOnboardLoading(false);
     }
   };
 
@@ -157,7 +259,7 @@ export default function SuperAdminDashboard() {
     try {
       await api.createUserForSchool(selectedSchool.id, userFormData);
       setShowAddUserModal(false);
-      setUserFormData({ email: "", role: "teacher", firstName: "", lastName: "" });
+      setUserFormData({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
       fetchSchoolUsers(selectedSchool.id);
     } catch (err) {
       setOnboardError(err.message);
@@ -195,8 +297,20 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="super-dashboard-container">
+      {/* Mobile Toggle & Overlay */}
+      <button className="mobile-toggle" onClick={() => setSidebarOpen(true)}>
+        <Menu size={24} />
+      </button>
+      <div 
+        className={`mobile-overlay ${sidebarOpen ? 'open' : ''}`} 
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Side Navigation */}
-      <aside className="super-sidebar">
+      <aside className={`super-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>
+          <X size={24} />
+        </button>
         <div className="sidebar-brand">
           <ShieldCheck size={28} />
           <div className="brand-text">
@@ -205,17 +319,23 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
         <nav className="super-nav">
-          <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+          <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}>
             <Activity size={20} /> Dashboard
           </button>
-          <button className={activeTab === 'schools' ? 'active' : ''} onClick={() => setActiveTab('schools')}>
+          <button className={activeTab === 'schools' ? 'active' : ''} onClick={() => { setActiveTab('schools'); setSidebarOpen(false); }}>
             <Building2 size={20} /> Institutions
           </button>
-          <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
+          <button className={activeTab === 'users' ? 'active' : ''} onClick={() => { setActiveTab('users'); setSidebarOpen(false); }}>
             <Users size={20} /> Identity Control
           </button>
-          <button className={activeTab === 'finance' ? 'active' : ''} onClick={() => setActiveTab('finance')}>
+          <button className={activeTab === 'finance' ? 'active' : ''} onClick={() => { setActiveTab('finance'); setSidebarOpen(false); }}>
             <DollarSign size={20} /> Revenue & Plans
+          </button>
+          <button className={activeTab === 'academic' ? 'active' : ''} onClick={() => { setActiveTab('academic'); setSidebarOpen(false); }}>
+            <Calendar size={20} /> Academic Control
+          </button>
+          <button onClick={() => navigate("/notifications")}>
+            <Bell size={20} /> Notifications
           </button>
         </nav>
         
@@ -240,9 +360,16 @@ export default function SuperAdminDashboard() {
           </div>
           <div className="header-actions">
             <button className="btn-sync" onClick={fetchGlobalData}><Activity size={16} /> Force Sync</button>
-            <button className="btn-primary-super" onClick={() => setShowOnboardModal(true)}>
-              <Plus size={18} /> Onboard School
-            </button>
+            {activeTab === 'academic' && (
+              <button className="btn-primary-super" onClick={() => setShowYearModal(true)}>
+                <Plus size={18} /> Create Academic Year
+              </button>
+            )}
+            {activeTab !== 'academic' && (
+              <button className="btn-primary-super" onClick={() => setShowOnboardModal(true)}>
+                <Plus size={18} /> Onboard School
+              </button>
+            )}
           </div>
         </header>
 
@@ -252,7 +379,7 @@ export default function SuperAdminDashboard() {
               <StatCard title="Total Schools" value={stats.schools} color="#3b82f6" icon={Building2} trend={stats.schools > 0 ? 12 : 0} />
               <StatCard title="Global Students" value={stats.students} color="#10b981" icon={GraduationCap} trend={stats.students > 0 ? 8 : 0} />
               <StatCard title="Global Teachers" value={stats.teachers} color="#8b5cf6" icon={Users} trend={stats.teachers > 0 ? 5 : 0} />
-              <StatCard title="Est. Revenue" value={`$${stats.revenue.toLocaleString()}`} color="#f59e0b" icon={DollarSign} />
+              <StatCard title="Current Session" value={activeYear?.year || "None Active"} color="#f59e0b" icon={Calendar} />
             </div>
 
             <div className="super-grid">
@@ -384,6 +511,84 @@ export default function SuperAdminDashboard() {
                 <button onClick={() => setActiveTab('schools')}>Go to Institutions</button>
               </div>
              </div>
+          </div>
+        )}
+
+        {activeTab === 'academic' && !selectedSchool && (
+          <div className="super-view-animate">
+            <div className="super-stats-row">
+              <StatCard title="Total Years" value={academicYears.length} color="#3b82f6" icon={Calendar} />
+              <StatCard title="Active Session" value={activeYear?.year || "None"} color="#10b981" icon={ShieldCheck} />
+              <StatCard title="Current Term" value={academicYears.find(y => y.isActive)?.terms?.find(t => t.isCurrent)?.name || "None"} color="#8b5cf6" icon={Activity} />
+            </div>
+
+            <div className="super-panel main-table-panel">
+              <div className="panel-header">
+                <h3>Academic Years Management</h3>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="btn-ghost-super" onClick={handleSeedClasses} disabled={onboardLoading}>
+                    {onboardLoading ? <Activity className="spin" size={14} /> : "Seed Standard Classes"}
+                  </button>
+                  <button className="btn-primary-super" onClick={() => setShowYearModal(true)}>
+                    <Plus size={16} /> New Year
+                  </button>
+                </div>
+              </div>
+              
+              <div className="super-table-wrapper">
+                <table className="super-table">
+                  <thead>
+                    <tr>
+                      <th>Academic Year</th>
+                      <th>Terms</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {academicYears.map(year => (
+                      <tr key={year.id}>
+                        <td>
+                          <div className="school-cell">
+                            <strong>{year.year}</strong>
+                            <span>ID: {year.id.slice(-8).toUpperCase()}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="terms-pill-container">
+                            {year.terms?.map(term => (
+                              <span key={term.id} className={`term-pill ${term.isCurrent ? 'active' : ''}`}>
+                                {term.name}
+                                {term.isCurrent && <CheckCircle2 size={10} style={{marginLeft: 4}} />}
+                              </span>
+                            ))}
+                            <button className="btn-add-pill" onClick={() => {
+                              setSelectedYearForTerm(year);
+                              setShowTermModal(true);
+                            }}><Plus size={12} /></button>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`status-label ${year.isActive ? 'active' : 'inactive'}`}>
+                            {year.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            {!year.isActive && (
+                              <button className="btn-ghost-super" onClick={() => handleActivateYear(year.id)}>
+                                Set Active
+                              </button>
+                            )}
+                            <button className="btn-icon-more"><MoreHorizontal size={18} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
@@ -522,10 +727,14 @@ export default function SuperAdminDashboard() {
             
             <form onSubmit={handleAddUserSubmit} className="onboard-form">
               <div className="form-sections-wrap">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                    <div className="input-group-super">
                     <label>First Name</label>
                     <input required value={userFormData.firstName} onChange={e => setUserFormData({...userFormData, firstName: e.target.value})} placeholder="John" />
+                  </div>
+                  <div className="input-group-super">
+                    <label>Middle Name</label>
+                    <input value={userFormData.middleName} onChange={e => setUserFormData({...userFormData, middleName: e.target.value})} placeholder="Quincy" />
                   </div>
                   <div className="input-group-super">
                     <label>Last Name</label>
@@ -555,6 +764,71 @@ export default function SuperAdminDashboard() {
                 <button type="button" className="btn-cancel-super" onClick={() => setShowAddUserModal(false)}>Cancel</button>
                 <button type="submit" className="btn-action-super" disabled={onboardLoading}>
                   {onboardLoading ? <Activity className="spin" size={16} /> : "Create User"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Academic Year Modal */}
+      {showYearModal && (
+        <div className="super-modal-overlay">
+          <div className="super-modal-content">
+            <h3>Create Academic Year</h3>
+            <p className="modal-sub">Define a new session (e.g., 2025/2026).</p>
+            <form onSubmit={handleCreateYear} className="onboard-form">
+              <div className="form-sections-wrap">
+                <div className="input-group-super">
+                  <label>Year Format (YYYY/YYYY)</label>
+                  <input required value={newYearName} onChange={e => setNewYearName(e.target.value)} placeholder="2025/2026" />
+                </div>
+              </div>
+              {onboardError && <div className="super-error-msg">{onboardError}</div>}
+              <div className="modal-footer-btns">
+                <button type="button" className="btn-cancel-super" onClick={() => { setShowYearModal(false); setOnboardError(""); }}>Cancel</button>
+                <button type="submit" className="btn-action-super" disabled={onboardLoading}>
+                  {onboardLoading ? <Activity className="spin" size={16} /> : "Create Year"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Academic Term Modal */}
+      {showTermModal && (
+        <div className="super-modal-overlay">
+          <div className="super-modal-content">
+            <h3>Add Term to {selectedYearForTerm?.year}</h3>
+            <p className="modal-sub">Define a new academic period (e.g., Term 1).</p>
+            <form onSubmit={handleCreateTerm} className="onboard-form">
+              <div className="form-sections-wrap">
+                <div className="input-group-super">
+                  <label>Term Name</label>
+                  <input required value={newTermData.name} onChange={e => setNewTermData({...newTermData, name: e.target.value})} placeholder="e.g. Term 1" />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="input-group-super">
+                    <label>Start Date</label>
+                    <input required type="date" value={newTermData.startDate} onChange={e => setNewTermData({...newTermData, startDate: e.target.value})} />
+                  </div>
+                  <div className="input-group-super">
+                    <label>End Date</label>
+                    <input required type="date" value={newTermData.endDate} onChange={e => setNewTermData({...newTermData, endDate: e.target.value})} />
+                  </div>
+                </div>
+                <div className="checkbox-group-super">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newTermData.isCurrent} onChange={e => setNewTermData({...newTermData, isCurrent: e.target.checked})} />
+                    Set as Current Term
+                  </label>
+                </div>
+              </div>
+              {onboardError && <div className="super-error-msg">{onboardError}</div>}
+              <div className="modal-footer-btns">
+                <button type="button" className="btn-cancel-super" onClick={() => { setShowTermModal(false); setOnboardError(""); }}>Cancel</button>
+                <button type="submit" className="btn-action-super" disabled={onboardLoading}>
+                  {onboardLoading ? <Activity className="spin" size={16} /> : "Add Term"}
                 </button>
               </div>
             </form>

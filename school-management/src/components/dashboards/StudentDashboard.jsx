@@ -2,12 +2,19 @@ import React, { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { 
+  FileText, 
+  BarChart2, 
+  Calendar, 
+  DollarSign, 
+  Bell 
+} from "lucide-react";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 import Announcements from "../Announcements";
 
 const StudentDashboard = () => {
-  const { user } = useAuth();
+  const { user, activeAcademicYear } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([]);
@@ -55,6 +62,11 @@ const StudentDashboard = () => {
 
         // 5. Update stats with real values
         setStats([
+          {
+            title: "Current Session",
+            value: activeAcademicYear?.year || "None Set",
+            color: "#3b82f6",
+          },
           {
             title: "Current GPA",
             value: gpa || "0.0",
@@ -118,22 +130,31 @@ const StudentDashboard = () => {
       label: "View Assignments",
       color: "#8b5cf6",
       path: "/student/assignments",
+      icon: <FileText size={20} />
     },
     {
       label: "Check Grades",
       color: "#10b981",
       path: "/student/grades",
+      icon: <BarChart2 size={20} />
     },
     {
       label: "Download Timetable",
-
       color: "#f59e0b",
       path: "/student/timetable",
+      icon: <Calendar size={20} />
     },
     {
       label: "Pay Fees",
       color: "#ef4444",
       path: "/student/payments",
+      icon: <DollarSign size={20} />
+    },
+    {
+      label: "Notifications",
+      color: "#3b82f6",
+      path: "/notifications",
+      icon: <Bell size={20} />
     },
   ];
 
