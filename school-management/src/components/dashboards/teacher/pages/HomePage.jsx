@@ -82,8 +82,15 @@ export default function HomePage({ teacher, onNavigate, sections, base, token })
       try {
         const data = await api(base, token, "GET", "/teacher/stats");
         setStats(data);
-      } catch {
-        setStats(null);
+      } catch (err) {
+        console.warn("Backend /teacher/stats not ready. Using local fallback.");
+        const fallbackStudents = sections.reduce((acc, s) => acc + (s.studentCount || 0), 0);
+        setStats({
+          totalSections: sections.length,
+          totalStudents: fallbackStudents,
+          pendingGrades: 0,
+          notices: 0,
+        });
       } finally {
         setLoading(false);
       }

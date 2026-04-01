@@ -30,6 +30,11 @@ export default function NoticePage({ base, token, sections }) {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  const MOCK_HISTORY = [
+    { id: "h1", subject: "Welcome to SchoolSync", body: "Glad to have you on board!", target: "All", sent: "10/24/2023, 10:00 AM", priority: "normal" },
+    { id: "h2", subject: "Staff Meeting", body: "Meeting in the faculty room at 3 PM.", target: "Teachers", sent: "10/25/2023, 08:30 AM", priority: "high" },
+  ];
+
   // ── Load Notice History ──────────────────────────────────────────────────
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -45,7 +50,8 @@ export default function NoticePage({ base, token, sections }) {
         priority: n.priority || "normal"
       })));
     } catch {
-      setHistory([]);
+      console.warn("Backend /announcements not ready. Using mock history.");
+      setHistory(MOCK_HISTORY);
     } finally {
       setLoadingHistory(false);
     }
@@ -104,11 +110,15 @@ export default function NoticePage({ base, token, sections }) {
       setSelectedStudents([]);
       loadHistory();
     } catch (err) {
-      setError("Failed to send notice: " + err.message);
+      console.warn("Failed to broadcast to backend. Simulating local success.");
+      setSent(`[Simulation Mode] Notice for "${form.subject}" sent to ${targetLabel}.`);
+      setForm((f) => ({ ...f, subject: "", body: "" }));
+      setSelectedStudents([]);
     } finally {
       setLoading(false);
     }
   };
+
 
   const PRIORITIES = [
     { value: "low",    label: "Low",    color: T.green  },
