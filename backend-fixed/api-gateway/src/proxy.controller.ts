@@ -91,7 +91,7 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
   @All("/academic-years*")
   proxyAcademicYears(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");

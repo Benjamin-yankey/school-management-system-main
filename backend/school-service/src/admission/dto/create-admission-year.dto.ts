@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class CreateAdmissionYearDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
-  year: string;
+  academicYearId: string;
 }

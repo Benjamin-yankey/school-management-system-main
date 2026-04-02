@@ -10,6 +10,7 @@ import { Application, ApplicationStatus } from './application.entity';
 import { CreateAdmissionYearDto } from './dto/create-admission-year.dto';
 import { ApplyDto } from './dto/apply.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
+import { AcademicYear } from '../classes/academic-year.entity';
 
 @Injectable()
 export class AdmissionService {
@@ -18,14 +19,23 @@ export class AdmissionService {
     private readonly yearRepo: Repository<AdmissionYear>,
     @InjectRepository(Application)
     private readonly appRepo: Repository<Application>,
+    @InjectRepository(AcademicYear)
+    private readonly academicYearRepo: Repository<AcademicYear>,
   ) {}
 
   // ── Admission Years ──────────────────────────────────────────────
 
   async createYear(dto: CreateAdmissionYearDto): Promise<AdmissionYear> {
-    const existing = await this.yearRepo.findOneBy({ year: dto.year });
-    if (existing) throw new BadRequestException(`Admission year ${dto.year} already exists`);
-    return this.yearRepo.save(this.yearRepo.create({ year: dto.year }));
+    const existing = await this.yearRepo.findOneBy({ academicYearId: dto.academicYearId });
+    if (existing) throw new BadRequestException(`Admission process for this academic year already exists`);
+
+    const academicYear = await this.academicYearRepo.findOneBy({ id: dto.academicYearId });
+    if (!academicYear) throw new NotFoundException('Academic year not found');
+
+    return this.yearRepo.save(this.yearRepo.create({
+      academicYearId: dto.academicYearId,
+      year: academicYear.year
+    }));
   }
 
   findAllYears(): Promise<AdmissionYear[]> {
