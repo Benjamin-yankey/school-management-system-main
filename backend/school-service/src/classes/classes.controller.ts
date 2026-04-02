@@ -64,6 +64,12 @@ export class ClassesController {
     return this.classesService.findAllAcademicTerms(academicYearId);
   }
 
+  @Roles('superadmin', 'administration', 'teacher', 'student', 'parent')
+  @Get('academic-terms/active')
+  getActiveAcademicTerm() {
+    return this.classesService.getActiveAcademicTerm();
+  }
+
   @Roles('superadmin', 'administration')
   @Patch('academic-terms/:id/activate')
   setActiveAcademicTerm(@Param('id') id: string) {

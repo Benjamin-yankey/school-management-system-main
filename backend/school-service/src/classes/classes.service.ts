@@ -90,6 +90,12 @@ export class ClassesService {
     return this.getAcademicTermOrFail(id);
   }
 
+  async getActiveAcademicTerm(): Promise<AcademicTerm | null> {
+    const activeYear = await this.getActiveAcademicYear();
+    if (!activeYear) return null;
+    return this.termRepo.findOneBy({ academicYearId: activeYear.id, isCurrent: true });
+  }
+
   async getAcademicTermOrFail(id: string): Promise<AcademicTerm> {
     const term = await this.termRepo.findOneBy({ id });
     if (!term) throw new NotFoundException('Academic term not found');
