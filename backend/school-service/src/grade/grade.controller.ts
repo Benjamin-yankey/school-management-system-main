@@ -17,7 +17,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
 @Controller('grades')
 export class GradeController {
-  constructor(private readonly gradeService: GradeService) {}
+  constructor(private readonly gradeService: GradeService) { }
 
   @Roles('superadmin', 'administration', 'teacher')
   @Post('bulk')

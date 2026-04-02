@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Grade } from './grade.entity';
+import { Subject } from '../subject/subject.entity';
 import { BulkCreateGradeDto } from './dto/create-grade.dto';
 
 @Injectable()
@@ -9,7 +14,9 @@ export class GradeService {
   constructor(
     @InjectRepository(Grade)
     private readonly gradeRepo: Repository<Grade>,
-  ) {}
+    @InjectRepository(Subject)
+    private readonly subjectRepo: Repository<Subject>,
+  ) { }
 
   autoComputeRemark(score: number): string {
     if (score >= 90) return 'Excellent';
@@ -21,24 +28,34 @@ export class GradeService {
   }
 
   async createBulk(dto: BulkCreateGradeDto): Promise<{ message: string }> {
-    const { termId, classLevelId, subject, grades } = dto;
+    const { termId, classLevelId, subjectId, grades } = dto;
+
+    // Validate subject exists and belongs to the given class level
+    const subject = await this.subjectRepo.findOneBy({ id: subjectId });
+    if (!subject) {
+      throw new NotFoundException(`Subject not found`);
+    }
+    if (subject.classLevelId !== classLevelId) {
+      throw new BadRequestException(
+        `Subject "${subject.name}" does not belong to the specified class level`,
+      );
+    }
 
     for (const item of grades) {
       const remark = this.autoComputeRemark(item.score);
-      
-      // Upsert by student + term + subject
-      const existing = await this.gradeRepo.findOneBy({ 
-        studentId: item.studentId, 
-        termId, 
-        subject 
+
+      const existing = await this.gradeRepo.findOneBy({
+        studentId: item.studentId,
+        termId,
+        subjectId,
       });
 
       if (existing) {
-        await this.gradeRepo.update(existing.id, { 
-          score: item.score, 
-          remark, 
+        await this.gradeRepo.update(existing.id, {
+          score: item.score,
+          remark,
           teacherNote: item.teacherNote,
-          classLevelId // ensure class matches
+          classLevelId,
         });
       } else {
         await this.gradeRepo.save(
@@ -46,7 +63,7 @@ export class GradeService {
             studentId: item.studentId,
             termId,
             classLevelId,
-            subject,
+            subjectId,
             score: item.score,
             remark,
             teacherNote: item.teacherNote,
@@ -61,7 +78,8 @@ export class GradeService {
   async getReportCard(studentId: string, termId: string) {
     return this.gradeRepo.find({
       where: { studentId, termId },
-      order: { subject: 'ASC' },
+      order: { createdAt: 'ASC' },
+      relations: ['subject'],
     });
   }
 }

@@ -60,8 +60,6 @@ export class ProxyController {
   }
 
   // ── Administration sub-routes (school service) ────────────────────────────
-  // MUST come before /administration/* wildcard (user service) or they will
-  // never be reached.
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
@@ -103,6 +101,14 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
+  // ── Subjects ───────────────────────────────────────────────────────────────
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @All('/subjects*')
+  proxySubjects(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, 'school');
+  }
+
   // ── Admissions (protected) ────────────────────────────────────────────────
   // Declared after the public /admissions/current and /admissions/apply above.
 
@@ -114,7 +120,13 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @Roles(
+    Role.SUPERADMIN,
+    Role.ADMINISTRATION,
+    Role.TEACHER,
+    Role.STUDENT,
+    Role.PARENT,
+  )
   @All("/academic-years*")
   proxyAcademicYears(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
@@ -149,7 +161,13 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @Roles(
+    Role.SUPERADMIN,
+    Role.ADMINISTRATION,
+    Role.TEACHER,
+    Role.STUDENT,
+    Role.PARENT,
+  )
   @All("/academic-terms*")
   proxyAcademicTerms(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");

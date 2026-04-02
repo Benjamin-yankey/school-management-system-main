@@ -16,6 +16,7 @@ import { StudentEnrollment } from './student/student-enrollment.entity';
 import { TeacherSection } from './teacher/teacher-section.entity';
 import { ParentStudent } from './parent/parent-student.entity';
 import { Attendance } from './attendance/attendance.entity';
+import { Subject } from './subject/subject.entity';
 import { Grade } from './grade/grade.entity';
 import { Fee } from './fee/fee.entity';
 
@@ -28,6 +29,7 @@ import { TeacherModule } from './teacher/teacher.module';
 import { StudentPortalModule } from './student-portal/student-portal.module';
 import { ParentModule } from './parent/parent.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { SubjectModule } from './subject/subject.module';
 import { GradeModule } from './grade/grade.module';
 import { FeeModule } from './fee/fee.module';
 
@@ -54,6 +56,7 @@ import { FeeModule } from './fee/fee.module';
           TeacherSection,
           ParentStudent,
           Attendance,
+          Subject,
           Grade,
           Fee,
         ],
@@ -73,8 +76,9 @@ import { FeeModule } from './fee/fee.module';
     StudentPortalModule,
     ParentModule,
     AttendanceModule,
+    SubjectModule,
     GradeModule,
     FeeModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

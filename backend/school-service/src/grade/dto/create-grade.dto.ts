@@ -1,4 +1,14 @@
-import { IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class GradeItemDto {
   @IsUUID()
@@ -21,8 +31,11 @@ export class BulkCreateGradeDto {
   @IsUUID()
   classLevelId: string;
 
-  @IsString()
-  subject: string;
+  @IsUUID()
+  subjectId: string;
 
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GradeItemDto)
   grades: GradeItemDto[];
 }
