@@ -24,6 +24,8 @@ export class ProxyController {
   }
 
   // ── Public ────────────────────────────────────────────────────────────────
+  // Specific public routes declared FIRST — before any wildcard that shares
+  // their prefix — so NestJS matches them before the guarded wildcards.
 
   @All("/auth/signin")
   proxySignIn(@Req() req: Request, @Res() res: Response) {
@@ -57,7 +59,25 @@ export class ProxyController {
     return this.forward(req, res, "user");
   }
 
-  // ── Administration ────────────────────────────────────────────────────────
+  // ── Administration sub-routes (school service) ────────────────────────────
+  // MUST come before /administration/* wildcard (user service) or they will
+  // never be reached.
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/teachers*")
+  proxyTeacherManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All("/administration/parents*")
+  proxyParentManagement(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "school");
+  }
+
+  // ── Administration wildcard (user service) ────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.ADMINISTRATION)
@@ -82,6 +102,9 @@ export class ProxyController {
   proxySchools(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
+
+  // ── Admissions (protected) ────────────────────────────────────────────────
+  // Declared after the public /admissions/current and /admissions/apply above.
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
@@ -133,14 +156,26 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @Roles(
+    Role.SUPERADMIN,
+    Role.ADMINISTRATION,
+    Role.TEACHER,
+    Role.STUDENT,
+    Role.PARENT,
+  )
   @All("/attendance*")
   proxyAttendance(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @Roles(
+    Role.SUPERADMIN,
+    Role.ADMINISTRATION,
+    Role.TEACHER,
+    Role.STUDENT,
+    Role.PARENT,
+  )
   @All("/grades*")
   proxyGrades(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
@@ -153,22 +188,6 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
-  // ── Teacher management (administration assigns teachers to sections) ───────
-
-  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
-  @All("/administration/teachers*")
-  proxyTeacherManagement(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, "school");
-  }
-
-  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
-  @All("/administration/parents*")
-  proxyParentManagement(@Req() req: Request, @Res() res: Response) {
-    return this.forward(req, res, "school");
-  }
-
   // ── Teacher self-service ──────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
@@ -178,7 +197,7 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
-  // ── Student portal (student views own record) ─────────────────────────────
+  // ── Student portal ────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
   @Roles(Role.STUDENT)
@@ -196,9 +215,7 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
-  // ── Helper ────────────────────────────────────────────────────────────────
-
-
+  // ── Helper ────────────────────────────────────────────────────────────────s
 
   private forward(req: Request, res: Response, service: string): void {
     const base = this.urls[service];
@@ -206,8 +223,6 @@ export class ProxyController {
     const isHttps = parsed.protocol === "https:";
     const transport = isHttps ? https : http;
 
-    // NestJS body parser has already consumed the stream and put it on req.body.
-    // We must re-serialize it — piping req directly will send nothing.
     const bodyStr =
       req.body && Object.keys(req.body).length
         ? JSON.stringify(req.body)
