@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,6 +15,9 @@ import { EnrollStudentDto } from './dto/enroll-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { UpdateStudentStatusDto } from './dto/update-student-status.dto';
 
+import { ClientKafka } from '@nestjs/microservices';
+import { SchoolService } from '../school/school.service';
+
 @Injectable()
 export class StudentService {
   constructor(
@@ -26,9 +30,13 @@ export class StudentService {
     @InjectRepository(ParentStudent)
     private readonly parentStudentRepo: Repository<ParentStudent>,
     private readonly classesService: ClassesService,
+    private readonly schoolService: SchoolService,
+    @Inject('KAFKA_CLIENT')
+    private readonly kafkaClient: ClientKafka,
   ) {}
 
-  async enroll(dto: EnrollStudentDto): Promise<Student> {
+
+  async enroll(dto: EnrollStudentDto, schoolId: string): Promise<Student> {
     // 1. Validate applicant
     const applicant = await this.applicationRepo.findOneBy({ id: dto.applicantId });
     if (!applicant) throw new NotFoundException('Applicant not found');
@@ -40,7 +48,11 @@ export class StudentService {
     const classLevel = await this.classesService.findClassLevelById(dto.classLevelId);
     await this.classesService.getAcademicYearOrFail(dto.academicYearId);
 
-    // 6. Section capacity enforcement
+    // 3. Fetch school domain for email generation
+    const school = await this.schoolService.getDetails(schoolId);
+    const domain = school.domain || 'school.com';
+
+    // 4. Section capacity enforcement
     if (dto.sectionId) {
       const section = await this.classesService.findSectionById(dto.sectionId);
       if (section && section.capacity) {
@@ -53,19 +65,22 @@ export class StudentService {
       }
     }
 
-    // 3. Check for existing student from same applicant
+    // 5. Check for existing student from same applicant
     const existingStudent = await this.studentRepo.findOneBy({ applicantId: dto.applicantId });
     if (existingStudent) throw new BadRequestException('This applicant is already enrolled as a student');
 
-    // 5. Generate student ID
-    const count = await this.studentRepo.count();
+    // 6. Generate student ID
+    const count = await this.studentRepo.count({ where: { schoolId } });
     const year = new Date().getFullYear();
     const studentId = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
+    const schoolEmail = `${studentId.toLowerCase()}@st.${domain}`;
 
-    // 6. Create student
+    // 7. Create student
     const student = await this.studentRepo.save(
       this.studentRepo.create({
         studentId,
+        schoolId,
+        schoolEmail,
         firstName: applicant.firstName,
         lastName: applicant.lastName,
         middleName: applicant.middleName,
@@ -77,17 +92,6 @@ export class StudentService {
       }),
     );
 
-    // 7. Check for duplicate enrollment in same academic year (Fix 7: Include studentId)
-    const duplicateEnrollment = await this.enrollmentRepo.findOne({
-      where: { 
-        studentId: student.id, 
-        academicYearId: dto.academicYearId 
-      },
-    });
-    if (duplicateEnrollment) {
-      throw new BadRequestException('Student is already enrolled for this academic year');
-    }
-
     // 8. Create enrollment
     await this.enrollmentRepo.save(
       this.enrollmentRepo.create({
@@ -98,7 +102,7 @@ export class StudentService {
       }),
     );
 
-    // 10. Link to parent if provided
+    // 9. Link to parent if provided
     if (dto.parentUserId) {
       await this.parentStudentRepo.save(
         this.parentStudentRepo.create({
@@ -109,11 +113,22 @@ export class StudentService {
       );
     }
 
-    // 9. Update applicant status to enrolled
+    // 10. Update applicant status to enrolled
     await this.applicationRepo.update(applicant.id, { status: ApplicationStatus.ENROLLED });
+
+    // 11. Notify User Service to create login account
+    this.kafkaClient.emit('user.enroll-student', {
+      schoolId,
+      studentId: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      schoolEmail: student.schoolEmail,
+      personalEmail: student.email,
+    });
 
     return this.findOne(student.id);
   }
+
 
   // 11. Pagination on student list
   async findAll(query: { 

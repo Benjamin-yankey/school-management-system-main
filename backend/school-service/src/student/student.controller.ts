@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Request } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { EnrollStudentDto } from './dto/enroll-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -12,12 +12,13 @@ import { Roles } from '../common/decorators/roles.decorator';
 @Roles('superadmin', 'administration')
 @Controller('students')
 export class StudentController {
-  constructor(private readonly studentService: StudentService) {}
+  constructor(private readonly studentService: StudentService) { }
 
   @Post('enroll')
-  enroll(@Body() dto: EnrollStudentDto) {
-    return this.studentService.enroll(dto);
+  enroll(@Body() dto: EnrollStudentDto, @Request() req: any) {
+    return this.studentService.enroll(dto, req.user.schoolId);
   }
+
 
   @Get()
   findAll(

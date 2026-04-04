@@ -65,21 +65,39 @@ export class UserService implements OnModuleInit {
   // ── Superadmin ─────────────────────────────────────────────────────────────
 
   async createAdministration(dto: CreateAdministrationDto) {
-    const { exists } = await this.kafkaRequest<{ exists: boolean }>('school.validate', {
-      schoolId: dto.schoolId,
-    });
-    if (!exists) throw new BadRequestException('School not found.');
+    // 1. Fetch school domain for email generation
+    let schoolEmail = dto.email;
+    try {
+      const school = await this.kafkaRequest<{ domain: string }>('school.get-details', { schoolId: dto.schoolId });
+      const domain = school.domain || 'school.com';
+      schoolEmail = `${dto.firstName.toLowerCase()}.${dto.lastName.toLowerCase()}@ad.${domain}`;
+    } catch (e) {
+      console.error('Failed to fetch school domain, using personal email as fallback', e);
+    }
 
     const tempPassword = this.generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
     const user = await this.userRepo.save(
-      this.userRepo.create({ email: dto.email, role: 'administration', schoolId: dto.schoolId, isActive: true }),
+      this.userRepo.create({ 
+        email: schoolEmail, 
+        personalEmail: dto.email,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        role: 'administration', 
+        schoolId: dto.schoolId, 
+        isActive: true 
+      }),
     );
     await this.profileRepo.save(this.profileRepo.create({ userId: user.id }));
 
     this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
-    this.kafkaClient.emit('notification.email', { type: 'welcome', to: dto.email, tempPassword });
+    this.kafkaClient.emit('notification.email', { 
+      type: 'welcome', 
+      to: dto.email, 
+      tempPassword,
+      schoolEmail: user.email
+    });
 
     return { id: user.id, email: user.email, role: user.role };
   }
@@ -122,22 +140,73 @@ export class UserService implements OnModuleInit {
   // ── Administration ─────────────────────────────────────────────────────────
 
   async createUser(dto: CreateUserDto, requestingUserId: string) {
-    // schoolId is not in the JWT — resolve it from the DB
     const schoolId = await this.getSchoolIdForUser(requestingUserId);
+    
+    // 1. Fetch school domain for email generation
+    let schoolEmail = dto.email;
+    try {
+      const school = await this.kafkaRequest<{ domain: string }>('school.get-details', { schoolId });
+      const domain = school.domain || 'school.com';
+      const prefix = dto.role === 'teacher' ? 'tr' : dto.role === 'administration' ? 'ad' : 'st';
+      schoolEmail = `${dto.firstName.toLowerCase()}.${dto.lastName.toLowerCase()}@${prefix}.${domain}`;
+    } catch (e) {
+      console.error('Failed to fetch school domain, using personal email as fallback', e);
+    }
 
     const tempPassword = this.generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
     const user = await this.userRepo.save(
-      this.userRepo.create({ email: dto.email, role: dto.role, schoolId, isActive: true }),
+      this.userRepo.create({ 
+        email: schoolEmail, 
+        personalEmail: dto.email,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        role: dto.role, 
+        schoolId, 
+        isActive: true 
+      }),
     );
     await this.profileRepo.save(this.profileRepo.create({ userId: user.id }));
 
     this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
-    this.kafkaClient.emit('notification.email', { type: 'welcome', to: dto.email, tempPassword });
+    this.kafkaClient.emit('notification.email', { 
+      type: 'welcome', 
+      to: dto.email, 
+      tempPassword,
+      schoolEmail: user.email // pass the new school email to the notification
+    });
 
     return { id: user.id, email: user.email, role: user.role };
   }
+
+  async enrollStudent(data: any) {
+    const tempPassword = this.generateTempPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    const user = await this.userRepo.save(
+      this.userRepo.create({
+        email: data.schoolEmail,
+        personalEmail: data.personalEmail,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: 'student',
+        schoolId: data.schoolId,
+        isActive: true,
+      }),
+    );
+    await this.profileRepo.save(this.profileRepo.create({ userId: user.id }));
+
+    this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
+    this.kafkaClient.emit('notification.email', {
+      type: 'welcome',
+      to: data.personalEmail,
+      tempPassword,
+      schoolEmail: data.schoolEmail,
+    });
+  }
+
+
 
   async resetUserPassword(id: string, requestingUserId: string) {
     const schoolId = await this.getSchoolIdForUser(requestingUserId);
@@ -196,7 +265,12 @@ export class UserService implements OnModuleInit {
   // ── Kafka: find by email (consumed by Auth Service) ────────────────────────
 
   async findByEmail(email: string) {
-    const user = await this.userRepo.findOneBy({ email: email.toLowerCase() });
+    const user = await this.userRepo.findOne({
+      where: [
+        { email: email.toLowerCase() },
+        { personalEmail: email.toLowerCase() },
+      ],
+    });
     if (!user) return null;
     return {
       id: user.id,
@@ -207,4 +281,5 @@ export class UserService implements OnModuleInit {
       mustResetPassword: null, // auth-service owns this — returned as null, auth-service checks its own table
     };
   }
+
 }

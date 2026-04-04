@@ -7,7 +7,7 @@
 
 # ==================== AUTH ====================
 
-### 1. Sign In
+### 1. Sign In (Dual-Login: Works with School or Personal Email)
 # @name login
 POST {{baseUrl}}/auth/signin
 Content-Type: application/json
@@ -51,7 +51,8 @@ Content-Type: application/json
 
 {
   "name": "Springfield Elementary",
-  "address": "123 Main St, Springfield"
+  "address": "123 Main St, Springfield",
+  "domain": "springfield.edu"
 }
 
 ### 6. List All Schools
@@ -78,7 +79,10 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "email": "admin@springfield.edu",
+  "email": "homer.simpson@springfield.edu",
+  "personalEmail": "homer@gmail.com",
+  "firstName": "Homer",
+  "lastName": "Simpson",
   "schoolId": "{{schoolId}}"
 }
 
@@ -117,7 +121,9 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "email": "teacher@springfield.edu",
+  "email": "edna@gmail.com",
+  "firstName": "Edna",
+  "lastName": "Krabappel",
   "role": "teacher"
 }
 

@@ -23,7 +23,11 @@ export class Student {
   @Column({ unique: true })
   studentId: string; // e.g. STU-2025-0001
 
+  @Column({ type: 'uuid' })
+  schoolId: string;
+
   @Column()
+
   firstName: string;
 
   @Column()
@@ -35,7 +39,11 @@ export class Student {
   @Column()
   email: string;
 
+  @Column({ nullable: true, unique: true })
+  schoolEmail: string;
+
   @Column()
+
   phoneNumber: string;
 
   @Column({ type: 'date' })

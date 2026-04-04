@@ -26,6 +26,11 @@ export class SchoolService {
     return school;
   }
 
+  async getDetails(id: string) {
+    return this.findOne(id);
+  }
+
+
   async update(id: string, dto: UpdateSchoolDto) {
     await this.findOne(id);
     await this.schoolRepo.update(id, dto);

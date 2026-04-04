@@ -6,10 +6,20 @@ export class User {
   id: string;
 
   @Column({ unique: true })
-  email: string;
+  email: string; // school email
+
+  @Column({ nullable: true, unique: true })
+  personalEmail: string;
+
+  @Column({ nullable: true })
+  firstName: string;
+
+  @Column({ nullable: true })
+  lastName: string;
 
   @Column()
   role: string;
+
 
   @Column({ nullable: true, type: 'uuid' })
   schoolId: string;

@@ -10,4 +10,10 @@ export class SchoolKafkaController {
   validate(@Payload() data: { schoolId: string }) {
     return this.schoolService.validate(data.schoolId);
   }
+
+  @MessagePattern('school.get-details')
+  getDetails(@Payload() data: { schoolId: string }) {
+    return this.schoolService.getDetails(data.schoolId);
+  }
 }
+

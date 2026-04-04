@@ -11,7 +11,11 @@ export class School {
   @Column({ nullable: true })
   address: string;
 
+  @Column({ nullable: true })
+  domain: string;
+
   @Column({ default: true })
+
   isActive: boolean;
 
   @CreateDateColumn()
