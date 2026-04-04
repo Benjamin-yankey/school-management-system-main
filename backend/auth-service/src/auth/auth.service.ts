@@ -72,6 +72,7 @@ export class AuthService implements OnModuleInit {
       sub: user.id,
       email: user.email,
       role: user.role,
+      schoolId: user.schoolId,
       mustResetPassword: credential.mustResetPassword,
       jti: crypto.randomUUID(),
     });

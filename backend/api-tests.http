@@ -1,8 +1,8 @@
 ### School Management System — API Tests
 # Variables
 @baseUrl = http://localhost:3000
-@adminEmail = admin@yourdomain.com
-@adminPassword = StrongPasswordHere123!
+@adminEmail = admin@school.edu
+@adminPassword = Make1admin
 @authToken = {{login.response.body.accessToken}}
 
 # ==================== AUTH ====================
@@ -559,3 +559,35 @@ Content-Type: application/json
   "amount": 750.00,
   "reference": "REC-2025-BULK-001"
 }
+
+# ==================== COMMUNICATION (Announcements) ====================
+
+### 77. Create a New Announcement
+# @name createAnnouncement
+POST {{baseUrl}}/comms/announcements
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "schoolId": "f7dd7b95-6973-49cb-bd1f-330f6a4e5829"
+,
+  "title": "Welcome to the New Academic Year!",
+  "body": "We are excited to welcome all students and staff back to school for the 2025/2026 academic year.",
+  "audience": "all",
+  "pinned": true
+}
+
+
+### 78. List Announcements (Filtered by User Role)
+GET {{baseUrl}}/comms/announcements
+Authorization: Bearer {{authToken}}
+
+### 79. Get Single Announcement
+@announcementId = {{createAnnouncement.response.body.id}}
+GET {{baseUrl}}/comms/announcements/{{announcementId}}
+Authorization: Bearer {{authToken}}
+
+### 80. Delete Announcement
+DELETE {{baseUrl}}/comms/announcements/{{announcementId}}
+Authorization: Bearer {{authToken}}
+

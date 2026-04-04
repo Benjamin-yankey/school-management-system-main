@@ -26,11 +26,16 @@ export class AnnouncementService {
       throw new ForbiddenException('You do not have permission to post announcements.');
     }
 
+    // Security: If not Superadmin, the schoolId in body MUST match the user's schoolId
+    if (author.role !== 'superadmin' && author.schoolId !== dto.schoolId) {
+      throw new ForbiddenException('You can only post announcements to your own school.');
+    }
+
     const announcement = this.announcementRepo.create({
       ...dto,
       authorId: author.id,
       authorRole: author.role,
-      schoolId: author.schoolId,
+      schoolId: dto.schoolId,
     });
 
     return this.announcementRepo.save(announcement);
