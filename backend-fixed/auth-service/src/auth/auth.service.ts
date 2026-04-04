@@ -25,7 +25,7 @@ export class AuthService implements OnModuleInit {
     private readonly jwtService: JwtService,
     private readonly blacklist: TokenBlacklistService,
     @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientKafka,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     this.kafkaClient.subscribeToResponseOf('user.find-by-email');
@@ -72,6 +72,7 @@ export class AuthService implements OnModuleInit {
       sub: user.id,
       email: user.email,
       role: user.role,
+      schoolId: user.schoolId,
       mustResetPassword: credential.mustResetPassword,
       jti: crypto.randomUUID(),
     });
