@@ -20,6 +20,8 @@ export class ProxyController {
       auth: this.config.get<string>("AUTH_SERVICE_URL"),
       user: this.config.get<string>("USER_SERVICE_URL"),
       school: this.config.get<string>("SCHOOL_SERVICE_URL"),
+      notification: this.config.get<string>("NOTIFICATION_SERVICE_URL"),
+      communication: this.config.get<string>("COMMUNICATION_SERVICE_URL"),
     };
   }
 
@@ -231,6 +233,24 @@ export class ProxyController {
   @All("/parent/*")
   proxyParent(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION)
+  @All('/notifications*')
+  proxyNotifications(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, 'notification');
+  }
+
+  // ── Communication ─────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
+  @Roles(Role.SUPERADMIN, Role.ADMINISTRATION, Role.TEACHER, Role.STUDENT, Role.PARENT)
+  @All('/comms*')
+  proxyCommunication(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, 'communication');
   }
 
   // ── Helper ────────────────────────────────────────────────────────────────s

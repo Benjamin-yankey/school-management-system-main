@@ -4,16 +4,26 @@
   "schemaVersion": 38,
   "version": 1,
   "refresh": "10s",
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "panels": [
     {
       "id": 1,
       "title": "🌐 API Gateway",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"api-gateway\"}",
           "legendFormat": ""
         }
@@ -33,10 +43,17 @@
       "id": 2,
       "title": "🔐 Auth Service",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"auth-service\"}",
           "legendFormat": ""
         }
@@ -56,10 +73,17 @@
       "id": 3,
       "title": "👤 User Service",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"user-service\"}",
           "legendFormat": ""
         }
@@ -79,10 +103,17 @@
       "id": 4,
       "title": "🏫 School Service",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 24, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"school-service\"}",
           "legendFormat": ""
         }
@@ -102,10 +133,17 @@
       "id": 5,
       "title": "📧 Notification Service",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 32, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"notification-service\"}",
           "legendFormat": ""
         }
@@ -125,10 +163,17 @@
       "id": 6,
       "title": "🗄️ PostgreSQL",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 40, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"postgres\"}",
           "legendFormat": ""
         }
@@ -148,10 +193,17 @@
       "id": 7,
       "title": "📨 Redpanda",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 48, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"redpanda\"}",
           "legendFormat": ""
         }
@@ -171,11 +223,48 @@
       "id": 8,
       "title": "🔴 Redis",
       "type": "logs",
-      "gridPos": { "x": 0, "y": 56, "w": 24, "h": 8 },
+      "gridPos": {
+        "x": 0,
+        "y": 56,
+        "w": 24,
+        "h": 8
+      },
       "targets": [
         {
-          "datasource": { "type": "loki" },
+          "datasource": {
+            "type": "loki"
+          },
           "expr": "{service=\"redis\"}",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "id": 9,
+      "title": " Communication Service",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 64,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki"
+          },
+          "expr": "{service=\"communication-service\"}",
           "legendFormat": ""
         }
       ],
