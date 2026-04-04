@@ -1,9 +1,12 @@
+import { Student } from 'src/student/student.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum AttendanceStatus {
@@ -37,6 +40,12 @@ export class Attendance {
   @Column({ nullable: true })
   note: string;
 
+  @ManyToOne(() => Student)
+  @JoinColumn({ name: 'studentId' })
+  student: Student;
+
   @CreateDateColumn()
   createdAt: Date;
 }
+
+

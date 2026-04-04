@@ -1,5 +1,6 @@
-import { IsEnum, IsISO8601, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsISO8601, IsOptional, IsString, IsUUID, IsArray, ValidateNested } from 'class-validator';
 import { AttendanceStatus } from '../attendance.entity';
+import { Type } from 'class-transformer';
 
 export class AttendanceItemDto {
   @IsUUID()
@@ -23,5 +24,8 @@ export class BulkRecordAttendanceDto {
   @IsString() // YYYY-MM-DD
   date: string;
 
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AttendanceItemDto)
   attendance: AttendanceItemDto[];
 }

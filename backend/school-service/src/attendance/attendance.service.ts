@@ -9,7 +9,7 @@ export class AttendanceService {
   constructor(
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
-  ) {}
+  ) { }
 
   async recordBulk(dto: BulkRecordAttendanceDto): Promise<{ message: string }> {
     const { sectionId, termId, date, attendance } = dto;
@@ -33,7 +33,7 @@ export class AttendanceService {
 
   async getStudentSummary(studentId: string, termId: string) {
     const records = await this.attendanceRepo.findBy({ studentId, termId });
-    
+
     const summary = {
       present: 0,
       absent: 0,
@@ -48,4 +48,17 @@ export class AttendanceService {
 
     return summary;
   }
+
+  async getBySection(sectionId: string, date: string, termId?: string) {
+    return this.attendanceRepo.find({
+      where: {
+        sectionId,
+        date,
+        ...(termId && { termId }),
+      },
+      relations: ['student'],
+    });
+  }
+
+
 }
