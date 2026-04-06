@@ -631,7 +631,7 @@ export default function SuperAdminDashboard() {
                     ) : users.length > 0 ? (
                       <div className="user-grid-super">
                         {users.map(user => {
-                          const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ");
+                          const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ") || user.name;
                           return (
                             <div key={user.id} className="user-card-super">
                               <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>

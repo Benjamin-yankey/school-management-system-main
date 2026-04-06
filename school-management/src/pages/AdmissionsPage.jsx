@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, Sun, Moon } from "lucide-react";
+import { Building2 } from "lucide-react";
 import api from "../lib/api";
 import { generateAdmissionPDF } from "./generateAdmissionPDF";
-import { useTheme } from "../contexts/ThemeContext";
 import "./AcademyPages.css";
 
 const initialState = {
@@ -47,7 +46,6 @@ const AdmissionsPage = () => {
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
 
   const handleChange = (event) => {
     const { name, type, checked, value, files } = event.target;
@@ -222,14 +220,6 @@ const AdmissionsPage = () => {
             </Link>
           </nav>
           <div className="academy-page-actions">
-            <button
-              onClick={toggleTheme}
-              className="theme-toggle-btn academy-page-auth"
-              aria-label="Toggle Theme"
-              style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--academy-text)' }}
-            >
-              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
             <Link to="/signin" className="academy-page-auth">
               Sign In
             </Link>

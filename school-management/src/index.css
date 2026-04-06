@@ -21,6 +21,35 @@
   --danger-bg: #fef2f2;
 }
 
+/* ── CSS-level dark mode: applies instantly before JS loads (no flash) ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1120;
+    --text: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --accent: #2563eb;
+    --surface: #111827;
+    --surface-muted: #0f172a;
+    --border: #1f2937;
+    --card-bg: linear-gradient(180deg, #111827, #1e293b);
+    --card-shadow: 0 12px 40px rgba(2, 6, 23, 0.4);
+    --input-bg: #1f2937;
+    --input-border: #374151;
+    --header-bg: rgba(15, 23, 42, 0.9);
+    --header-border: #1f2937;
+    --header-text: #f8fafc;
+    --header-muted: #94a3b8;
+    --header-hover: #1f2937;
+    --header-shadow: 0 12px 32px rgba(2, 6, 23, 0.35);
+    --danger: #f87171;
+    --danger-bg: rgba(127, 29, 29, 0.6);
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-muted: #94a3b8;
+    --card-glow: 0 0 20px rgba(37, 99, 235, 0.05);
+  }
+}
+
 * {
   box-sizing: border-box;
 }

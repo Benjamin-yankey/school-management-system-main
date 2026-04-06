@@ -37,6 +37,22 @@ body[data-theme="light"] .academy-page {
   --academy-border: rgba(148, 163, 184, 0.2);
 }
 
+@media (prefers-color-scheme: light) {
+  .academy-page {
+    --academy-bg: #f8fafc;
+    --academy-bg-alt: #f1f5f9;
+    --academy-surface: rgba(255, 255, 255, 0.9);
+    --academy-surface-alt: rgba(248, 250, 252, 0.82);
+    --academy-text: #1e293b;
+    --academy-text-muted: #64748b;
+    --academy-border: rgba(148, 163, 184, 0.2);
+    background:
+      radial-gradient(1200px 520px at 12% -12%, rgba(219, 234, 254, 0.4), transparent 60%),
+      radial-gradient(1000px 420px at 92% -4%, rgba(196, 181, 253, 0.3), transparent 58%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+}
+
 .academy-page-shell {
   width: min(1200px, 92%);
   margin: 0 auto;
@@ -604,6 +620,23 @@ body[data-theme="light"] .cohoes-registration-form {
   --color-primary: #2563eb;
   --color-secondary: #0ea5e9;
   --color-tertiary: #6366f1;
+}
+
+@media (prefers-color-scheme: light) {
+  .cohoes-registration-form {
+    --color-surface: #ffffff;
+    --color-on-surface: #0f1724;
+    --color-surface-container: #f6f8fb;
+    --color-surface-container-low: #f1f3f7;
+    --color-surface-container-high: #edf0f5;
+    --color-surface-variant: #e2e8f0;
+    --color-on-surface-variant: #64748b;
+    --color-outline: #cbd5e1;
+    --color-outline-variant: #94a3b8;
+    --color-primary: #2563eb;
+    --color-secondary: #0ea5e9;
+    --color-tertiary: #6366f1;
+  }
 }
 
 .cohoes-registration-form .form-header {

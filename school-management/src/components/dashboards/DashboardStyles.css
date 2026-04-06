@@ -75,29 +75,29 @@
 }
 
 .priority-low {
-  background-color: #e6fffa;
-  color: #234e52;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #059669;
 }
 
 .priority-normal {
-  background-color: #ebf8ff;
-  color: #1a365d;
+  background-color: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
 }
 
 .priority-high {
-  background-color: #fff5f5;
-  color: #742a2a;
+  background-color: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
 }
 
 .priority-urgent {
-  background-color: #fed7d7;
-  color: #c53030;
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #991b1b;
 }
 
 /* Form Row for Date/Time */
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 /* Checkbox Styles */
@@ -124,7 +124,7 @@
 /* Attendance Filters */
 .attendance-filters {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -191,12 +191,12 @@
 
 /* Button Styles */
 .btn-primary {
-  background-color: #4299e1;
+  background-color: var(--accent);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #3182ce;
+  background-color: #2b6cb0;
 }
 
 /* Child Selector */
@@ -224,7 +224,7 @@
   background: var(--surface-muted);
   border-radius: 8px;
   border: 1px solid var(--border);
-  border-left: 4px solid #10b981;
+  border-left: 4px solid var(--accent);
   transition: all 0.2s ease;
 }
 
@@ -271,7 +271,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e1e5e9;
+  border-bottom: 1px solid var(--border);
   padding-bottom: 1rem;
 }
 
@@ -286,7 +286,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #4a5568;
+  color: var(--text-secondary);
   padding: 0;
   width: 30px;
   height: 30px;
@@ -296,8 +296,8 @@
 }
 
 .close-btn:hover {
-  color: #2d3748;
-  background-color: #f7fafc;
+  color: var(--text);
+  background-color: var(--surface-muted);
   border-radius: 50%;
 }
 
@@ -328,8 +328,8 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .form-actions {
@@ -338,7 +338,7 @@
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid var(--border);
 }
 
 .form-actions button {
@@ -358,16 +358,16 @@
 }
 
 .form-actions button[type="button"]:hover {
-  background-color: #cbd5e0;
+  background-color: var(--border);
 }
 
 .form-actions button[type="submit"] {
-  background-color: #4299e1;
+  background-color: var(--accent);
   color: white;
 }
 
 .form-actions button[type="submit"]:hover {
-  background-color: #3182ce;
+  background-color: #2b6cb0;
 }
 
 .class-stats {
@@ -488,7 +488,7 @@
 
 .due-text {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   margin-bottom: 0.25rem;
 }
 
@@ -552,7 +552,7 @@
 
 .meeting-time-text {
   font-size: 0.75rem;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 /* Subjects List */
@@ -608,7 +608,7 @@
 
 .grade-label {
   font-size: 0.625rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -758,7 +758,7 @@
 
 .announcement-date {
   font-size: 0.625rem;
-  color: #a0aec0;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -796,7 +796,7 @@
 .progress-bar {
   width: 60px;
   height: 4px;
-  background-color: #e2e8f0;
+  background-color: var(--border);
   border-radius: 2px;
   overflow: hidden;
   margin-top: 0.25rem;
@@ -826,7 +826,7 @@
 }
 
 .attendance-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .attendance-info {
@@ -873,7 +873,7 @@
 }
 
 .fee-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .fee-info {
@@ -926,7 +926,7 @@
 }
 
 .event-item:hover {
-  background: #edf2f7;
+  background: var(--glass);
 }
 
 .event-info {
@@ -1000,14 +1000,14 @@
 .panel-footer {
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border);
   text-align: right;
 }
 
 .view-more-link {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #8b5cf6;
+  color: var(--accent);
   text-decoration: none;
   cursor: pointer;
   display: inline-flex;
@@ -1020,8 +1020,8 @@
 }
 
 .view-more-link:hover {
-color: #7c3aed;
-transform: translateX(2px);
+  color: #1d4ed8;
+  transform: translateX(2px);
 }
 
 /* Admin Dashboard Specific Responsiveness */
@@ -1072,13 +1072,10 @@ transform: translateX(2px);
 }
 }
 
-body[data-theme="dark"] .panel-footer {
-
-  border-top-color: #1f2937;
-}
-
-body[data-theme="dark"] .view-more-link {
-  color: #a78bfa;
+/* Dark mode mirror (pure CSS, before React JS hydration) */
+@media (prefers-color-scheme: dark) {
+  .view-more-link { color: #a78bfa; }
+  .view-more-link:hover { color: #c4b5fd; }
 }
 .empty-state {
   padding: 2rem;

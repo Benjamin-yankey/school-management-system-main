@@ -8,8 +8,7 @@ import {
   Bell,
   Calendar,
   Settings,
-  Moon,
-  Sun,
+  Monitor,
   Camera,
   CheckCircle2,
   XCircle,
@@ -27,7 +26,7 @@ import "./Header.css";
 const Header = () => {
   const { user, logout, updateProfile, activeAcademicYear, currentTerm } =
     useAuth();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [prefs, setPrefs] = useState({
@@ -49,9 +48,6 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleThemeToggle = () => {
-    toggleTheme();
-  };
 
   const getRoleColor = (role) => {
     const colors = {
@@ -172,15 +168,10 @@ const Header = () => {
                         <div className="setting-info">
                           <p>Appearance</p>
                           <span>
-                            Current mode: {isDarkMode ? "Dark" : "Light"}
+                            {isDarkMode ? "Dark" : "Light"} · Follows System
                           </span>
                         </div>
-                        <button
-                          className="theme-toggle-inline"
-                          onClick={handleThemeToggle}
-                        >
-                          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
+                        <Monitor size={18} style={{ opacity: 0.5 }} />
                       </div>
                       <div className="setting-row">
                         <div className="setting-info">
@@ -248,13 +239,6 @@ const Header = () => {
               </div>
 
               <div className="toolbar-divider" />
-              <button
-                type="button"
-                className="theme-toggle-circle"
-                onClick={handleThemeToggle}
-              >
-                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
             </div>
 
             <div className="user-section">

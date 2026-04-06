@@ -260,39 +260,39 @@ function RecentUsersTable({ users = [], loading }) {
     );
   }
   return (
-    <table className="recent-table">
-      <thead>
-        <tr>
-          <th>User</th>
-          <th>Role</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {users.map((u) => {
-          const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ");
-          return (
-            <tr key={u.id}>
-              <td>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <AdminAvatar email={u.email} name={fullName} size={34} />
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
-                      {fullName || u.email}
-                    </div>
-                    {fullName && (
+    <div className="table-outer">
+      <table className="recent-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => {
+            const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ") || u.name;
+            return (
+              <tr key={u.id}>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <AdminAvatar email={u.email} name={fullName} size={34} />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
+                        {fullName || u.email.split("@")[0]}
+                      </div>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{u.email}</div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td><AdminRoleBadge role={u.role} /></td>
-              <td><AdminStatusBadge isActive={u.isActive} /></td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                </td>
+                <td><AdminRoleBadge role={u.role} /></td>
+                <td><AdminStatusBadge isActive={u.isActive} /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -388,7 +388,7 @@ function CreateUserSection({ onCreated }) {
 
       {preflightWarning}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="grid-3" style={{ marginBottom: 16 }}>
         <AdminField label="First Name" required>
           <input
             style={css.input}
@@ -418,7 +418,7 @@ function CreateUserSection({ onCreated }) {
         </AdminField>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid-2">
         <AdminField label="Email address" required hint="The user's login email.">
           <input
             style={css.input}
@@ -438,7 +438,7 @@ function CreateUserSection({ onCreated }) {
         </AdminField>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, margin: "4px 0 18px" }}>
+      <div className="grid-3" style={{ margin: "4px 0 18px" }}>
         {roleOptions.map((r) => (
           <div
             key={r.role}
@@ -544,6 +544,40 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
 
   return (
     <div style={css.card}>
+      <style>
+        {`
+          .user-list-header { display: flex; }
+          .user-row { display: flex; align-items: center; gap: 16px; }
+          .user-info-cell { flex: 2; display: flex; align-items: center; gap: 14px; }
+          .user-meta-group { display: flex; align-items: center; gap: 14px; flex: 2; }
+          .user-role-cell { flex: 1; }
+          .user-status-cell { flex: 1; }
+          .user-id-cell { flex: 2; text-align: right; }
+          .user-action-cell { width: 70px; text-align: right; }
+
+          @media (max-width: 768px) {
+            .user-id-cell { display: none; }
+            .user-list-header span:nth-child(4) { display: none; }
+          }
+
+          @media (max-width: 480px) {
+            .user-list-header { display: none; }
+            .user-row { 
+              flex-direction: column; 
+              align-items: flex-start; 
+              gap: 12px;
+              padding: 16px !important;
+            }
+            .user-info-cell { width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 4px; }
+            .user-meta-group { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: space-between; flex: none; }
+            .user-role-cell, .user-status-cell { flex: none; }
+            .user-id-cell { display: block; width: 100%; text-align: left; margin-top: 4px; }
+            .user-id-cell code { font-size: 9px !important; word-break: break-all; }
+            .user-action-cell { width: 100%; text-align: right; margin-top: 8px; }
+            .user-action-cell button { width: 100%; padding: 10px !important; }
+          }
+        `}
+      </style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
         <div style={css.cardHeader}>
           <div style={css.iconWrap("#EAF3DE")}>
@@ -565,7 +599,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
       </div>
 
       {/* Mini stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 8, marginBottom: 16 }}>
+      <div className="grid-6" style={{ marginBottom: 16 }}>
         {[
           { label: "Total",    value: total,    color: "#444441" },
           { label: "Active",   value: active,   color: "#3B6D11" },
@@ -611,7 +645,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
 
       {/* Table header */}
       {filtered.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", padding: "6px 12px", fontSize: 10, fontWeight: 700, color: "#A0AEC0", textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 4 }}>
+        <div className="user-list-header" style={{ alignItems: "center", padding: "6px 12px", fontSize: 10, fontWeight: 700, color: "#A0AEC0", textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 4 }}>
           <span style={{ flex: 2 }}>User</span>
           <span style={{ flex: 1 }}>Role</span>
           <span style={{ flex: 1 }}>Status</span>
@@ -632,13 +666,14 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
       )}
 
       {filtered.map((u) => {
-        const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ");
+        const fullName = [u.firstName, u.middleName, u.lastName].filter(Boolean).join(" ") || u.name;
         return (
           <div
             key={u.id}
             onClick={() => onSelectUser(u)}
+            className="user-row"
             style={{
-              display: "flex", alignItems: "center", padding: "12px 16px",
+              padding: "12px 16px",
               borderRadius: 12, border: "1px solid var(--border)",
               marginBottom: 8, transition: "all 0.2s", cursor: "pointer",
               background: "var(--glass)"
@@ -646,22 +681,26 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
             onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-muted)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "var(--glass)")}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 2 }}>
+            <div className="user-info-cell">
               <AdminAvatar email={u.email} name={fullName} />
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
-                  {fullName || u.email}
+                  {fullName || u.email.split("@")[0]}
                 </p>
-                {fullName && (
-                  <p style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{u.email}</p>
-                )}
+                <p style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{u.email}</p>
               </div>
-            </div>            <div style={{ flex: 1 }}><AdminRoleBadge role={u.role} /></div>
-            <div style={{ flex: 1 }}><AdminStatusBadge isActive={u.isActive} /></div>
-            <div style={{ flex: 2, textAlign: "right" }}>
+            </div>
+            
+            <div className="user-meta-group">
+              <div className="user-role-cell"><AdminRoleBadge role={u.role} /></div>
+              <div className="user-status-cell"><AdminStatusBadge isActive={u.isActive} /></div>
+            </div>
+
+            <div className="user-id-cell">
               <code style={{ fontSize: 10, color: "#A0AEC0", letterSpacing: 0.5 }}>{u.id}</code>
             </div>
-            <div style={{ width: 70, textAlign: "right" }}>
+            
+            <div className="user-action-cell">
               <button 
                 style={{ ...css.btnSmall, background: "#E6F1FB", color: "#185FA5", border: "none" }}
               >
@@ -854,7 +893,7 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
           </p>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div className="grid-3">
           {/* Reset Password */}
           <div style={{ border: "1px solid #E2E8F0", borderRadius: 10, padding: "14px 16px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div style={{ marginBottom: 10 }}>
@@ -923,7 +962,7 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
               </div>
             </div>
  
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+            <div className="grid-2" style={{ marginBottom: 16 }}>
               <AdminField label="Select Class" required>
                 <select 
                   style={css.input} 
@@ -1007,7 +1046,6 @@ function ClassSectionsList({ classLevelId }) {
     </div>
   );
 }
-
 function AcademicOverviewSection({ onBack }) {
   const { activeAcademicYear, currentTerm, classLevels, refreshActiveYear } = useAuth();
   const [expandedClass, setExpandedClass] = useState(null);
@@ -1328,7 +1366,7 @@ function AcademicOverviewSection({ onBack }) {
                   value={newTermData.name} onChange={e => setNewTermData({...newTermData, name: e.target.value})}
                 />
               </AdminField>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+              <div className="grid-2" style={{ marginTop: 12 }}>
                 <AdminField label="Start Date" required>
                   <input type="date" required style={css.input} value={newTermData.startDate} onChange={e => setNewTermData({...newTermData, startDate: e.target.value})} />
                 </AdminField>
@@ -1454,7 +1492,7 @@ function EnrollmentSection({ onBack }) {
         <AdminAlert type={feedback.type} message={feedback.message} onClose={() => setFeedback(null)} />
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div className="grid-2">
         {/* Left Column: Applicant List */}
         <div style={css.card}>
           <div style={css.cardHeader}>
@@ -2140,13 +2178,13 @@ function PromotionsSection({ onBack }) {
 
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 24 }}>
               <AdminField label="Current Class Level" required>
-                <select style={{ ...css.input, minWidth: 200 }} value={bulkClassId} onChange={e => setBulkClassId(e.target.value)}>
+                <select style={{ ...css.input, minWidth: "200px" }} value={bulkClassId} onChange={e => setBulkClassId(e.target.value)}>
                   <option value="">-- Select Class to Promote --</option>
                   {classLevels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </AdminField>
               <AdminField label="Target Academic Year" required>
-                <select style={{ ...css.input, minWidth: 200 }} value={bulkToYearId} onChange={e => setBulkToYearId(e.target.value)}>
+                <select style={{ ...css.input, minWidth: "200px" }} value={bulkToYearId} onChange={e => setBulkToYearId(e.target.value)}>
                   <option value="">-- Select Next Year --</option>
                   {academicYears.map(y => <option key={y.id} value={y.id}>{y.year}</option>)}
                 </select>
@@ -2221,7 +2259,7 @@ function PromotionsSection({ onBack }) {
             <form onSubmit={handleManualExecute}>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
                 {/* Find Student Area */}
-                <div style={{ flex: 1, minWidth: 300, padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
+                <div style={{ flex: 1, minWidth: "280px", padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
                   <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "var(--text)" }}>1. Select Student</h3>
                   <AdminField label="Filter by Current Class">
                     <select style={css.input} value={manualClassId} onChange={e => setManualClassId(e.target.value)}>
@@ -2240,7 +2278,7 @@ function PromotionsSection({ onBack }) {
                 </div>
 
                 {/* Target Promotion Area */}
-                <div style={{ flex: 1, minWidth: 300, padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
+                <div style={{ flex: 1, minWidth: "280px", padding: 16, border: "1px solid var(--border)", borderRadius: 8, background: "var(--bg-secondary)" }}>
                   <h3 style={{ margin: "0 0 16px 0", fontSize: 14, color: "var(--text)" }}>2. Promotion Target</h3>
                   <AdminField label="Target Academic Year" required>
                     <select style={css.input} value={manualToYearId} onChange={e => setManualToYearId(e.target.value)} required>
@@ -2301,14 +2339,14 @@ function AdministrationView({ onBack }) {
     <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: "100%", padding: "0 0 40px", color: "var(--text)" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
+      <div className="admin-view-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Administration</h1>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.5 }}>
-            Manage teacher, student, and parent accounts for this school. All changes are applied immediately.
+            Manage teacher, student, and parent accounts.
           </p>
         </div>
-        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+        <button style={{ ...css.btnGhost, padding: "10px 16px" }} onClick={onBack}>← Back</button>
       </div>
 
       <CreateUserSection onCreated={triggerRefresh} />
@@ -2333,7 +2371,7 @@ const css = {
     WebkitBackdropFilter: "blur(12px)",
     border: "1px solid var(--glass-border)",
     borderRadius: 16,
-    padding: "24px",
+    padding: "var(--card-padding, 24px)",
     marginBottom: 20,
     boxShadow: "var(--card-shadow)",
   },
@@ -2423,9 +2461,22 @@ export default function AdminDashboard() {
         <style>
           {`
             @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
-            @media (max-width: 860px) {
-              .dashboard { padding: 12px !important; }
+            .admin-dashboard-container { 
+              animation: fadeIn 0.4s ease-out; 
+              --card-padding: 24px;
+            }
+            @media (max-width: 768px) {
+              .admin-dashboard-container { 
+                --card-padding: 20px;
+              }
+            }
+            @media (max-width: 480px) {
+              .admin-dashboard-container { 
+                --card-padding: 16px;
+                padding: 10px !important;
+              }
+              .admin-dashboard-container h1 { font-size: 1.5rem !important; }
+              .admin-dashboard-container h2 { font-size: 1.2rem !important; }
             }
           `}
         </style>
@@ -2527,15 +2578,34 @@ export default function AdminDashboard() {
         {`
           @keyframes spin { to { transform: rotate(360deg); } }
           @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-          .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          .admin-dashboard-container { 
+            animation: fadeIn 0.4s ease-out; 
+            --card-padding: 24px;
+          }
           
-          @media (max-width: 860px) {
-            .dashboard { padding: 12px !important; }
-            .grid-stats { grid-template-columns: 1fr !important; }
-            .grid-main { grid-template-columns: 1fr !important; }
-            .table-outer { overflow-x: auto !important; }
-            .user-table { min-width: 700px; }
-            .dashboard-header h2 { font-size: 1.5rem !important; }
+          @media (max-width: 768px) {
+            .admin-dashboard-container { 
+              --card-padding: 20px;
+            }
+            .user-table { min-width: 600px; }
+          }
+
+          @media (max-width: 480px) {
+            .admin-dashboard-container { 
+              --card-padding: 16px;
+              padding: 10px !important; 
+            }
+            .dashboard-header h2 { font-size: 1.2rem !important; }
+            .quick-actions-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            }
+            .quick-actions-grid button {
+              width: 100%;
+              justify-content: flex-start;
+              padding: 14px 16px !important;
+            }
           }
         `}
       </style>
@@ -2548,7 +2618,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+      <div className="quick-actions-grid" style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
         <button
           style={{ ...css.btnPrimary, padding: "12px 22px", fontSize: 14, gap: 10 }}
           onClick={() => setCurrentView("administration")}

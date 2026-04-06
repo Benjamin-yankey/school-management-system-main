@@ -1,6 +1,8 @@
 /* ═══════════════════════════════════════════════════════════
    SchoolSync Pro — Super Admin Panel Styles
    ═══════════════════════════════════════════════════════════ */
+
+/* Default: Dark theme variables (system dark = no override needed) */
 :root {
   --bg: #0b0e14;
   --surface: #12161f;
@@ -21,6 +23,26 @@
   --sidebar-w: 250px;
   --font: 'Inter', -apple-system, sans-serif;
 }
+
+/* ── Light mode override: follows the OS/system preference ── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --surface-2: #f5f7fb;
+    --surface-3: #eaecf4;
+    --border: #dde1ee;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --accent: #6366f1;
+    --accent-2: #a855f7;
+    --accent-glow: rgba(99,102,241,.18);
+    --green: #059669;
+    --red: #dc2626;
+    --orange: #d97706;
+  }
+}
+
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 15px; }

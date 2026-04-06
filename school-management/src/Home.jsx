@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { useTheme } from "./contexts/ThemeContext";
-import { Building2, Sun, Moon } from "lucide-react";
+import { Building2 } from "lucide-react";
 import "./Home.css";
 
 const Home = () => {
@@ -27,7 +27,7 @@ const Home = () => {
   const galleryRef = useRef(null);
 
   const { user, isAuthenticated } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const navLinks = [
@@ -287,21 +287,6 @@ const Home = () => {
           </div>
         </div>
         <div className="nav-actions">
-          <button
-            onClick={toggleTheme}
-            className="theme-toggle-btn icon-btn"
-            aria-label="Toggle Theme"
-            style={{
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              color: "var(--color-on-surface)",
-            }}
-          >
-            {theme === "light" ? <Moon size={24} /> : <Sun size={24} />}
-          </button>
           <div className="nav-auth-links">
             <Link className="nav-auth-link" to="/signin">
               Sign In

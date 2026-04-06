@@ -406,38 +406,100 @@
   opacity: 0.95;
 }
 
-@media (max-width: 1024px) {
+/* Responsive Adjustments using User Guidelines */
+
+/* Desktop (min-width: 1024px) - No specific changes needed, defaults are good */
+
+/* Tablet (max-width: 768px) */
+@media (max-width: 768px) {
   .app-dashboard-header {
-    padding: 1rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    position: sticky;
+    top: 0;
   }
+
   .header-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
     gap: 1rem;
   }
+
   .header-brand {
-    gap: 0.75rem;
-    width: 100%;
+    gap: 1rem;
+  }
+
+  .school-logo-text {
+    font-size: 0.85rem;
+    max-width: 150px;
+  }
+
+  .header-role-badge {
+    display: none; /* Hide 'Portal' badge to save space */
+  }
+
+  .header-academic-year {
+    display: none; /* Hide detailed year in header on tablet, can show in dashboard */
+  }
+
+  .header-actions {
+    gap: 1rem;
+  }
+
+  .user-details {
+    display: none; /* Hide name/role text next to avatar */
+  }
+
+  .logout-text {
+    display: none; /* Icon-only logout */
+  }
+
+  .logout-btn {
+    padding: 0.75rem;
+    aspect-ratio: 1;
     justify-content: center;
   }
-  .school-logo-img { width: 32px; height: 32px; }
-  .school-logo-text { font-size: 0.8rem; }
-  .header-actions {
-    flex-direction: column-reverse;
-    width: 100%;
-    gap: 1rem;
+}
+
+/* Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .app-dashboard-header {
+    padding: 0.6rem 0.8rem;
   }
-  .user-section {
-    width: 100%;
-    justify-content: space-between;
+
+  .header-content {
+    gap: 0.5rem;
   }
+
+  .school-logo-text {
+    display: none; /* Hide school name, logo icon only */
+  }
+
+  .header-brand {
+    gap: 0.5rem;
+  }
+
   .header-toolbar {
-    width: 100%;
-    justify-content: space-around;
+    gap: 0.4rem;
+    padding: 0.4rem;
   }
+
+  .toolbar-btn, .theme-toggle-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .user-section {
+    gap: 0.75rem;
+    padding: 0.4rem;
+    background: none;
+    border-color: transparent;
+  }
+
+  .user-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
   .toolbar-panel {
     position: fixed;
     top: auto;
@@ -445,14 +507,8 @@
     left: 0;
     right: 0;
     width: 100%;
-    border-radius: 24px 24px 0 0;
-    max-height: 80vh;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-    transform: translateY(0);
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  @keyframes slideUp { 
-    from { opacity: 0; transform: translateY(100%); } 
-    to { opacity: 1; transform: translateY(0); } 
+    border-radius: 20px 20px 0 0;
+    max-height: 70vh;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.1);
   }
 }

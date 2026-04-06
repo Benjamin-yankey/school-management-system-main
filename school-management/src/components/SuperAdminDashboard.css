@@ -23,6 +23,43 @@ body[data-theme="dark"] {
     --super-panel: #1e293b;
 }
 
+/* CSS-level dark fallback (fires before React/JS loads) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --super-bg: #0f172a;
+        --super-glass: rgba(30, 41, 59, 0.7);
+        --super-border: rgba(255, 255, 255, 0.1);
+        --super-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+        --super-text: #f8fafc;
+        --super-text-muted: #94a3b8;
+        --super-panel: #1e293b;
+    }
+
+    /* Hardcoded hover/static overrides for dark mode */
+    .super-table tbody tr:hover td { background: #1e293b; }
+    .btn-back:hover { background: #1e293b; }
+    .btn-icon-more:hover { background: #1e293b; color: #e2e8f0; }
+    .loading-row { background: #1e293b; color: #94a3b8; }
+    .super-empty-state-small { background: #0f172a; color: #94a3b8; }
+    .checkbox-group-super { background: #1e293b; border-color: #334155; }
+    .status-label.inactive { background: #1e293b; color: #94a3b8; }
+    .step-dot { background: #1e293b; color: #94a3b8; }
+    .step-line { background: #1e293b; }
+    .btn-cancel-super { background: #1e293b; color: #94a3b8; }
+    .count-badge { background: #1e293b; color: #94a3b8; }
+    .term-pill { background: #1e293b; color: #94a3b8; border-color: #334155; }
+    .user-avatar-super { background: #1e293b; }
+    .stat-trend.up { background: rgba(22, 101, 52, 0.3); color: #4ade80; }
+    .stat-trend.down { background: rgba(153, 27, 27, 0.3); color: #f87171; }
+    .super-error-msg { background: rgba(153, 27, 27, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+    .super-empty-state h4 { color: #94a3b8; }
+    .plan-badge { background: #1e3a5f; color: #93c5fd; }
+    .role-badge-super.admin { background: #1e1b4b; color: #a5b4fc; }
+    .role-badge-super.teacher { background: #451a03; color: #fcd34d; }
+    .role-badge-super.student { background: #052e16; color: #4ade80; }
+    .role-badge-super.parent { background: #4a044e; color: #f0abfc; }
+}
+
 .super-dashboard-container {
     display: flex;
     min-height: 100vh;
