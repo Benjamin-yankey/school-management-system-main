@@ -304,7 +304,7 @@ const Home = () => {
             <img
               alt="Campus Architecture"
               className="hero-image"
-              src="images/schoolLogo.jpeg"
+              src="/images/schoolLogo.jpeg"
             />
             <div className="hero-gradient-overlay"></div>
           </div>
