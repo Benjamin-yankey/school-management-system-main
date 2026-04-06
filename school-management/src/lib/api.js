@@ -219,6 +219,23 @@ export async function createAcademicYear(yearData) {
   return handleResponse(res);
 }
 
+export async function updateAcademicYear(id, yearData) {
+  const res = await fetch(`${API_BASE_URL}/academic-years/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(yearData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteAcademicYear(id) {
+  const res = await fetch(`${API_BASE_URL}/academic-years/${id}`, {
+    method: "DELETE",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function getActiveAcademicYear() {
   const res = await fetch(`${API_BASE_URL}/academic-years/active`, {
     headers: headers(),
@@ -265,6 +282,32 @@ export async function getClassLevels() {
   return handleResponse(res);
 }
 
+export async function createClassLevel(classLevelData) {
+  const res = await fetch(`${API_BASE_URL}/classes`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(classLevelData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateClassLevel(id, classLevelData) {
+  const res = await fetch(`${API_BASE_URL}/classes/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(classLevelData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteClassLevel(id) {
+  const res = await fetch(`${API_BASE_URL}/classes/${id}`, {
+    method: "DELETE",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function seedClassLevels() {
   const res = await fetch(`${API_BASE_URL}/classes/seed`, {
     method: "POST",
@@ -275,6 +318,32 @@ export async function seedClassLevels() {
 
 export async function getClassSections(classLevelId) {
   const res = await fetch(`${API_BASE_URL}/classes/${classLevelId}/sections`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function createSection(classLevelId, sectionData) {
+  const res = await fetch(`${API_BASE_URL}/classes/${classLevelId}/sections`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(sectionData),
+  });
+  return handleResponse(res);
+}
+
+export async function updateSection(id, sectionData) {
+  const res = await fetch(`${API_BASE_URL}/sections/${id}`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(sectionData),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteSection(id) {
+  const res = await fetch(`${API_BASE_URL}/sections/${id}`, {
+    method: "DELETE",
     headers: headers(),
   });
   return handleResponse(res);
@@ -714,14 +783,22 @@ export default {
   deleteAnnouncement,
   getAcademicYears,
   createAcademicYear,
+  updateAcademicYear,
+  deleteAcademicYear,
   getActiveAcademicYear,
   setActiveAcademicYear,
   getAcademicTerms,
   createAcademicTerm,
   setActiveAcademicTerm,
   getClassLevels,
+  createClassLevel,
+  updateClassLevel,
+  deleteClassLevel,
   seedClassLevels,
   getClassSections,
+  createSection,
+  updateSection,
+  deleteSection,
   createSchoolUser,
   getAdministrationUsers,
   assignTeacherToSection,

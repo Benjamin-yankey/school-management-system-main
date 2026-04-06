@@ -47,6 +47,16 @@ export class ClassesController {
     return this.classesService.setActiveAcademicYear(id);
   }
 
+  @Patch('academic-years/:id')
+  updateAcademicYear(@Param('id') id: string, @Body() dto: Partial<CreateAcademicYearDto>) {
+    return this.classesService.updateAcademicYear(id, dto);
+  }
+
+  @Delete('academic-years/:id')
+  deleteAcademicYear(@Param('id') id: string) {
+    return this.classesService.deleteAcademicYear(id);
+  }
+
   // ── Academic Terms ────────────────────────────────────────────────
 
   @Post('academic-terms')
@@ -89,6 +99,11 @@ export class ClassesController {
   @Patch('classes/:id')
   updateClassLevel(@Param('id') id: string, @Body() dto: Partial<CreateClassLevelDto>) {
     return this.classesService.updateClassLevel(id, dto);
+  }
+
+  @Delete('classes/:id')
+  deleteClassLevel(@Param('id') id: string) {
+    return this.classesService.deleteClassLevel(id);
   }
 
   // ── Sections ─────────────────────────────────────────────────────

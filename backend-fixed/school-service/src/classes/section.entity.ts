@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { ClassLevel } from './class-level.entity';
+import { AcademicYear } from './academic-year.entity';
 
 @Entity({ name: 'sections', schema: 'school' })
 export class Section {
@@ -12,10 +13,14 @@ export class Section {
   @Column()
   academicYearId: string;
 
+  @ManyToOne(() => AcademicYear, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'academicYearId' })
+  academicYear: AcademicYear;
+
   @Column({ nullable: true })
   capacity: number;
 
-  @ManyToOne(() => ClassLevel, (cl) => cl.sections, { eager: true })
+  @ManyToOne(() => ClassLevel, (cl) => cl.sections, { eager: true, onDelete: 'CASCADE' })
   classLevel: ClassLevel;
 
   @Column()

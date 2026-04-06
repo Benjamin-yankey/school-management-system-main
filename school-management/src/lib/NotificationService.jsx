@@ -354,9 +354,8 @@ export function NotificationBell({ token, serviceUrl = "http://localhost:3001", 
       </button>
 
       {open && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 8px)", right: 0,
-          width: 380, maxHeight: 520,
+        <div className="toolbar-panel notifications" style={{
+          maxHeight: 520,
           background: C.card, border: `1px solid ${C.border2}`,
           borderRadius: 16, overflow: "hidden",
           boxShadow: "0 20px 60px rgba(0,0,0,0.5)",

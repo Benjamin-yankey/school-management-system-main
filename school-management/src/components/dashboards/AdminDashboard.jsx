@@ -370,6 +370,17 @@ function CreateUserSection({ onCreated }) {
 
   return (
     <div style={css.card}>
+      <style>
+        {`
+          .create-user-names { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+          .create-user-roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 18px; }
+
+          @media (max-width: 600px) {
+            .create-user-names { grid-template-columns: 1fr; gap: 12px; }
+            .create-user-roles { grid-template-columns: 1fr; }
+          }
+        `}
+      </style>
       <div style={css.cardHeader}>
         <div style={css.iconWrap("#E6F1FB")}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#185FA5" strokeWidth="2">
@@ -388,7 +399,7 @@ function CreateUserSection({ onCreated }) {
 
       {preflightWarning}
 
-      <div className="grid-3" style={{ marginBottom: 16 }}>
+      <div className="create-user-names">
         <AdminField label="First Name" required>
           <input
             style={css.input}
@@ -438,7 +449,7 @@ function CreateUserSection({ onCreated }) {
         </AdminField>
       </div>
 
-      <div className="grid-3" style={{ margin: "4px 0 18px" }}>
+      <div className="create-user-roles">
         {roleOptions.map((r) => (
           <div
             key={r.role}
@@ -1017,12 +1028,24 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
 // ACADEMIC OVERVIEW COMPONENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ClassSectionsList({ classLevelId }) {
+function ClassSectionsList({ classLevelId, onRefresh }) {
+  const { activeAcademicYear } = useAuth();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Create Section State
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSection, setNewSection] = useState({ name: "", capacity: 30 });
+  const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
+  // Teacher Assignment State
+  const [teachers, setTeachers] = useState([]);
+  const [assigningTo, setAssigningTo] = useState(null); // sectionId
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
+
+  const fetchSections = useCallback(() => {
     if (!classLevelId) return;
     setLoading(true);
     api.getClassSections(classLevelId)
@@ -1031,18 +1054,166 @@ function ClassSectionsList({ classLevelId }) {
       .finally(() => setLoading(false));
   }, [classLevelId]);
 
-  if (loading) return <div style={{ padding: "10px 0" }}><AdminSpinner /> Loading sections...</div>;
-  if (error) return <div style={{ padding: "10px 0", color: "#e53e3e" }}>{error}</div>;
-  if (!sections.length) return <div style={{ padding: "10px 0", color: "var(--text-secondary)", fontStyle: "italic" }}>No sections defined.</div>;
+  useEffect(() => {
+    fetchSections();
+  }, [fetchSections]);
+
+  const fetchTeachers = async () => {
+    setLoadingTeachers(true);
+    try {
+      const data = await api.getTeachers();
+      setTeachers(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingTeachers(false);
+    }
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!activeAcademicYear) {
+      setError("Active academic year required to create sections.");
+      return;
+    }
+    setAdding(true);
+    try {
+      await api.createSection(classLevelId, {
+        ...newSection,
+        academicYearId: activeAcademicYear.id
+      });
+      setNewSection({ name: "", capacity: 30 });
+      setShowAdd(false);
+      fetchSections();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this section? This cannot be undone.")) return;
+    try {
+      await api.deleteSection(id);
+      fetchSections();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!selectedTeacherId || !assigningTo) return;
+    setAdding(true);
+    try {
+      await api.assignTeacherToSection(selectedTeacherId, assigningTo);
+      setAssigningTo(null);
+      setSelectedTeacherId("");
+      alert("Teacher assigned successfully.");
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  if (loading && !sections.length) return <div style={{ padding: "10px 0" }}><AdminSpinner /> Loading sections...</div>;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10, marginTop: 10 }}>
-      {sections.map(s => (
-        <div key={s.id} style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px", textAlign: "center" }}>
-          <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>Section {s.name}</p>
-          <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "4px 0 0" }}>Cap: {s.capacity}</p>
+    <div style={{ marginTop: 15 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <h4 style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>Class Sections</h4>
+        <button 
+          onClick={() => setShowAdd(!showAdd)} 
+          style={{ ...css.btnSmall, padding: "4px 10px", fontSize: 11 }}
+        >
+          {showAdd ? "Cancel" : "+ Add Section"}
+        </button>
+      </div>
+
+      {showAdd && (
+        <form onSubmit={handleAdd} style={{ background: "#f8fafc", padding: 12, borderRadius: 8, marginBottom: 12, border: "1px solid #e2e8f0" }}>
+          <div className="grid-2" style={{ gap: 10 }}>
+            <AdminField label="Section Name (e.g. A)">
+              <input 
+                style={{ ...css.input, padding: "8px 12px" }} 
+                value={newSection.name} 
+                onChange={e => setNewSection({...newSection, name: e.target.value})} 
+                required 
+                placeholder="A"
+              />
+            </AdminField>
+            <AdminField label="Capacity">
+              <input 
+                type="number" 
+                style={{ ...css.input, padding: "8px 12px" }} 
+                value={newSection.capacity} 
+                onChange={e => setNewSection({...newSection, capacity: parseInt(e.target.value)})} 
+                required
+              />
+            </AdminField>
+          </div>
+          <button type="submit" style={{ ...css.btnPrimary, width: "100%", marginTop: 5 }} disabled={adding}>
+            {adding ? "Creating..." : "Create Section"}
+          </button>
+        </form>
+      )}
+
+      {error && <div style={{ padding: "10px 0", color: "#e53e3e", fontSize: 12 }}>{error}</div>}
+      
+      {!sections.length && !loading && (
+        <div style={{ padding: "10px 0", color: "var(--text-secondary)", fontStyle: "italic", fontSize: 12 }}>
+          No sections defined.
         </div>
-      ))}
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+        {sections.map(s => (
+          <div key={s.id} style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 10, padding: "12px", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>Section {s.name}</p>
+                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "2px 0 0" }}>Capacity: {s.capacity}</p>
+              </div>
+              <button 
+                onClick={() => handleDelete(s.id)} 
+                style={{ background: "none", border: "none", color: "#e53e3e", cursor: "pointer", padding: 4 }}
+                title="Delete Section"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed var(--border)" }}>
+              {assigningTo === s.id ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  <select 
+                    style={{ ...css.input, fontSize: 11, padding: "6px" }} 
+                    value={selectedTeacherId} 
+                    onChange={e => setSelectedTeacherId(e.target.value)}
+                  >
+                    <option value="">-- Select Teacher --</option>
+                    {teachers.map(t => (
+                      <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
+                    ))}
+                  </select>
+                  <div style={{ display: "flex", gap: 5 }}>
+                    <button onClick={handleAssign} style={{ ...css.btnPrimary, flex: 1, fontSize: 10, padding: "4px" }} disabled={adding || !selectedTeacherId}>Save</button>
+                    <button onClick={() => setAssigningTo(null)} style={{ ...css.btnGhost, flex: 1, fontSize: 10, padding: "4px" }}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => { setAssigningTo(s.id); fetchTeachers(); }} 
+                  style={{ ...css.btnGhost, width: "100%", fontSize: 11, padding: "6px" }}
+                >
+                  Assign Teacher
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1058,9 +1229,16 @@ function AcademicOverviewSection({ onBack }) {
   const [yearsLoading, setYearsLoading] = useState(false);
   const [showYearModal, setShowYearModal] = useState(false);
   const [newYearName, setNewYearName] = useState("");
+  const [editingYearId, setEditingYearId] = useState(null);
   const [showTermModal, setShowTermModal] = useState(false);
   const [selectedYearForTerm, setSelectedYearForTerm] = useState(null);
   const [newTermData, setNewTermData] = useState({ name: "", startDate: "", endDate: "", isCurrent: false });
+  
+  // Class Level Management
+  const [showClassModal, setShowClassModal] = useState(false);
+  const [classFormData, setClassFormData] = useState({ name: "", level: "primary", order: 1 });
+  const [editingClassId, setEditingClassId] = useState(null);
+  
   const [error, setError] = useState("");
 
   const fetchAllYears = useCallback(async () => {
@@ -1092,16 +1270,32 @@ function AcademicOverviewSection({ onBack }) {
     }
   }, [activeAcademicYear, fetchAllYears]);
 
-  const handleCreateYear = async (e) => {
+  const handleSaveYear = async (e) => {
     e.preventDefault();
     try {
-      await api.createAcademicYear({ year: newYearName });
+      if (editingYearId) {
+        await api.updateAcademicYear(editingYearId, { year: newYearName });
+      } else {
+        await api.createAcademicYear({ year: newYearName });
+      }
       setNewYearName("");
+      setEditingYearId(null);
       setShowYearModal(false);
       fetchAllYears();
       refreshActiveYear();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const handleDeleteYear = async (id) => {
+    if (!window.confirm("Delete this academic session? This will delete all terms and sections associated with it!")) return;
+    try {
+      await api.deleteAcademicYear(id);
+      fetchAllYears();
+      refreshActiveYear();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -1150,8 +1344,73 @@ function AcademicOverviewSection({ onBack }) {
     }
   };
 
+  const handleSaveClassLevel = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingClassId) {
+        await api.updateClassLevel(editingClassId, classFormData);
+      } else {
+        await api.createClassLevel(classFormData);
+      }
+      setShowClassModal(false);
+      setEditingClassId(null);
+      setClassFormData({ name: "", level: "primary", order: 1 });
+      refreshActiveYear();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeleteClassLevel = async (id) => {
+    if (!window.confirm("Delete this class level? This will also delete all its sections!")) return;
+    try {
+      await api.deleteClassLevel(id);
+      refreshActiveYear();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
     <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <style>
+        {`
+          .academic-table thead { display: table-header-group; }
+          .academic-table tr { display: table-row; }
+          .academic-table td, .academic-table th { display: table-cell; }
+
+          @media (max-width: 600px) {
+            .academic-table thead { display: none; }
+            .academic-table tr { 
+              display: flex; 
+              flex-direction: column; 
+              gap: 8px;
+              padding: 16px 0;
+              border-bottom: 1px solid var(--border);
+            }
+            .academic-table td { 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: center;
+              padding: 4px 0 !important;
+            }
+            .academic-table td::before {
+              content: attr(data-label);
+              font-weight: 700;
+              color: var(--text-secondary);
+              font-size: 11px;
+              text-transform: uppercase;
+            }
+            .academic-table td:first-of-type { 
+              font-size: 16px; 
+              border-bottom: 1px solid var(--border);
+              padding-bottom: 8px !important;
+              margin-bottom: 4px;
+            }
+            .academic-table td:first-of-type::before { display: none; }
+          }
+        `}
+      </style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Academic Management</h1>
@@ -1199,21 +1458,21 @@ function AcademicOverviewSection({ onBack }) {
             </button>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div className="table-outer">
+            <table className="academic-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left" }}>
                   <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Session</th>
                   <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Terms</th>
                   <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Status</th>
-                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Action</th>
+                  <th style={{ padding: "12px 8px", color: "var(--text-secondary)", fontWeight: 600 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {allYears.map(y => (
                   <tr key={y.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "12px 8px", fontWeight: 700 }}>{y.year}</td>
-                    <td style={{ padding: "12px 8px" }}>
+                    <td data-label="Session" style={{ padding: "12px 8px", fontWeight: 700 }}>{y.year}</td>
+                    <td data-label="Terms" style={{ padding: "12px 8px" }}>
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                         {y.terms?.map(t => (
                           <span 
@@ -1238,7 +1497,7 @@ function AcademicOverviewSection({ onBack }) {
                         </button>
                       </div>
                     </td>
-                    <td style={{ padding: "12px 8px" }}>
+                    <td data-label="Status" style={{ padding: "12px 8px" }}>
                       <span style={{ 
                         fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 12,
                         background: y.isActive ? "#dcfce7" : "#f1f5f9",
@@ -1247,15 +1506,31 @@ function AcademicOverviewSection({ onBack }) {
                         {y.isActive ? "ACTIVE" : "INACTIVE"}
                       </span>
                     </td>
-                    <td style={{ padding: "12px 8px" }}>
-                      {!y.isActive && (
+                    <td data-label="Actions" style={{ padding: "12px 8px" }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        {!y.isActive && (
+                          <button 
+                            onClick={() => handleActivateYear(y.id)}
+                            style={{ ...css.btnSmall, fontSize: 11, padding: "4px 8px", background: "var(--accent)", color: "#fff", border: "none" }}
+                          >
+                            Activate
+                          </button>
+                        )}
                         <button 
-                          onClick={() => handleActivateYear(y.id)}
+                          onClick={() => { setEditingYearId(y.id); setNewYearName(y.year); setShowYearModal(true); }}
                           style={{ ...css.btnSmall, fontSize: 11, padding: "4px 8px" }}
                         >
-                          Activate
+                          Edit
                         </button>
-                      )}
+                        {!y.isActive && (
+                          <button 
+                            onClick={() => handleDeleteYear(y.id)}
+                            style={{ ...css.btnSmall, fontSize: 11, padding: "4px 8px", color: "#e53e3e" }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1278,19 +1553,27 @@ function AcademicOverviewSection({ onBack }) {
             <p style={css.cardTitle}>Class Levels & Sections</p>
             <p style={css.cardSub}>View established classes and their respective sections.</p>
           </div>
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button 
+              onClick={handleSeed} 
+              style={{ ...css.btnSmall, background: "var(--surface-muted)", border: "1px solid var(--border)" }}
+              disabled={seeding}
+            >
+              {seeding ? "Seeding..." : "Seed Default"}
+            </button>
+            <button 
+              onClick={() => { setEditingClassId(null); setClassFormData({ name: "", level: "primary", order: classLevels.length + 1 }); setShowClassModal(true); }} 
+              style={{ ...css.btnSmall, background: "var(--accent)", color: "#fff" }}
+            >
+              + New Class Level
+            </button>
+          </div>
         </div>
         <div style={css.divider} />
 
         {!classLevels?.length ? (
           <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-secondary)", fontSize: 14 }}>
             <p style={{ marginBottom: 16 }}>No class levels found. Define the school structure to proceed.</p>
-            <button 
-              onClick={handleSeed} 
-              style={{ ...css.btnSmall, padding: "10px 20px", background: "var(--accent)", color: "#fff" }}
-              disabled={seeding}
-            >
-              {seeding ? "Seeding..." : "Seed Standard Classes"}
-            </button>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1315,10 +1598,32 @@ function AcademicOverviewSection({ onBack }) {
                       <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0, textTransform: "capitalize" }}>Level: {cls.level}</p>
                     </div>
                   </div>
-                  <div style={{ transform: expandedClass === cls.id ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="9 18 15 12 9 6"/>
-                    </svg>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setEditingClassId(cls.id); 
+                        setClassFormData({ name: cls.name, level: cls.level, order: cls.order }); 
+                        setShowClassModal(true); 
+                      }}
+                      style={{ background: "none", border: "none", color: "var(--accent)", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        handleDeleteClassLevel(cls.id);
+                      }}
+                      style={{ background: "none", border: "none", color: "#e53e3e", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+                    >
+                      Delete
+                    </button>
+                    <div style={{ transform: expandedClass === cls.id ? "rotate(90deg)" : "none", transition: "transform 0.2s", marginLeft: 10 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
                 {expandedClass === cls.id && (
@@ -1332,12 +1637,54 @@ function AcademicOverviewSection({ onBack }) {
         )}
       </div>
 
+      {showClassModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "grid", placeItems: "center", zIndex: 3000, padding: 20 }}>
+          <div style={{ ...css.card, width: "100%", maxWidth: 400, padding: 30 }}>
+            <h3 style={{ margin: "0 0 8px" }}>{editingClassId ? "Edit" : "New"} Class Level</h3>
+            <p style={{ ...css.cardSub, marginBottom: 20 }}>Define the grade or level name.</p>
+            <form onSubmit={handleSaveClassLevel}>
+              <AdminField label="Class Name" required>
+                <input 
+                  required style={css.input} placeholder="e.g. Primary 1" 
+                  value={classFormData.name} onChange={e => setClassFormData({...classFormData, name: e.target.value})}
+                />
+              </AdminField>
+              <AdminField label="Category/Level" required>
+                <select 
+                  style={css.input} 
+                  value={classFormData.level} 
+                  onChange={e => setClassFormData({...classFormData, level: e.target.value})}
+                >
+                  <option value="preschool">Preschool</option>
+                  <option value="primary">Primary</option>
+                  <option value="jhs">JHS</option>
+                  <option value="shs">SHS</option>
+                </select>
+              </AdminField>
+              <AdminField label="Display Order" required>
+                <input 
+                  type="number" required style={css.input} 
+                  value={classFormData.order} onChange={e => setClassFormData({...classFormData, order: parseInt(e.target.value)})}
+                />
+              </AdminField>
+              {error && <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</p>}
+              <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                <button type="button" onClick={() => { setShowClassModal(false); setError(""); }} style={{ ...css.btnGhost, flex: 1 }}>Cancel</button>
+                <button type="submit" style={{ ...css.btnGhost, flex: 1, background: "var(--accent)", color: "#fff", border: "none" }}>
+                  {editingClassId ? "Update" : "Create"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {showYearModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "grid", placeItems: "center", zIndex: 3000, padding: 20 }}>
           <div style={{ ...css.card, width: "100%", maxWidth: 400, padding: 30 }}>
-            <h3 style={{ margin: "0 0 8px" }}>New Academic Session</h3>
-            <p style={{ ...css.cardSub, marginBottom: 20 }}>Define a new year (e.g., 2025/2026)</p>
-            <form onSubmit={handleCreateYear}>
+            <h3 style={{ margin: "0 0 8px" }}>{editingYearId ? "Edit" : "New"} Academic Session</h3>
+            <p style={{ ...css.cardSub, marginBottom: 20 }}>Define the session year (e.g., 2025/2026)</p>
+            <form onSubmit={handleSaveYear}>
               <AdminField label="Session Format (YYYY/YYYY)" required>
                 <input 
                   required style={css.input} placeholder="2025/2026" 
@@ -1346,8 +1693,10 @@ function AcademicOverviewSection({ onBack }) {
               </AdminField>
               {error && <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</p>}
               <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-                <button type="button" onClick={() => { setShowYearModal(false); setError(""); }} style={{ ...css.btnGhost, flex: 1 }}>Cancel</button>
-                <button type="submit" style={{ ...css.btnGhost, flex: 1, background: "var(--accent)", color: "#fff", border: "none" }}>Create</button>
+                <button type="button" onClick={() => { setShowYearModal(false); setEditingYearId(null); setNewYearName(""); setError(""); }} style={{ ...css.btnGhost, flex: 1 }}>Cancel</button>
+                <button type="submit" style={{ ...css.btnGhost, flex: 1, background: "var(--accent)", color: "#fff", border: "none" }}>
+                  {editingYearId ? "Update" : "Create"}
+                </button>
               </div>
             </form>
           </div>
@@ -2606,6 +2955,20 @@ export default function AdminDashboard() {
               justify-content: flex-start;
               padding: 14px 16px !important;
             }
+            .recent-table thead { display: none; }
+            .recent-table tr { 
+              display: flex; 
+              flex-direction: column; 
+              gap: 8px;
+              padding: 12px 0;
+              border-bottom: 1px solid var(--border);
+            }
+            .recent-table td { padding: 0 !important; border: none !important; }
+            .summary-stat-row { 
+              padding: 8px 12px !important; 
+            }
+            .summary-stat-row span:first-of-type { font-size: 11px !important; }
+            .summary-stat-row span:last-of-type { font-size: 14px !important; }
           }
         `}
       </style>
@@ -2724,9 +3087,10 @@ export default function AdminDashboard() {
             ].map((item) => (
               <div
                 key={item.label}
+                className="summary-stat-row"
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "var(--surface-muted)", borderRadius: 9, border: "1px solid var(--border)" }}
               >
-                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{item.icon} {item.label}</span>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 8 }}>{item.icon} {item.label}</span>
                 <span style={{ fontSize: 16, fontWeight: 700, color: item.color }}>
                   {statsLoading ? "…" : item.value}
                 </span>

@@ -66,6 +66,23 @@ export class ClassesService {
     return year;
   }
 
+  async updateAcademicYear(id: string, dto: Partial<CreateAcademicYearDto>): Promise<AcademicYear> {
+    const year = await this.getAcademicYearOrFail(id);
+    if (dto.year) {
+      const regex = /^(\d{4})\/(\d{4})$/;
+      if (!dto.year.match(regex)) throw new BadRequestException('Format must be YYYY/YYYY');
+    }
+    await this.academicYearRepo.update(id, dto);
+    return this.getAcademicYearOrFail(id);
+  }
+
+  async deleteAcademicYear(id: string): Promise<{ message: string }> {
+    const year = await this.getAcademicYearOrFail(id);
+    if (year.isActive) throw new BadRequestException('Cannot delete the active academic year');
+    await this.academicYearRepo.delete(id);
+    return { message: 'Academic year deleted successfully' };
+  }
+
   // ── Academic Terms ────────────────────────────────────────────────
 
   async createAcademicTerm(dto: CreateAcademicTermDto): Promise<AcademicTerm> {
@@ -118,6 +135,13 @@ export class ClassesService {
     await this.findClassLevelById(id);
     await this.classLevelRepo.update(id, dto);
     return this.findClassLevelById(id);
+  }
+
+  async deleteClassLevel(id: string): Promise<{ message: string }> {
+    const cl = await this.classLevelRepo.findOneBy({ id });
+    if (!cl) throw new NotFoundException('Class level not found');
+    await this.classLevelRepo.delete(id);
+    return { message: 'Class level deleted successfully' };
   }
 
   async getNextClassLevel(currentOrder: number): Promise<ClassLevel | null> {

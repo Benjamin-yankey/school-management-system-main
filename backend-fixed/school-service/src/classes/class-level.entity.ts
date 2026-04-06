@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Section } from './section.entity';
 
 export enum SchoolLevel {
+  PRESCHOOL = 'preschool',
   PRIMARY = 'primary',
   JHS = 'jhs',
   SHS = 'shs',
