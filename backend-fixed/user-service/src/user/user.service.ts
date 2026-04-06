@@ -8,7 +8,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ClientKafka } from '@nestjs/microservices';
 import { timeout } from 'rxjs/operators';
 import * as bcrypt from 'bcrypt';
@@ -218,6 +218,102 @@ export class UserService implements OnModuleInit {
       role: user.role,
       isActive: user.isActive,
       mustResetPassword: null, // auth-service owns this — returned as null, auth-service checks its own table
+    };
+  }
+
+  async listUsersBySchool(schoolId: string) {
+    const users = await this.userRepo.find({
+      where: { schoolId },
+      order: { createdAt: 'DESC' }
+    });
+    
+    const userIds = users.map(u => u.id);
+    if (userIds.length === 0) return [];
+
+    const profiles = await this.profileRepo.find({
+      where: { userId: In(userIds) }
+    });
+
+    return users.map(user => {
+      const profile = profiles.find(p => p.userId === user.id);
+      // Map legacy 'admin' role to 'administration' for frontend compatibility
+      const role = user.role === 'admin' ? 'administration' : user.role;
+      return { ...user, ...profile, role };
+    });
+  }
+
+  async listAllUsers() {
+    const users = await this.userRepo.find({
+      order: { createdAt: 'DESC' }
+    });
+    
+    const userIds = users.map(u => u.id);
+    if (userIds.length === 0) return [];
+
+    const profiles = await this.profileRepo.find({
+      where: { userId: In(userIds) }
+    });
+
+    return users.map(user => {
+      const profile = profiles.find(p => p.userId === user.id);
+      const role = user.role === 'admin' ? 'administration' : user.role;
+      return { ...user, ...profile, role };
+    });
+  }
+
+  async createUserForSchool(schoolId: string, dto: CreateUserDto) {
+    const { exists } = await this.kafkaRequest<{ exists: boolean }>('school.validate', {
+      schoolId,
+    });
+    if (!exists) throw new BadRequestException('School not found.');
+
+    const tempPassword = this.generateTempPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    const user = await this.userRepo.save(
+      this.userRepo.create({ email: dto.email, role: dto.role, schoolId, isActive: true }),
+    );
+    await this.profileRepo.save(
+      this.profileRepo.create({
+        userId: user.id,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        middleName: dto.middleName,
+      }),
+    );
+
+    this.kafkaClient.emit('auth.credentials-create', { userId: user.id, hashedPassword, mustResetPassword: true });
+    this.kafkaClient.emit('notification.email', { type: 'welcome', to: dto.email, tempPassword });
+
+    return { id: user.id, email: user.email, role: user.role };
+  }
+
+  async getGlobalStats() {
+    const rawUsers = await this.userRepo.find({ select: ['role'] });
+    
+    let students = 0;
+    let teachers = 0;
+    let administrators = 0;
+
+    rawUsers.forEach(u => {
+      const r = u.role?.toLowerCase();
+      if (r === 'student') students++;
+      else if (r === 'teacher') teachers++;
+      else if (r === 'administration' || r === 'admin') administrators++;
+    });
+    
+    // Count unique school IDs that are not null
+    const schoolsCountResult = await this.userRepo
+      .createQueryBuilder('user')
+      .select('COUNT(DISTINCT(user.schoolId))', 'count')
+      .where('user.schoolId IS NOT NULL')
+      .getRawOne();
+    
+    return {
+      students,
+      teachers,
+      administrators,
+      schools: parseInt(schoolsCountResult?.count || '0', 10),
     };
   }
 }

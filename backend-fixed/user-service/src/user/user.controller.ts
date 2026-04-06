@@ -15,13 +15,39 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // ── Superadmin ─────────────────────────────────────────────────────────────
-
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
   @Roles('superadmin')
   @Post('superadmin/create-administration')
   createAdministration(@Body() dto: CreateAdministrationDto) {
     return this.userService.createAdministration(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin')
+  @Get('superadmin/stats')
+  getGlobalStats() {
+    return this.userService.getGlobalStats();
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin')
+  @Get('superadmin/users')
+  listAllUsers() {
+    return this.userService.listAllUsers();
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin')
+  @Get('superadmin/schools/:schoolId/users')
+  listUsersBySchool(@Param('schoolId') schoolId: string) {
+    return this.userService.listUsersBySchool(schoolId);
+  }
+
+  @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+  @Roles('superadmin')
+  @Post('superadmin/schools/:schoolId/users')
+  createUserForSchool(@Param('schoolId') schoolId: string, @Body() dto: CreateUserDto) {
+    return this.userService.createUserForSchool(schoolId, dto);
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)

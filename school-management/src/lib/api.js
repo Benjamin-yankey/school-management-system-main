@@ -595,11 +595,25 @@ export async function getAdministrations() {
   return handleResponse(res);
 }
 
+export async function getGlobalUsers() {
+  const res = await fetch(`${API_BASE_URL}/superadmin/users`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function createAdministration(adminData) {
   const res = await fetch(`${API_BASE_URL}/superadmin/create-administration`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify(adminData),
+  });
+  return handleResponse(res);
+}
+
+export async function getSuperAdminStats() {
+  const res = await fetch(`${API_BASE_URL}/superadmin/stats`, {
+    headers: headers(),
   });
   return handleResponse(res);
 }
@@ -767,6 +781,8 @@ export default {
   getSchools,
   createSchool,
   getAdministrations,
+  getGlobalUsers,
+  getSuperAdminStats,
   createAdministration,
   getSchoolUsers,
   createUserForSchool,

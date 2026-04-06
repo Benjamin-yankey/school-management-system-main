@@ -6,7 +6,7 @@ import {
   Plus, Search, Filter, MoreHorizontal, ShieldCheck,
   TrendingUp, Calendar, AlertCircle, CheckCircle2, ChevronRight,
   ArrowLeft, Mail, Trash2, UserPlus, UserCog, GraduationCap as StudentIcon,
-  Heart, Menu, X, Bell
+  Heart, Menu, X, Bell, CreditCard, Zap, BarChart3, ArrowUpRight
 } from "lucide-react";
 import "./SuperAdminDashboard.css";
 
@@ -71,6 +71,41 @@ export default function SuperAdminDashboard() {
     email: "", role: "teacher", firstName: "", lastName: "", middleName: ""
   });
 
+  // Global Users State
+  const [globalUsers, setGlobalUsers] = useState([]);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const [userFilterRole, setUserFilterRole] = useState("all");
+  const [loadingGlobalUsers, setLoadingGlobalUsers] = useState(false);
+
+  useEffect(() => {
+    fetchGlobalData();
+    if (activeTab === 'academic') {
+      fetchAcademicData();
+    }
+    if (activeTab === 'users') {
+      fetchGlobalUsers();
+    }
+  }, [selectedSchool, activeTab]); // Re-fetch on select, clear or tab change
+
+  const fetchGlobalUsers = async () => {
+    setLoadingGlobalUsers(true);
+    try {
+      const data = await api.getGlobalUsers();
+      const normalizedData = (Array.isArray(data) ? data : []).map(u => {
+        const r = u.role?.toLowerCase();
+        return {
+          ...u,
+          role: (r === 'admin' || r === 'administration') ? 'administration' : r
+        };
+      });
+      setGlobalUsers(normalizedData);
+    } catch (error) {
+      console.error("Failed to fetch global users:", error);
+    } finally {
+      setLoadingGlobalUsers(false);
+    }
+  };
+
   // Academic Management
   const [academicYears, setAcademicYears] = useState([]);
   const [activeYear, setActiveYear] = useState(null);
@@ -82,13 +117,6 @@ export default function SuperAdminDashboard() {
     name: "", startDate: "", endDate: "", isCurrent: false
   });
 
-  useEffect(() => {
-    fetchGlobalData();
-    if (activeTab === 'academic') {
-      fetchAcademicData();
-    }
-  }, [selectedSchool, activeTab]); // Re-fetch on select, clear or tab change
-
   const fetchGlobalData = async () => {
     setLoading(true);
     try {
@@ -96,14 +124,15 @@ export default function SuperAdminDashboard() {
       const schoolsArr = Array.isArray(schoolData) ? schoolData : [];
       setSchools(schoolsArr);
       
-      const totalStudents = schoolsArr.reduce((acc, s) => acc + (s.studentCount || 0), 0);
-      const totalTeachers = schoolsArr.reduce((acc, s) => acc + (s.teacherCount || 0), 0);
+      // Fetch accurate global counts from the new endpoint
+      const globalStats = await api.getSuperAdminStats();
       
       setStats({
-        schools: schoolsArr.length,
-        students: totalStudents,
-        teachers: totalTeachers,
-        revenue: schoolsArr.length * 150,
+        schools: globalStats.schools || schoolsArr.length,
+        students: globalStats.students || 0,
+        teachers: globalStats.teachers || 0,
+        administrators: globalStats.administrators || 0,
+        revenue: (globalStats.schools || schoolsArr.length) * 150,
         health: 100
       });
 
@@ -210,7 +239,14 @@ export default function SuperAdminDashboard() {
     setLoadingUsers(true);
     try {
       const users = await api.getSchoolUsers(schoolId);
-      setSchoolUsers(Array.isArray(users) ? users : []);
+      const normalizedUsers = (Array.isArray(users) ? users : []).map(u => {
+        const r = u.role?.toLowerCase();
+        return {
+          ...u,
+          role: (r === 'admin' || r === 'administration') ? 'administration' : r
+        };
+      });
+      setSchoolUsers(normalizedUsers);
     } catch (error) {
       console.error("Failed to fetch users:", error);
       setSchoolUsers([]);
@@ -257,7 +293,14 @@ export default function SuperAdminDashboard() {
     e.preventDefault();
     setOnboardLoading(true);
     try {
-      await api.createUserForSchool(selectedSchool.id, userFormData);
+      if (userFormData.role === 'administration') {
+        await api.createAdministration({
+          email: userFormData.email,
+          schoolId: selectedSchool.id
+        });
+      } else {
+        await api.createUserForSchool(selectedSchool.id, userFormData);
+      }
       setShowAddUserModal(false);
       setUserFormData({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
       fetchSchoolUsers(selectedSchool.id);
@@ -278,6 +321,40 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const handleToggleUserStatus = async (userId, isActive) => {
+    try {
+      if (isActive) {
+        await api.deactivateUser(userId);
+      } else {
+        await api.activateUser(userId);
+      }
+      fetchGlobalUsers();
+      fetchGlobalData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleResetPassword = async (userId) => {
+    if (!window.confirm("Reset this user's password? They will receive a temporary password on their next login attempt.")) return;
+    try {
+      await api.resetUserPassword(userId);
+      alert("Password reset successfully.");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const filteredGlobalUsers = useMemo(() => {
+    return globalUsers.filter(u => {
+      const matchesSearch = 
+        u.email.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+        (u.firstName + " " + u.lastName).toLowerCase().includes(globalSearchTerm.toLowerCase());
+      const matchesRole = userFilterRole === "all" || u.role === userFilterRole;
+      return matchesSearch && matchesRole;
+    });
+  }, [globalUsers, globalSearchTerm, userFilterRole]);
+
   const filteredSchools = useMemo(() => {
     return schools.filter(s => 
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -285,6 +362,21 @@ export default function SuperAdminDashboard() {
       s.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [schools, searchTerm]);
+  
+  // Finance Data Mock
+  const financeStats = useMemo(() => {
+    const totalSchools = schools.length;
+    const mrr = totalSchools * 499; // Assume $499 average
+    const arr = mrr * 12;
+    return { mrr, arr, totalSchools };
+  }, [schools]);
+
+  const recentTransactions = [
+    { id: "TXN001", institution: "Yram Intl", amount: 499, date: "2024-03-25", status: "paid", plan: "Enterprise" },
+    { id: "TXN002", institution: "Neo Academy", amount: 299, date: "2024-03-24", status: "pending", plan: "Professional" },
+    { id: "TXN003", institution: "Global High", amount: 499, date: "2024-03-22", status: "paid", plan: "Enterprise" },
+    { id: "TXN004", institution: "Zenith Prep", amount: 150, date: "2024-03-20", status: "failed", plan: "Basic" },
+  ];
 
   if (loading) {
     return (
@@ -376,9 +468,10 @@ export default function SuperAdminDashboard() {
         {activeTab === 'overview' && !selectedSchool && (
           <div className="super-view-animate">
             <div className="super-stats-row">
-              <StatCard title="Total Schools" value={stats.schools} color="#3b82f6" icon={Building2} trend={stats.schools > 0 ? 12 : 0} />
-              <StatCard title="Global Students" value={stats.students} color="#10b981" icon={GraduationCap} trend={stats.students > 0 ? 8 : 0} />
-              <StatCard title="Global Teachers" value={stats.teachers} color="#8b5cf6" icon={Users} trend={stats.teachers > 0 ? 5 : 0} />
+              <StatCard title="Total Schools" value={stats.schools} color="#3b82f6" icon={Building2} trend={stats.schools > 0 ? 12 : null} />
+              <StatCard title="Global Students" value={stats.students} color="#10b981" icon={GraduationCap} trend={stats.students > 0 ? 8 : null} />
+              <StatCard title="Global Teachers" value={stats.teachers} color="#8b5cf6" icon={Users} trend={stats.teachers > 0 ? 5 : null} />
+              <StatCard title="Global Admins" value={stats.administrators} color="#6366f1" icon={ShieldCheck} trend={stats.administrators > 0 ? 2 : null} />
               <StatCard title="Current Session" value={activeYear?.year || "None Active"} color="#f59e0b" icon={Calendar} />
             </div>
 
@@ -497,20 +590,209 @@ export default function SuperAdminDashboard() {
 
         {activeTab === 'users' && !selectedSchool && (
           <div className="super-view-animate">
+            <div className="super-stats-row" style={{ marginBottom: '1.5rem' }}>
+              <StatCard title="Total Identities" value={globalUsers.length} color="#6366f1" icon={ShieldCheck} />
+              <StatCard title="Active Users" value={globalUsers.filter(u => u.isActive).length} color="#10b981" icon={CheckCircle2} />
+              <StatCard title="Deactivated" value={globalUsers.filter(u => !u.isActive).length} color="#f59e0b" icon={AlertCircle} />
+            </div>
+
              <div className="super-panel main-table-panel">
                <div className="table-filters">
                 <div className="search-wrapper">
                   <Search size={18} />
-                  <input type="text" placeholder="Search across all institutions..." readOnly />
+                  <input 
+                    type="text" 
+                    placeholder="Search globally by name or email..." 
+                    value={globalSearchTerm}
+                    onChange={(e) => setGlobalSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className="filter-group">
+                  <select 
+                    className="super-select"
+                    value={userFilterRole}
+                    onChange={(e) => setUserFilterRole(e.target.value)}
+                  >
+                    <option value="all">All Roles</option>
+                    <option value="administration">Administrators</option>
+                    <option value="teacher">Teachers</option>
+                    <option value="student">Students</option>
+                    <option value="parent">Parents</option>
+                  </select>
                 </div>
               </div>
-              <div className="super-empty-state">
-                <Users size={48} />
-                <h4>Global User Directory</h4>
-                <p>Select a specific institution from the <strong>Institutions</strong> tab to deep-dive into its students, teachers, and admins.</p>
-                <button onClick={() => setActiveTab('schools')}>Go to Institutions</button>
-              </div>
+
+              {loadingGlobalUsers ? (
+                <div style={{ textAlign: "center", padding: "40px 0" }}><Activity className="spin" size={32} /></div>
+              ) : (
+                <div className="super-table-wrapper">
+                  <table className="super-table">
+                    <thead>
+                      <tr>
+                        <th>Identity</th>
+                        <th>Role & Scope</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredGlobalUsers.map(user => {
+                        const school = schools.find(s => s.id === user.schoolId);
+                        const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+                        return (
+                          <tr key={user.id}>
+                            <td>
+                              <div className="user-profile-cell">
+                                <div className="user-avatar-small">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
+                                <div>
+                                  <strong>{fullName || user.email.split("@")[0]}</strong>
+                                  <span>{user.email}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="role-scope-cell">
+                                <span className={`role-badge ${user.role}`}>{user.role}</span>
+                                <small>{school?.name || 'Global System'}</small>
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`status-pill ${user.isActive ? 'active' : 'inactive'}`}>
+                                {user.isActive ? 'Active' : 'Deactivated'}
+                              </span>
+                            </td>
+                            <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                            <td>
+                              <div className="table-actions">
+                                <button 
+                                  className="btn-action-icon" 
+                                  title="Reset Password"
+                                  onClick={() => handleResetPassword(user.id)}
+                                >
+                                  <ShieldCheck size={16} />
+                                </button>
+                                <button 
+                                  className={`btn-action-icon ${user.isActive ? 'deactivate' : 'activate'}`}
+                                  title={user.isActive ? 'Deactivate' : 'Activate'}
+                                  onClick={() => handleToggleUserStatus(user.id, user.isActive)}
+                                >
+                                  {user.isActive ? <X size={16} /> : <CheckCircle2 size={16} />}
+                                </button>
+                                <button 
+                                  className="btn-action-icon danger" 
+                                  title="Delete Permanent"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
              </div>
+          </div>
+        )}
+
+        {activeTab === 'finance' && (
+          <div className="super-view-animate">
+            <div className="super-stats-row">
+              <StatCard title="Total MRR" value={`$${financeStats.mrr.toLocaleString()}`} color="#3b82f6" icon={DollarSign} trend={8} />
+              <StatCard title="Annual Projection (ARR)" value={`$${financeStats.arr.toLocaleString()}`} color="#10b981" icon={BarChart3} trend={12} />
+              <StatCard title="Avg. Revenue / School" value={`$${financeStats.totalSchools > 0 ? (financeStats.mrr / financeStats.totalSchools).toFixed(0) : '0'}`} color="#6366f1" icon={Zap} />
+              <StatCard title="Pending Collections" value="$848" color="#f59e0b" icon={CreditCard} />
+            </div>
+
+            <div className="super-grid finance-main-grid">
+              <section className="super-panel finance-chart-panel">
+                <div className="panel-header-alt">
+                  <h3><TrendingUp size={20} /> Revenue Forecast</h3>
+                  <div className="time-filters">
+                    <button className="active">6M</button>
+                    <button>1Y</button>
+                    <button>ALL</button>
+                  </div>
+                </div>
+                <div className="mock-revenue-chart">
+                  {[45, 52, 48, 61, 75, 88].map((val, i) => (
+                    <div key={i} className="chart-bar-wrap">
+                      <div className="chart-bar" style={{ height: `${val}%` }}>
+                        <div className="chart-tooltip">${val}k</div>
+                      </div>
+                      <span className="chart-label">{['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'][i]}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="super-panel plan-distribution-panel">
+                <div className="panel-header-alt">
+                  <h3>Plan Distribution</h3>
+                </div>
+                <div className="plan-list-super">
+                  <div className="plan-item">
+                    <div className="plan-info">
+                      <div className="plan-dot enterprise" />
+                      <span>Enterprise Tier</span>
+                    </div>
+                    <strong>{Math.ceil(financeStats.totalSchools * 0.7)} Schools</strong>
+                  </div>
+                  <div className="plan-item">
+                    <div className="plan-info">
+                      <div className="plan-dot professional" />
+                      <span>Professional Tier</span>
+                    </div>
+                    <strong>{Math.floor(financeStats.totalSchools * 0.2)} Schools</strong>
+                  </div>
+                  <div className="plan-item">
+                    <div className="plan-info">
+                      <div className="plan-dot basic" />
+                      <span>Basic Tier</span>
+                    </div>
+                    <strong>{Math.floor(financeStats.totalSchools * 0.1)} Schools</strong>
+                  </div>
+                </div>
+                <button className="btn-plans-action">Manage Pricing Tiers <ArrowUpRight size={16} /></button>
+              </section>
+            </div>
+
+            <section className="super-panel transaction-ledger">
+              <div className="panel-header-alt">
+                <h3>Recent Fiscal Transmissions</h3>
+                <button className="btn-export-finance">Download CSV Report</button>
+              </div>
+              <div className="super-table-wrapper">
+                <table className="super-table">
+                  <thead>
+                    <tr>
+                      <th>Ref ID</th>
+                      <th>Institution</th>
+                      <th>License Plan</th>
+                      <th>Amount</th>
+                      <th>Timestamp</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentTransactions.map(txn => (
+                      <tr key={txn.id}>
+                        <td><code style={{ fontSize: '0.75rem', opacity: 0.7 }}>{txn.id}</code></td>
+                        <td><strong>{txn.institution}</strong></td>
+                        <td><span className={`plan-pill-tiny ${txn.plan.toLowerCase()}`}>{txn.plan}</span></td>
+                        <td><strong>${txn.amount}</strong></td>
+                        <td>{new Date(txn.date).toLocaleDateString()}</td>
+                        <td><span className={`txn-status ${txn.status}`}>{txn.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
         )}
 
@@ -599,9 +881,17 @@ export default function SuperAdminDashboard() {
               <div>
                 <h2>{selectedSchool.name}</h2>
                 <div className="school-meta">
+                  <span className="meta-pill">
+                    <Users size={14} /> {schoolUsers.filter(u => u.role === 'student').length} Students
+                  </span>
+                  <span className="meta-pill">
+                    <Users size={14} /> {schoolUsers.filter(u => u.role === 'teacher').length} Teachers
+                  </span>
+                  <span className="meta-pill">
+                    <ShieldCheck size={14} /> {schoolUsers.filter(u => u.role === 'administration').length} Admins
+                  </span>
                   <span className="meta-pill"><Building2 size={14} /> {selectedSchool.location || 'No Location'}</span>
-                  <span className="meta-pill"><Users size={14} /> {selectedSchool.studentCount || 0} Students</span>
-                  <span className="meta-pill"><ShieldCheck size={14} /> License: Enterprise v2</span>
+                  <span className="plan-badge">License: Enterprise v2</span>
                 </div>
               </div>
               <div style={{ marginLeft: 'auto' }}>
@@ -612,17 +902,17 @@ export default function SuperAdminDashboard() {
             </div>
 
             <div className="school-users-section">
-              {['admin', 'teacher', 'student', 'parent'].map(role => {
+              {['administration', 'teacher', 'student', 'parent'].map(role => {
                 const users = schoolUsers.filter(u => u.role === role);
                 return (
                   <section key={role} className="role-group">
                     <div className="role-section-header">
                       <h3>
-                        {role === 'admin' && <ShieldCheck size={20} color="#4338ca" />}
+                        {role === 'administration' && <ShieldCheck size={20} color="#4338ca" />}
                         {role === 'teacher' && <Users size={20} color="#b45309" />}
                         {role === 'student' && <StudentIcon size={20} color="#15803d" />}
                         {role === 'parent' && <Heart size={20} color="#be185d" />}
-                        {role.charAt(0).toUpperCase() + role.slice(1)}s
+                        {role === 'administration' ? 'Administrators' : (role.charAt(0).toUpperCase() + role.slice(1) + 's')}
                       </h3>
                       <span className="count-badge">{users.length} Total</span>
                     </div>
@@ -638,7 +928,9 @@ export default function SuperAdminDashboard() {
                               <div className="user-info-super">
                                 <strong>{fullName || user.email.split("@")[0]}</strong>
                                 <span>{user.email}</span>
-                                <div className={`role-badge-super ${role}`}>{role}</div>
+                                <div className={`role-badge-super ${role}`}>
+                                  {role === 'administration' ? 'Administration' : role.charAt(0).toUpperCase() + role.slice(1)}
+                                </div>
                               </div>
                               <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
                                 <Trash2 size={16} />
@@ -758,7 +1050,7 @@ export default function SuperAdminDashboard() {
                     <option value="teacher">Teacher</option>
                     <option value="student">Student</option>
                     <option value="parent">Parent</option>
-                    <option value="admin">Administrator</option>
+                    <option value="administration">Administrator</option>
                   </select>
                 </div>
               </div>
