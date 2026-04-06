@@ -21,94 +21,100 @@ import { Roles } from '../common/decorators/roles.decorator';
 
 @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
 @Roles('superadmin', 'administration')
-@Controller()
-export class ClassesController {
+@Controller('academic-years')
+export class AcademicYearsController {
   constructor(private readonly classesService: ClassesService) {}
 
-  // ── Academic Years ───────────────────────────────────────────────
-
-  @Post('academic-years')
+  @Post()
   createAcademicYear(@Body() dto: CreateAcademicYearDto) {
     return this.classesService.createAcademicYear(dto);
   }
 
-  @Get('academic-years')
+  @Get()
   findAllAcademicYears() {
     return this.classesService.findAllAcademicYears();
   }
 
-  @Get('academic-years/active')
+  @Get('active')
   getActiveAcademicYear() {
     return this.classesService.getActiveAcademicYear();
   }
 
-  @Patch('academic-years/:id/activate')
+  @Patch(':id/activate')
   setActiveAcademicYear(@Param('id') id: string) {
     return this.classesService.setActiveAcademicYear(id);
   }
 
-  @Patch('academic-years/:id')
+  @Patch(':id')
   updateAcademicYear(@Param('id') id: string, @Body() dto: Partial<CreateAcademicYearDto>) {
     return this.classesService.updateAcademicYear(id, dto);
   }
 
-  @Delete('academic-years/:id')
+  @Delete(':id')
   deleteAcademicYear(@Param('id') id: string) {
     return this.classesService.deleteAcademicYear(id);
   }
+}
 
-  // ── Academic Terms ────────────────────────────────────────────────
+@UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+@Roles('superadmin', 'administration')
+@Controller('academic-terms')
+export class AcademicTermsController {
+  constructor(private readonly classesService: ClassesService) {}
 
-  @Post('academic-terms')
+  @Post()
   createAcademicTerm(@Body() dto: CreateAcademicTermDto) {
     return this.classesService.createAcademicTerm(dto);
   }
 
-  @Get('academic-terms')
-  findAllAcademicTerms(@Param('academicYearId') academicYearId?: string) {
+  @Get()
+  findAllAcademicTerms(@Query('academicYearId') academicYearId?: string) {
     return this.classesService.findAllAcademicTerms(academicYearId);
   }
 
-  @Patch('academic-terms/:id/activate')
+  @Patch(':id/activate')
   setActiveAcademicTerm(@Param('id') id: string) {
     return this.classesService.setActiveAcademicTerm(id);
   }
+}
 
-  // ── Class Levels ─────────────────────────────────────────────────
+@UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+@Roles('superadmin', 'administration')
+@Controller('classes')
+export class ClassLevelsController {
+  constructor(private readonly classesService: ClassesService) {}
 
-  @Post('classes/seed')
+  @Post('seed')
   seedClassLevels() {
     return this.classesService.seedClassLevels();
   }
 
-  @Post('classes')
+  @Post()
   createClassLevel(@Body() dto: CreateClassLevelDto) {
     return this.classesService.createClassLevel(dto);
   }
 
-  @Get('classes')
+  @Get()
   findAllClassLevels() {
     return this.classesService.findAllClassLevels();
   }
 
-  @Get('classes/:id')
+  @Get(':id')
   findClassLevelById(@Param('id') id: string) {
     return this.classesService.findClassLevelById(id);
   }
 
-  @Patch('classes/:id')
+  @Patch(':id')
   updateClassLevel(@Param('id') id: string, @Body() dto: Partial<CreateClassLevelDto>) {
     return this.classesService.updateClassLevel(id, dto);
   }
 
-  @Delete('classes/:id')
+  @Delete(':id')
   deleteClassLevel(@Param('id') id: string) {
     return this.classesService.deleteClassLevel(id);
   }
 
-  // ── Sections ─────────────────────────────────────────────────────
-
-  @Post('classes/:classLevelId/sections')
+  @Post(':classLevelId/sections')
   createSection(
     @Param('classLevelId') classLevelId: string,
     @Body() dto: CreateSectionDto,
@@ -116,18 +122,26 @@ export class ClassesController {
     return this.classesService.createSection(classLevelId, dto);
   }
 
-  @Get('classes/:classLevelId/sections')
+  @Get(':classLevelId/sections')
   getSectionsByClass(@Param('classLevelId') classLevelId: string) {
     return this.classesService.getSectionsByClass(classLevelId);
   }
+}
 
-  @Patch('sections/:id')
+@UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+@Roles('superadmin', 'administration')
+@Controller('sections')
+export class SectionsController {
+  constructor(private readonly classesService: ClassesService) {}
+
+  @Patch(':id')
   updateSection(@Param('id') id: string, @Body() dto: Partial<CreateSectionDto>) {
     return this.classesService.updateSection(id, dto);
   }
 
-  @Delete('sections/:id')
+  @Delete(':id')
   deleteSection(@Param('id') id: string) {
     return this.classesService.deleteSection(id);
   }
 }
+

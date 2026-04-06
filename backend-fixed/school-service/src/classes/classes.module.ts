@@ -5,11 +5,21 @@ import { Section } from './section.entity';
 import { AcademicYear } from './academic-year.entity';
 import { AcademicTerm } from './academic-term.entity';
 import { ClassesService } from './classes.service';
-import { ClassesController } from './classes.controller';
+import {
+  AcademicTermsController,
+  AcademicYearsController,
+  ClassLevelsController,
+  SectionsController,
+} from './classes.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ClassLevel, Section, AcademicYear, AcademicTerm])],
-  controllers: [ClassesController],
+  controllers: [
+    AcademicYearsController,
+    AcademicTermsController,
+    ClassLevelsController,
+    SectionsController,
+  ],
   providers: [ClassesService],
   exports: [ClassesService],
 })
