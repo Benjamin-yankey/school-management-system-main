@@ -96,10 +96,10 @@ function AdminAlert({ type, message, onClose }) {
 
 function AdminRoleBadge({ role }) {
   const map = {
-    teacher: { bg: "rgba(230, 241, 251, 0.15)", color: "#4299e1" },
-    student: { bg: "rgba(250, 238, 218, 0.15)", color: "#ed8936" },
-    parent:  { bg: "rgba(234, 243, 222, 0.15)", color: "#48bb78" },
-    admin:   { bg: "rgba(238, 237, 254, 0.15)", color: "#805ad5" },
+    teacher: { bg: "rgba(68, 138, 255, 0.1)", color: "#448aff" },
+    student: { bg: "rgba(99, 102, 241, 0.1)", color: "#6366f1" },
+    parent:  { bg: "rgba(124, 77, 255, 0.1)", color: "#7c4dff" },
+    admin:   { bg: "rgba(92, 33, 243, 0.1)",  color: "#5c21f3" },
   };
   const s = map[role?.toLowerCase()] || { bg: "var(--surface-muted)", color: "var(--text-secondary)" };
   return (
@@ -124,9 +124,9 @@ function AdminStatusBadge({ isActive }) {
         display: "inline-flex", alignItems: "center",
         padding: "3px 9px", borderRadius: 99,
         fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-        background: isActive ? "rgba(72, 187, 120, 0.15)" : "rgba(245, 101, 101, 0.15)",
-        color:      isActive ? "#48bb78" : "#f56565",
-        border: isActive ? "1px solid rgba(72, 187, 120, 0.3)" : "1px solid rgba(245, 101, 101, 0.3)",
+        background: isActive ? "rgba(14, 165, 233, 0.1)" : "rgba(100, 116, 139, 0.1)",
+        color:      isActive ? "#0ea5e9" : "#64748b",
+        border: isActive ? "1px solid rgba(14, 165, 233, 0.2)" : "1px solid rgba(100, 116, 139, 0.2)",
       }}
     >
       {isActive ? "Active" : "Inactive"}
@@ -192,9 +192,9 @@ function AdminConfirmModal({ open, title, message, onConfirm, onCancel, loading 
 function AdminField({ label, required, hint, children }) {
   return (
     <div style={{ marginBottom: 14 }}>
-      <label style={{ fontSize: 12, fontWeight: 600, color: "#4a5568", display: "block", marginBottom: 5 }}>
+      <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: 5 }}>
         {label}
-        {required && <span style={{ color: "#E24B4A", marginLeft: 2 }}>*</span>}
+        {required && <span style={{ color: "var(--danger)", marginLeft: 2 }}>*</span>}
       </label>
       {children}
       {hint && <p style={{ fontSize: 11, color: "#B4B2A9", marginTop: 4 }}>{hint}</p>}
@@ -254,7 +254,7 @@ function RecentUsersTable({ users = [], loading }) {
   }
   if (!users.length) {
     return (
-      <div style={{ textAlign: "center", padding: "24px 0", color: "#A0AEC0", fontSize: 13 }}>
+      <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-secondary)", fontSize: 13 }}>
         No users found in this school yet.
       </div>
     );
@@ -369,7 +369,7 @@ function CreateUserSection({ onCreated }) {
   ];
 
   return (
-    <div style={css.card}>
+    <div style={{ ...css.card, background: "var(--surface)" }}>
       <style>
         {`
           .create-user-names { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
@@ -554,7 +554,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
   const parents  = users.filter((u) => u.role === "parent").length;
 
   return (
-    <div style={css.card}>
+    <div style={{ ...css.card, background: "var(--surface)" }}>
       <style>
         {`
           .user-list-header { display: flex; }
@@ -2715,10 +2715,8 @@ function AdministrationView({ onBack }) {
 
 const css = {
   card: {
-    background: "var(--glass)",
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-    border: "1px solid var(--glass-border)",
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
     borderRadius: 16,
     padding: "var(--card-padding, 24px)",
     marginBottom: 20,
@@ -2745,9 +2743,9 @@ const css = {
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600,
     cursor: "pointer", border: "none",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 100%)",
     color: "#fff",
-    boxShadow: "0 4px 15px rgba(102, 126, 234, 0.25)",
+    boxShadow: "0 8px 25px -5px rgba(124, 77, 255, 0.35)",
     transition: "transform 0.2s, opacity 0.2s, box-shadow 0.2s",
   },
   btnDanger: {
@@ -2897,24 +2895,23 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      title: "Current Session", value: activeAcademicYear?.year || "None Set", color: "#805ad5",
+      title: "Current Session", value: activeAcademicYear?.year || "None Set", color: "#7c4dff",
       icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     },
     {
-      title: "Students", value: students, color: "#667eea",
- 
+      title: "Students", value: students, color: "#448aff",
       icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 
     },
     { 
-      title: "Teachers", value: teachers, color: "#48bb78", 
+      title: "Teachers", value: teachers, color: "#6366f1", 
       icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> 
     },
     { 
-      title: "Parents", value: parents, color: "#ed8936", 
+      title: "Parents", value: parents, color: "#818cf8", 
       icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 
     },
     { 
-      title: "Inactive Users", value: inactive, color: "#f56565", 
+      title: "Inactive Users", value: inactive, color: "#312e81", 
       icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 
     },
   ];
@@ -2990,21 +2987,21 @@ export default function AdminDashboard() {
           Manage Users & Accounts
         </button>
         <button
-          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#667eea", borderColor: "#667eea" }}
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent-secondary, #448aff)", borderColor: "var(--accent-secondary, #448aff)" }}
           onClick={() => setCurrentView("academic")}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
           Academic Year & Classes
         </button>
         <button
-          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#48bb78", borderColor: "#48bb78" }}
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent, #7c4dff)", borderColor: "var(--accent, #7c4dff)" }}
           onClick={() => setCurrentView("enrollment")}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
           Student Enrollment
         </button>
         <button
-          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#854F0B", borderColor: "#854F0B" }}
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent-secondary, #448aff)", borderColor: "var(--accent-secondary, #448aff)" }}
           onClick={() => setCurrentView("students")}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -3013,7 +3010,7 @@ export default function AdminDashboard() {
           Student Directory
         </button>
         <button
-          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#ed8936", borderColor: "#ed8936" }}
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent, #7c4dff)", borderColor: "var(--accent, #7c4dff)" }}
           onClick={() => setCurrentView("promotions")}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -3022,7 +3019,7 @@ export default function AdminDashboard() {
           Student Promotions
         </button>
         <button
-          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "#805ad5", borderColor: "#805ad5" }}
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent-secondary, #448aff)", borderColor: "var(--accent-secondary, #448aff)" }}
           onClick={() => navigate("/notifications")}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -3061,27 +3058,27 @@ export default function AdminDashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
             {[
               { 
-                label: "Total Users", value: users.length, color: "#667eea", 
+                label: "Total Users", value: users.length, color: "#6366f1", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 
               },
               { 
-                label: "Active Users", value: users.filter(u => u.isActive).length, color: "#48bb78", 
+                label: "Active Users", value: users.filter(u => u.isActive).length, color: "#7c4dff", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 
               },
               { 
-                label: "Inactive Users", value: inactive, color: "#f56565", 
+                label: "Inactive Users", value: inactive, color: "#312e81", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 
               },
               { 
-                label: "Teachers", value: teachers, color: "#ed8936", 
+                label: "Teachers", value: teachers, color: "#448aff", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> 
               },
               { 
-                label: "Students", value: students, color: "#667eea", 
+                label: "Students", value: students, color: "#6366f1", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 
               },
               { 
-                label: "Parents", value: parents, color: "#0F6E56", 
+                label: "Parents", value: parents, color: "#818cf8", 
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> 
               },
             ].map((item) => (

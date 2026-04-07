@@ -182,7 +182,7 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard dashboard-animate">
       {/* Quick Actions */}
       <div className="quick-actions">
         {quickActions.map((action, index) => (

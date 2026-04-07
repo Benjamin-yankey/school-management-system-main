@@ -179,7 +179,7 @@ const ParentDashboard = () => {
   }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard dashboard-animate">
       <div className="dashboard-header">
         <h2>Parent Dashboard</h2>
         <div className="dashboard-sub">

@@ -118,7 +118,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard dashboard-animate">
       <div className="dashboard-header">
         <h2>School Management Dashboard</h2>
         <div className="dashboard-sub">
