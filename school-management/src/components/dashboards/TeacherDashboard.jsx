@@ -5,7 +5,7 @@ import { T } from "./teacher/theme";
 import { api } from "./teacher/hooks/useApi";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
-import Header    from "../Header";
+import Navbar    from "../Navbar";
 import Sidebar   from "./teacher/components/Sidebar";
 import HomePage       from "./teacher/pages/HomePage";
 import AttendancePage from "./teacher/pages/AttendancePage";
@@ -95,7 +95,7 @@ export default function TeacherDashboard({
       `}</style>
 
       {/* Global Header */}
-      <Header />
+      <Navbar />
 
       <div style={{ display: "flex", height: "calc(100vh - 60px)", position: "relative" }}>
         

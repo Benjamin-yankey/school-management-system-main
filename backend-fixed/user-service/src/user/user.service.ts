@@ -216,6 +216,7 @@ export class UserService implements OnModuleInit {
       id: user.id,
       email: user.email,
       role: user.role,
+      schoolId: user.schoolId,
       isActive: user.isActive,
       mustResetPassword: null, // auth-service owns this — returned as null, auth-service checks its own table
     };

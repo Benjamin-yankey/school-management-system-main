@@ -568,6 +568,13 @@ export async function getSchools() {
   return handleResponse(res);
 }
 
+export async function getMyBilling() {
+  const res = await fetch(`${API_BASE_URL}/schools/my-billing`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function createSchool(schoolData) {
   const res = await fetch(`${API_BASE_URL}/schools`, {
     method: "POST",
@@ -779,6 +786,7 @@ export default {
   updateProfile,
   getDashboardStats,
   getSchools,
+  getMyBilling,
   createSchool,
   getAdministrations,
   getGlobalUsers,

@@ -11,5 +11,13 @@ export class UpdateProfileDto {
 
   @IsString()
   @IsOptional()
+  bio?: string;
+
+  @IsString()
+  @IsOptional()
+  username?: string;
+
+  @IsString()
+  @IsOptional()
   phone?: string;
 }

@@ -32,6 +32,20 @@ export class SchoolService {
     return this.findOne(id);
   }
 
+  async getBilling(id: string) {
+    const school = await this.findOne(id);
+    // In a real system, we would fetch invoices from an 'invoices' table.
+    // For this prototype, we'll return the school data and some mock invoices.
+    return {
+      ...school,
+      invoices: [
+        { id: "INV-1023", date: "Oct 1, 2026", amount: "$149.00", status: "Paid" },
+        { id: "INV-1022", date: "Sep 1, 2026", amount: "$149.00", status: "Paid" },
+        { id: "INV-1021", date: "Aug 1, 2026", amount: "$149.00", status: "Paid" }
+      ]
+    };
+  }
+
   async validate(schoolId: string): Promise<{ exists: boolean }> {
     const school = await this.schoolRepo.findOneBy({ id: schoolId, isActive: true });
     return { exists: !!school };

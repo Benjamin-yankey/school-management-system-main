@@ -5,6 +5,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
+import Navbar from "./components/Navbar";
 import SignIn from "./components/SignIn";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
@@ -25,6 +26,7 @@ import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import AddStudent from "./pages/AddStudent";
+import AccountPage from "./pages/AccountPage";
 import NotificationServicePage from "./lib/NotificationService";
 import { useAuth } from "./contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +51,7 @@ const NotificationsRoute = () => {
 
   return (
     <div className="app">
-      <Header />
+      <Navbar />
       <div className="app-main-content" style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <NotificationServicePage token={token} serviceUrl={serviceUrl} userId={user?.id} />
       </div>
@@ -72,7 +74,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="superadmin">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <SuperAdminDashboard />
                   </div>
                 </ProtectedRoute>
@@ -109,13 +111,23 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/force-reset" element={<ForceResetPassword />} />
             
+            {/* Account Settings Page */}
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Add Student Page (admin only) */}
             <Route
               path="/add-student"
               element={
                 <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <AddStudent />
                   </div>
                 </ProtectedRoute>
@@ -128,7 +140,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <AdminDashboard />
                   </div>
                 </ProtectedRoute>
@@ -155,7 +167,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <StudentDashboard />
                   </div>
                 </ProtectedRoute>
@@ -166,7 +178,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <StudentAssignments />
                   </div>
                 </ProtectedRoute>
@@ -177,7 +189,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <StudentGrades />
                   </div>
                 </ProtectedRoute>
@@ -188,7 +200,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <StudentTimetable />
                   </div>
                 </ProtectedRoute>
@@ -199,7 +211,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <StudentPayments />
                   </div>
                 </ProtectedRoute>
@@ -212,7 +224,7 @@ export default function App() {
               element={
                 <ProtectedRoute requiredRole="parent">
                   <div className="app">
-                    <Header />
+                    <Navbar />
                     <ParentDashboard />
                   </div>
                 </ProtectedRoute>
