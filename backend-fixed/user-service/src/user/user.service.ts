@@ -203,7 +203,7 @@ export class UserService implements OnModuleInit {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
-    await this.profileRepo.update({ userId }, dto);
+    await this.profileRepo.save({ userId, ...dto });
     return this.getProfile(userId);
   }
 

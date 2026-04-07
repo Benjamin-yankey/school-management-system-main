@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -7,7 +7,8 @@ import api from "../lib/api";
 import { 
   User, Settings, CreditCard, Users, Mail, Lock, 
   Camera, Check, Shield, Plus, MoreHorizontal, FileText, ArrowUpRight,
-  Loader2, AlertCircle
+  Loader2, AlertCircle, Bell, Palette, Globe, Eye, Fingerprint, 
+  Link as LinkIcon, History, LogOut, Monitor, Trash2, Smartphone, Key
 } from "lucide-react";
 
 const C = {
@@ -34,7 +35,6 @@ export default function AccountPage() {
   const auth = useAuth();
   const authUser = auth.user;
   const { isDarkMode: isDark } = useTheme();
-  const navigate = useNavigate();
   
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
@@ -72,13 +72,51 @@ export default function AccountPage() {
     role: "teacher"
   });
 
+  // New Tabs State
+  const [notifs, setNotifs] = useState({
+    emailAlerts: true,
+    browserNotifs: false,
+    weeklyReport: true,
+    loginAlerts: true
+  });
+  const [appearance, setAppearance] = useState({
+    theme: "light",
+    density: "comfortable",
+    fontSize: "medium"
+  });
+  const [region, setRegion] = useState({
+    language: "english",
+    timezone: "UTC",
+    dateFormat: "MM/DD/YYYY"
+  });
+  const [access, setAccess] = useState({
+    reduceMotion: false,
+    highContrast: false,
+    screenReader: false
+  });
+  const [twoFactor, setTwoFactor] = useState(false);
+
+  const TABS = useMemo(() => [
+    { id: "profile", label: "My Profile", icon: User },
+    { id: "account", label: "Account Settings", icon: Settings },
+    { id: "billing", label: "Billing & Plans", icon: CreditCard },
+    { id: "team", label: "Team & Members", icon: Users },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "appearance", label: "Appearance", icon: Palette },
+    { id: "language", label: "Language & Region", icon: Globe },
+    { id: "accessibility", label: "Accessibility", icon: Eye },
+    { id: "security", label: "Privacy & Security", icon: Fingerprint },
+    { id: "apps", label: "Connected Apps", icon: LinkIcon },
+    { id: "activity", label: "Activity Log", icon: History }
+  ], []);
+
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["profile", "account", "billing", "team"].includes(tab)) {
+    if (tab && TABS.some(t => t.id === tab)) {
       setActiveTab(tab);
     }
     fetchProfile();
-  }, [searchParams]);
+  }, [searchParams, TABS]);
 
   useEffect(() => {
     if (activeTab === "team" && (authUser?.role === "administration" || authUser?.role === "superadmin")) {
@@ -142,7 +180,7 @@ export default function AccountPage() {
         firstName: inviteData.firstName,
         lastName: inviteData.lastName,
         role: inviteData.role,
-        password: "TemporaryPassword123!" // Typically system generated
+        password: "TemporaryPassword123!" 
       });
       setMessage({ type: "success", text: `Invitation sent to ${inviteData.email}` });
       setShowInviteModal(false);
@@ -335,17 +373,35 @@ export default function AccountPage() {
       background: type === "success" ? (isDark ? "rgba(16, 185, 129, 0.1)" : "#ecfdf5") : (isDark ? "rgba(239, 68, 68, 0.1)" : "#fef2f2"),
       color: type === "success" ? C.green500 : C.red500,
       border: `1px solid ${type === "success" ? (isDark ? "rgba(16, 185, 129, 0.2)" : "#d1fae5") : (isDark ? "rgba(239, 68, 68, 0.2)" : "#fee2e2")}`
-    })
+    }),
+    switch: (enabled) => ({
+      width: 40,
+      height: 20,
+      borderRadius: 10,
+      background: enabled ? C.purple600 : (isDark ? C.gray700 : C.gray200),
+      position: "relative",
+      cursor: "pointer",
+      transition: "background 0.2s"
+    }),
+    switchThumb: (enabled) => ({
+      width: 16,
+      height: 16,
+      borderRadius: "50%",
+      background: C.white,
+      position: "absolute",
+      top: 2,
+      left: enabled ? 22 : 2,
+      transition: "left 0.2s"
+    }),
+    card: {
+      border: `1px solid ${isDark ? C.gray800 : C.gray200}`,
+      borderRadius: 12,
+      padding: "1rem",
+      marginBottom: "1rem"
+    }
   });
 
   const s = getStyle(isDark);
-
-  const TABS = [
-    { id: "profile", label: "My Profile", icon: User },
-    { id: "account", label: "Account Settings", icon: Settings },
-    { id: "billing", label: "Billing & Plans", icon: CreditCard },
-    { id: "team", label: "Team & Members", icon: Users }
-  ];
 
   if (loading) {
     return (
@@ -826,6 +882,302 @@ export default function AccountPage() {
                 </div>
               )}
 
+            </div>
+          )}
+
+          {/* NOTIFICATIONS TAB */}
+          {activeTab === "notifications" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Notifications</h2>
+              <p style={s.panelDesc}>Manage how you receive alerts, emails, and reminders.</p>
+              
+              <div style={s.fieldGroup}>
+                {[
+                  { id: "emailAlerts", label: "Email Notifications", desc: "Receive email updates about account activity and security.", icon: Mail },
+                  { id: "browserNotifs", label: "Browser Notifications", desc: "Get real-time alerts on your desktop even when the app is closed.", icon: Monitor },
+                  { id: "weeklyReport", label: "Weekly Digest", desc: "A summary of your school's performance and activity once a week.", icon: FileText },
+                  { id: "loginAlerts", label: "Login Alerts", desc: "Get notified whenever someone logs into your account from a new device.", icon: Shield }
+                ].map(item => (
+                  <div key={item.id} style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: isDark ? C.gray800 : C.gray100, display: "flex", alignItems: "center", justifyContent: "center", color: C.purple600 }}>
+                        <item.icon size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{item.label}</div>
+                        <div style={{ fontSize: 12, color: isDark ? C.gray400 : C.gray500 }}>{item.desc}</div>
+                      </div>
+                    </div>
+                    <div style={s.switch(notifs[item.id])} onClick={() => setNotifs({...notifs, [item.id]: !notifs[item.id]})}>
+                      <div style={s.switchThumb(notifs[item.id])}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* APPEARANCE TAB */}
+          {activeTab === "appearance" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Appearance</h2>
+              <p style={s.panelDesc}>Customize the visual look and feel of your dashboard.</p>
+              
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Theme Preference</label>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  {[
+                    { id: "light", label: "Light", icon: Palette },
+                    { id: "dark", label: "Dark", icon: Monitor },
+                    { id: "system", label: "System", icon: Settings }
+                  ].map(t => (
+                    <button 
+                      key={t.id}
+                      style={{ 
+                        flex: 1, padding: "1rem", borderRadius: 12, border: `2px solid ${appearance.theme === t.id ? C.purple600 : (isDark ? C.gray800 : C.gray200)}`,
+                        background: appearance.theme === t.id ? (isDark ? "rgba(91, 45, 142, 0.1)" : C.purple50) : "transparent",
+                        cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, transition: "all 0.2s"
+                      }}
+                      onClick={() => setAppearance({...appearance, theme: t.id})}
+                    >
+                      <t.icon size={24} color={appearance.theme === t.id ? C.purple600 : (isDark ? C.gray400 : C.gray500)} />
+                      <span style={{ fontSize: 13, fontWeight: 600, color: appearance.theme === t.id ? C.purple600 : (isDark ? C.gray200 : C.gray700) }}>{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Interface Density</label>
+                <select 
+                  style={s.input} 
+                  value={appearance.density} 
+                  onChange={(e) => setAppearance({...appearance, density: e.target.value})}
+                >
+                  <option value="comfortable">Comfortable</option>
+                  <option value="compact">Compact</option>
+                </select>
+              </div>
+
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Font Size</label>
+                <input 
+                  type="range" min="1" max="3" step="1" 
+                  style={{ width: "100%", accentColor: C.purple600 }} 
+                  value={appearance.fontSize === "small" ? 1 : appearance.fontSize === "medium" ? 2 : 3}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setAppearance({...appearance, fontSize: val === 1 ? "small" : val === 2 ? "medium" : "large"});
+                  }}
+                />
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12, color: C.gray500 }}>
+                  <span>Small</span>
+                  <span>Medium</span>
+                  <span>Large</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LANGUAGE TAB */}
+          {activeTab === "language" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Language & Region</h2>
+              <p style={s.panelDesc}>Configure your preferred language, timezone, and date formats.</p>
+              
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Primary Language</label>
+                <div style={{ position: "relative" }}>
+                  <Globe size={16} style={{ position: "absolute", left: 14, top: 11, color: isDark ? C.gray500 : C.gray400 }} />
+                  <select 
+                    style={{ ...s.input, paddingLeft: 38 }} 
+                    value={region.language}
+                    onChange={(e) => setRegion({...region, language: e.target.value})}
+                  >
+                    <option value="english">English (US)</option>
+                    <option value="spanish">Español</option>
+                    <option value="french">Français</option>
+                    <option value="german">Deutsch</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Timezone</label>
+                <select 
+                  style={s.input} 
+                  value={region.timezone}
+                  onChange={(e) => setRegion({...region, timezone: e.target.value})}
+                >
+                  <option value="UTC">UTC (Greenwich Mean Time)</option>
+                  <option value="EST">EST (Eastern Standard Time)</option>
+                  <option value="PST">PST (Pacific Standard Time)</option>
+                </select>
+              </div>
+
+              <div style={s.fieldGroup}>
+                <label style={s.label}>Date Format</label>
+                <select 
+                  style={s.input} 
+                  value={region.dateFormat}
+                  onChange={(e) => setRegion({...region, dateFormat: e.target.value})}
+                >
+                  <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2026)</option>
+                  <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2026)</option>
+                  <option value="YYYY-MM-DD">YYYY-MM-DD (2026-12-31)</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* ACCESSIBILITY TAB */}
+          {activeTab === "accessibility" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Accessibility</h2>
+              <p style={s.panelDesc}>Enhance your experience with inclusive features and settings.</p>
+              
+              <div style={s.fieldGroup}>
+                {[
+                  { id: "reduceMotion", label: "Reduce Motion", desc: "Minimize animations and transitions for a smoother experience.", icon: Smartphone },
+                  { id: "highContrast", label: "High Contrast", desc: "Increase the contrast between text and background colors.", icon: Eye },
+                  { id: "screenReader", label: "Screen Reader Support", desc: "Enable optimized markup and labels for assistive technologies.", icon: Monitor }
+                ].map(item => (
+                  <div key={item.id} style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: isDark ? C.gray800 : C.gray100, display: "flex", alignItems: "center", justifyContent: "center", color: C.purple600 }}>
+                        <item.icon size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{item.label}</div>
+                        <div style={{ fontSize: 12, color: isDark ? C.gray400 : C.gray500 }}>{item.desc}</div>
+                      </div>
+                    </div>
+                    <div style={s.switch(access[item.id])} onClick={() => setAccess({...access, [item.id]: !access[item.id]})}>
+                      <div style={s.switchThumb(access[item.id])}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PRIVACY & SECURITY TAB */}
+          {activeTab === "security" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Privacy & Security</h2>
+              <p style={s.panelDesc}>Manage your login security and control how your data is used.</p>
+              
+              <div style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: isDark ? "rgba(124, 58, 237, 0.1)" : C.purple50, display: "flex", alignItems: "center", justifyContent: "center", color: C.purple600 }}>
+                    <Smartphone size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>Two-Factor Authentication (2FA)</div>
+                    <div style={{ fontSize: 12, color: isDark ? C.gray400 : C.gray500 }}>Add an extra layer of security to your account.</div>
+                  </div>
+                </div>
+                <button 
+                  style={twoFactor ? s.btnSecondary : s.btnPrimary}
+                  onClick={() => setTwoFactor(!twoFactor)}
+                >
+                  {twoFactor ? "Disable" : "Enable"}
+                </button>
+              </div>
+
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: isDark ? C.white : C.gray900, marginBottom: "1rem" }}>Active Sessions</h3>
+              <div style={{ borderRadius: 10, border: `1px solid ${isDark ? C.gray800 : C.gray200}`, overflow: "hidden", marginBottom: "2rem" }}>
+                {[
+                  { device: "MacBook Pro 14\"", location: "Accra, GH", current: true, time: "Now" },
+                  { device: "iPhone 15 Pro", location: "Lagos, NG", current: false, time: "2 hours ago" }
+                ].map((session, idx) => (
+                  <div key={idx} style={{ 
+                    display: "flex", justifyContent: "space-between", alignItems: "center", 
+                    padding: "12px 16px", borderBottom: idx === 0 ? `1px solid ${isDark ? C.gray800 : C.gray200}` : "none",
+                    background: isDark ? C.gray900 : C.white
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <Monitor size={16} color={isDark ? C.gray500 : C.gray400} />
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>
+                          {session.device} {session.current && <span style={{ color: C.green500, fontSize: 11, marginLeft: 8 }}>(Current)</span>}
+                        </div>
+                        <div style={{ fontSize: 12, color: isDark ? C.gray400 : C.gray500 }}>{session.location} • {session.time}</div>
+                      </div>
+                    </div>
+                    {!session.current && <button style={{ background: "none", border: "none", color: C.red500, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Revoke</button>}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ ...s.card, borderColor: isDark ? "#451a1a" : "#fee2e2", background: isDark ? "rgba(220, 38, 38, 0.05)" : "#fef2f2" }}>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: C.red500, marginBottom: 8 }}>Danger Zone</h3>
+                <p style={{ fontSize: 13, color: isDark ? C.gray400 : C.gray600, marginBottom: "1rem" }}>Once you delete your account, there is no going back. Please be certain.</p>
+                <button style={{ ...s.btnSecondary, borderColor: C.red500, color: C.red500, background: "transparent" }}>Delete Account</button>
+              </div>
+            </div>
+          )}
+
+          {/* CONNECTED APPS TAB */}
+          {activeTab === "apps" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Connected Apps</h2>
+              <p style={s.panelDesc}>Manage third-party integrations and application access.</p>
+              
+              <div style={s.fieldGroup}>
+                {[
+                  { id: "google", label: "Google", desc: "Calendar, Meet and Drive integration.", icon: Globe },
+                  { id: "slack", label: "Slack", desc: "Receive notifications and alerts in Slack.", icon: Bell },
+                  { id: "zoom", label: "Zoom", desc: "Schedule and join virtual classrooms.", icon: Monitor }
+                ].map(app => (
+                  <div key={app.id} style={{ ...s.card, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: isDark ? C.gray800 : C.gray100, display: "flex", alignItems: "center", justifyContent: "center", color: C.purple600 }}>
+                        <app.icon size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{app.label}</div>
+                        <div style={{ fontSize: 12, color: isDark ? C.gray400 : C.gray500 }}>{app.desc}</div>
+                      </div>
+                    </div>
+                    <button style={s.btnSecondary}>Connect</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ACTIVITY LOG TAB */}
+          {activeTab === "activity" && (
+            <div style={s.panel}>
+              <h2 style={s.panelTitle}>Activity Log</h2>
+              <p style={s.panelDesc}>A comprehensive record of your account activity and login history.</p>
+              
+              <div style={{ borderRadius: 10, border: `1px solid ${isDark ? C.gray800 : C.gray200}`, overflow: "hidden" }}>
+                {[
+                  { action: "Profile Updated", details: "Changed display name and phone number", time: "Oct 24, 2026, 10:45 AM", icon: User },
+                  { action: "Login Success", details: "Signed in from Chrome on macOS", time: "Oct 24, 2026, 09:12 AM", icon: LogOut },
+                  { action: "Password Changed", details: "Security credentials updated successfully", time: "Oct 20, 2026, 02:30 PM", icon: Lock },
+                  { action: "Billing Updated", details: "Subscription renewed for Enterprise Pro", time: "Oct 01, 2026, 12:00 AM", icon: CreditCard }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ 
+                    display: "flex", gap: "1rem", 
+                    padding: "16px", borderBottom: idx !== 3 ? `1px solid ${isDark ? C.gray800 : C.gray200}` : "none",
+                    background: isDark ? C.gray900 : C.white
+                  }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: isDark ? C.gray800 : C.gray100, display: "flex", alignItems: "center", justifyContent: "center", color: isDark ? C.gray400 : C.gray600 }}>
+                      <item.icon size={16} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{item.action}</span>
+                        <span style={{ fontSize: 12, color: isDark ? C.gray500 : C.gray400 }}>{item.time}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: isDark ? C.gray400 : C.gray500 }}>{item.details}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

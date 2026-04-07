@@ -190,13 +190,15 @@ export const AuthProvider = ({ children }) => {
       await api.updateProfile(updates);
       setUser((prev) => {
         if (!prev) return prev;
+        const firstName = updates.firstName !== undefined ? updates.firstName : prev.firstName;
+        const lastName = updates.lastName !== undefined ? updates.lastName : prev.lastName;
+        const middleName = updates.middleName !== undefined ? updates.middleName : prev.middleName;
+        
         const nextUser = {
           ...prev,
           ...updates,
-          name:
-            updates.firstName && updates.lastName
-              ? `${updates.firstName} ${updates.lastName}`
-              : prev.name,
+          name: [firstName, middleName, lastName].filter(Boolean).join(" "),
+          avatar: (firstName?.[0] || prev.name?.[0] || "U").toUpperCase()
         };
         localStorage.setItem("user", JSON.stringify(nextUser));
         return nextUser;
