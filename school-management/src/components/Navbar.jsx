@@ -643,8 +643,9 @@ export default function Navbar() {
                       onClick={() => { 
                         setOpen(false); 
                         setSearch(""); 
-                        if (["profile", "account", "billing", "team"].includes(item.id)) {
-                          navigate(`/account?tab=${item.id}`);
+                        const settingsTabs = ["profile", "account", "billing", "team", "notifications", "appearance", "language", "accessibility", "privacy", "connected", "activity", "help", "feedback", "shortcuts", "whats-new"];
+                        if (settingsTabs.includes(item.id)) {
+                          navigate(`/settings/${item.id}`);
                         }
                       }}
                     />

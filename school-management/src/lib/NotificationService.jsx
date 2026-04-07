@@ -7,8 +7,9 @@
 
 import React, {
   useState, useEffect, useRef, useCallback,
-  createContext, useContext, useReducer,
+  createContext, useContext, useReducer, useMemo
 } from "react";
+import { useTheme as useAppTheme } from "../contexts/ThemeContext";
 import { 
   Bell, Mail, MessageSquare, Smartphone, 
   GraduationCap, CheckCircle2, BarChart2, FileText, 
@@ -18,49 +19,58 @@ import {
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DESIGN TOKENS
+// THEME-AWARE DESIGN TOKENS
 // ─────────────────────────────────────────────────────────────────────────────
-const C = {
-  bg:        "#070D1A",
-  surface:   "#0C1628",
-  card:      "#111F36",
-  cardHover: "#162640",
-  border:    "rgba(255,255,255,0.07)",
-  border2:   "rgba(255,255,255,0.12)",
-  text1:     "#E8F0FF",
-  text2:     "#6B83A8",
-  text3:     "#334D70",
+const getColors = (isDark) => ({
+  bg:        "var(--bg, #F8FAFC)",
+  surface:   "var(--surface, #FFFFFF)",
+  card:      "var(--surface, #FFFFFF)",
+  cardHover: "var(--header-hover, #F1F5F9)",
+  border:    "var(--border, rgba(0,0,0,0.06))",
+  border2:   "var(--header-border, rgba(0,0,0,0.1))",
+  text1:     "var(--text, #0F172A)",
+  text2:     "var(--text-secondary, #64748B)",
+  text3:     "var(--text-muted, #94A3B8)",
   blue:      "#3B82F6",
-  blueBg:    "rgba(59,130,246,0.12)",
+  blueBg:    isDark ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)",
   green:     "#10B981",
-  greenBg:   "rgba(16,185,129,0.12)",
+  greenBg:   isDark ? "rgba(16,185,129,0.12)" : "rgba(16,185,129,0.08)",
   amber:     "#F59E0B",
-  amberBg:   "rgba(245,158,11,0.12)",
+  amberBg:   isDark ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)",
   red:       "#EF4444",
-  redBg:     "rgba(239,68,68,0.12)",
+  redBg:     isDark ? "rgba(239,68,68,0.12)" : "rgba(239,68,68,0.08)",
   purple:    "#8B5CF6",
-  purpleBg:  "rgba(139,92,246,0.12)",
+  purpleBg:  isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.08)",
   teal:      "#06B6D4",
-  tealBg:    "rgba(6,182,212,0.12)",
+  tealBg:    isDark ? "rgba(6,182,212,0.12)" : "rgba(6,182,212,0.08)",
   pink:      "#EC4899",
-  pinkBg:    "rgba(236,72,153,0.12)",
-  input:     "rgba(255,255,255,0.05)",
-  inputBd:   "rgba(255,255,255,0.10)",
+  pinkBg:    isDark ? "rgba(236,72,153,0.12)" : "rgba(236,72,153,0.08)",
+  input:     "var(--input-bg, #F1F5F9)",
+  inputBd:   "var(--input-border, rgba(0,0,0,0.08))",
+});
+
+const CATEGORIES_RAW = {
+  admission:   { label: "Admissions",   icon: GraduationCap, key: "blue"   },
+  attendance:  { label: "Attendance",   icon: CheckCircle2,  key: "green"  },
+  grade:       { label: "Grades",       icon: BarChart2,     key: "amber"  },
+  assignment:  { label: "Assignments",  icon: FileText,      key: "purple" },
+  notice:      { label: "Notices",      icon: Megaphone,     key: "teal"   },
+  user:        { label: "Users",        icon: User,          key: "pink"   },
+  system:      { label: "System",       icon: Settings,      key: "text2"  },
+  promotion:   { label: "Promotions",   icon: TrendingUp,    key: "green"  },
+  security:    { label: "Security",     icon: Shield,        key: "red"    },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NOTIFICATION CATEGORIES
-// ─────────────────────────────────────────────────────────────────────────────
-export const CATEGORIES = {
-  admission:   { label: "Admissions",   icon: GraduationCap, color: C.blue,   bg: C.blueBg   },
-  attendance:  { label: "Attendance",   icon: CheckCircle2,  color: C.green,  bg: C.greenBg  },
-  grade:       { label: "Grades",       icon: BarChart2,     color: C.amber,  bg: C.amberBg  },
-  assignment:  { label: "Assignments",  icon: FileText,      color: C.purple, bg: C.purpleBg },
-  notice:      { label: "Notices",      icon: Megaphone,     color: C.teal,   bg: C.tealBg   },
-  user:        { label: "Users",        icon: User,          color: C.pink,   bg: C.pinkBg   },
-  system:      { label: "System",       icon: Settings,      color: C.text2,  bg: C.input    },
-  promotion:   { label: "Promotions",   icon: TrendingUp,    color: C.green,  bg: C.greenBg  },
-  security:    { label: "Security",     icon: Shield,        color: C.red,    bg: C.redBg    },
+const getCategories = (C) => {
+  const cats = {};
+  Object.entries(CATEGORIES_RAW).forEach(([key, val]) => {
+    cats[key] = {
+      ...val,
+      color: C[val.key] || C.text2,
+      bg: C[val.key + "Bg"] || C.input
+    };
+  });
+  return cats;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -120,18 +130,18 @@ function useClickOutside(ref, fn) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SMALL UI PRIMITIVES
 // ─────────────────────────────────────────────────────────────────────────────
-function Spinner({ size = 16, color = C.text2 }) {
+function Spinner({ size = 16, color = "#6B83A8" }) {
   return (
     <RefreshCw size={size} color={color} className="n-spin" style={{ animation: "nspin 1s linear infinite" }} />
   );
 }
 
-function PriorityDot({ priority }) {
+function PriorityDot({ priority, C }) {
   const col = priority === "high" ? C.red : priority === "normal" ? C.amber : C.text3;
   return <span style={{ width: 7, height: 7, borderRadius: "50%", background: col, display: "inline-block", flexShrink: 0 }} />;
 }
 
-function CategoryBadge({ category }) {
+function CategoryBadge({ category, C, CATEGORIES }) {
   const cat = CATEGORIES[category] || CATEGORIES.system;
   const Icon = cat.icon;
   return (
@@ -148,7 +158,7 @@ function CategoryBadge({ category }) {
   );
 }
 
-function Toggle({ value, onChange, disabled }) {
+function Toggle({ value, onChange, disabled, C }) {
   return (
     <button
       onClick={() => !disabled && onChange(!value)}
@@ -173,7 +183,7 @@ function Toggle({ value, onChange, disabled }) {
   );
 }
 
-function SectionHeader({ icon: Icon, title, sub, action }) {
+function SectionHeader({ icon: Icon, title, sub, action, C }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -197,7 +207,7 @@ function SectionHeader({ icon: Icon, title, sub, action }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // NOTIFICATION ITEM
 // ─────────────────────────────────────────────────────────────────────────────
-function NotifItem({ notif, onRead, onDelete, compact = false }) {
+function NotifItem({ notif, onRead, onDelete, compact = false, C, CATEGORIES }) {
   const cat = CATEGORIES[notif.category] || CATEGORIES.system;
   const Icon = cat.icon;
   return (
@@ -243,7 +253,7 @@ function NotifItem({ notif, onRead, onDelete, compact = false }) {
             {notif.title}
           </p>
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-            <PriorityDot priority={notif.priority} />
+            <PriorityDot priority={notif.priority} C={C} />
           </div>
         </div>
         {!compact && (
@@ -255,7 +265,7 @@ function NotifItem({ notif, onRead, onDelete, compact = false }) {
           <span style={{ fontSize: 11, color: C.text3 }}>{timeAgo(notif.time)}</span>
           {!compact && <span style={{ fontSize: 11, color: C.text3 }}>·</span>}
           {!compact && <span style={{ fontSize: 11, color: C.text3 }}>by {notif.actor || 'System'}</span>}
-          {!compact && <CategoryBadge category={notif.category} />}
+          {!compact && <CategoryBadge category={notif.category} C={C} CATEGORIES={CATEGORIES} />}
         </div>
       </div>
 
@@ -283,6 +293,10 @@ function NotifItem({ notif, onRead, onDelete, compact = false }) {
 // NOTIFICATION BELL
 // ─────────────────────────────────────────────────────────────────────────────
 export function NotificationBell({ token, serviceUrl = "http://localhost:3001", onOpenCenter }) {
+  const { isDarkMode } = useAppTheme();
+  const C = useMemo(() => getColors(isDarkMode), [isDarkMode]);
+  const CATEGORIES = useMemo(() => getCategories(C), [C]);
+
   const [notifs, dispatch] = useReducer(notifReducer, { list: [] });
   const [open, setOpen]    = useState(false);
   const [loading, setLoading] = useState(false);
@@ -322,6 +336,14 @@ export function NotificationBell({ token, serviceUrl = "http://localhost:3001", 
     dispatch({ type: "DELETE", id });
     try { await notifApi(serviceUrl, token, "DELETE", `/notifications/${id}`); } catch {}
   };
+  
+  const pillBtn = {
+    padding: "5px 11px", borderRadius: 7,
+    background: C.input, border: `1px solid ${C.inputBd}`,
+    color: C.text2, fontSize: 11, fontWeight: 600,
+    cursor: "pointer", fontFamily: "inherit",
+    display: "inline-flex", alignItems: "center", gap: 4,
+  };
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -355,10 +377,12 @@ export function NotificationBell({ token, serviceUrl = "http://localhost:3001", 
 
       {open && (
         <div className="toolbar-panel notifications" style={{
+          position: "absolute", top: "calc(100% + 12px)", right: 0,
+          minWidth: 320, maxWidth: 360,
           maxHeight: 520,
           background: C.card, border: `1px solid ${C.border2}`,
           borderRadius: 16, overflow: "hidden",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+          boxShadow: isDarkMode ? "0 20px 60px rgba(0,0,0,0.5)" : "0 20px 60px rgba(0,0,0,0.1)",
           zIndex: 300, display: "flex", flexDirection: "column",
         }}>
           {/* Header */}
@@ -386,8 +410,8 @@ export function NotificationBell({ token, serviceUrl = "http://localhost:3001", 
           </div>
 
           {/* Filter tabs */}
-          <NotifFilterTabs notifs={notifs.list} renderItem={(n) => (
-            <NotifItem key={n.id} notif={n} onRead={markOne} onDelete={del} compact />
+          <NotifFilterTabs notifs={notifs.list} C={C} renderItem={(n) => (
+            <NotifItem key={n.id} notif={n} onRead={markOne} onDelete={del} compact C={C} CATEGORIES={CATEGORIES} />
           )} />
 
           {/* Footer */}
@@ -412,7 +436,7 @@ export function NotificationBell({ token, serviceUrl = "http://localhost:3001", 
 }
 
 // Filter tab component
-function NotifFilterTabs({ notifs, renderItem }) {
+function NotifFilterTabs({ notifs, renderItem, C }) {
   const [tab, setTab] = useState("all");
   const tabs = [
     { key: "all",    label: "All"    },
@@ -443,7 +467,7 @@ function NotifFilterTabs({ notifs, renderItem }) {
         {filtered.length === 0 && (
           <div style={{ padding: 32, textAlign: "center", color: C.text3, fontSize: 13 }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
-              <Bell size={32} opacity={0.5} />
+              <Bell size={32} opacity={0.5} color={C.text3} />
             </div>
             No notifications here
           </div>
@@ -454,18 +478,14 @@ function NotifFilterTabs({ notifs, renderItem }) {
   );
 }
 
-const pillBtn = {
-  padding: "5px 11px", borderRadius: 7,
-  background: C.input, border: `1px solid ${C.inputBd}`,
-  color: C.text2, fontSize: 11, fontWeight: 600,
-  cursor: "pointer", fontFamily: "inherit",
-  display: "inline-flex", alignItems: "center", gap: 4,
-};
-
 // ─────────────────────────────────────────────────────────────────────────────
 // NOTIFICATION CENTER
 // ─────────────────────────────────────────────────────────────────────────────
-export function NotificationCenter({ token, serviceUrl = "http://localhost:3001", userId }) {
+export function NotificationCenter({ token, serviceUrl = "http://localhost:3001", userId, C_EXT, CAT_EXT }) {
+  const { isDarkMode } = useAppTheme();
+  const C = C_EXT || getColors(isDarkMode);
+  const CATEGORIES = CAT_EXT || getCategories(C);
+
   const [notifs, dispatch]    = useReducer(notifReducer, { list: [] });
   const [loading, setLoading] = useState(false);
   const [page, setPage]       = useState(1);
@@ -475,6 +495,14 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
   const [search, setSearch]   = useState("");
   const [selected, setSelected] = useState(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+
+  const pillBtn = {
+    padding: "5px 11px", borderRadius: 7,
+    background: C.input, border: `1px solid ${C.inputBd}`,
+    color: C.text2, fontSize: 11, fontWeight: 600,
+    cursor: "pointer", fontFamily: "inherit",
+    display: "inline-flex", alignItems: "center", gap: 4,
+  };
 
   const load = useCallback(async (pageNum = 1) => {
     if (!token) return;
@@ -575,6 +603,7 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
         icon={Bell}
         title="Notification Center"
         sub={`${unreadCount} unread notifications · ${notifs.list.length} total`}
+        C={C}
         action={
           <div style={{ display: "flex", gap: 8 }}>
             {unreadCount > 0 && (
@@ -674,13 +703,13 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
         </div>
       )}
 
-      {/* Notification list */}
+      {/* Notification list container */}
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
         {/* List header */}
         <div style={{
           display: "flex", alignItems: "center", gap: 10,
-          padding: "10px 16px", borderBottom: `1px solid ${C.border}`,
-          background: C.surface,
+          padding: "12px 16px", borderBottom: `1px solid ${C.border}`,
+          background: "var(--surface-muted, #F8FAFC)",
         }}>
           <input
             type="checkbox"
@@ -721,7 +750,7 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
               />
             </div>
             <div style={{ flex: 1 }}>
-              <NotifItem notif={n} onRead={markOne} onDelete={del} />
+              <NotifItem notif={n} onRead={markOne} onDelete={del} C={C} CATEGORIES={CATEGORIES} />
             </div>
           </div>
         ))}
@@ -745,7 +774,11 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
 // ─────────────────────────────────────────────────────────────────────────────
 // NOTIFICATION PREFERENCES
 // ─────────────────────────────────────────────────────────────────────────────
-export function NotificationPreferences({ token, serviceUrl = "http://localhost:3001" }) {
+export function NotificationPreferences({ token, serviceUrl = "http://localhost:3001", C_EXT, CAT_EXT }) {
+  const { isDarkMode } = useAppTheme();
+  const C = C_EXT || getColors(isDarkMode);
+  const CATEGORIES = CAT_EXT || getCategories(C);
+
   const [prefs, setPrefs]     = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -808,6 +841,18 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
     { key: "push",  label: "Push",      icon: Smartphone, desc: "Browser push notification" },
   ];
 
+  const sCard = {
+    background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 22px",
+  };
+  const sCardTitle = {
+    fontSize: 12, fontWeight: 800, color: C.text2,
+    textTransform: "uppercase", letterSpacing: 0.9, margin: "0 0 4px",
+  };
+  const thStyle = {
+    fontSize: 10, fontWeight: 700, color: C.text3,
+    textTransform: "uppercase", letterSpacing: 0.8, margin: 0,
+  };
+
   if (loading) return (
     <div style={{ display: "flex", justifyContent: "center", padding: 48, color: C.text2 }}>
       <Spinner size={28} color={C.blue} />
@@ -827,6 +872,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
         icon={Settings}
         title="Notification Preferences"
         sub="Control how and when you receive notifications from the school system."
+        C={C}
         action={
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {saved && <span style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>✓ Saved</span>}
@@ -861,7 +907,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <ChanIcon size={22} color={prefs.channels[ch.key] ? C.blue : C.text2} />
-                  <Toggle value={prefs.channels[ch.key]} onChange={(v) => setChanPref(ch.key, v)} />
+                  <Toggle value={prefs.channels[ch.key]} onChange={(v) => setChanPref(ch.key, v)} C={C} />
                 </div>
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 700, color: prefs.channels[ch.key] ? C.blue : C.text1, margin: "0 0 2px" }}>{ch.label}</p>
@@ -891,7 +937,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
             const ChIcon = ch.icon;
             return (
               <div key={ch.key} style={{ textAlign: "center" }}>
-                <ChIcon size={16} style={{ display: "block", margin: "0 auto" }} />
+                <ChIcon size={16} style={{ display: "block", margin: "0 auto" }} color={C.text2} />
                 <p style={{ ...thStyle, marginTop: 2, textAlign: "center" }}>{ch.label}</p>
               </div>
             );
@@ -917,6 +963,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
                     value={prefs.categories[catKey]?.[ch.key] ?? false}
                     onChange={(v) => setCatPref(catKey, ch.key, v)}
                     disabled={!prefs.channels[ch.key]}
+                    C={C}
                   />
                 </div>
               ))}
@@ -937,7 +984,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
           </p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, color: C.text1, fontWeight: 500 }}>Enable digest</span>
-            <Toggle value={prefs.digest.enabled} onChange={(v) => setPrefs((p) => ({ ...p, digest: { ...p.digest, enabled: v } }))} />
+            <Toggle value={prefs.digest.enabled} onChange={(v) => setPrefs((p) => ({ ...p, digest: { ...p.digest, enabled: v } }))} C={C} />
           </div>
           {prefs.digest.enabled && (
             <>
@@ -972,7 +1019,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
           </p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, color: C.text1, fontWeight: 500 }}>Enable quiet hours</span>
-            <Toggle value={prefs.quiet.enabled} onChange={(v) => setPrefs((p) => ({ ...p, quiet: { ...p.quiet, enabled: v } }))} />
+            <Toggle value={prefs.quiet.enabled} onChange={(v) => setPrefs((p) => ({ ...p, quiet: { ...p.quiet, enabled: v } }))} C={C} />
           </div>
           {prefs.quiet.enabled && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -1038,22 +1085,14 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
   );
 }
 
-const sCard = {
-  background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 22px",
-};
-const sCardTitle = {
-  fontSize: 12, fontWeight: 800, color: C.text2,
-  textTransform: "uppercase", letterSpacing: 0.9, margin: "0 0 4px",
-};
-const thStyle = {
-  fontSize: 10, fontWeight: 700, color: C.text3,
-  textTransform: "uppercase", letterSpacing: 0.8, margin: 0,
-};
-
 // ─────────────────────────────────────────────────────────────────────────────
-// DEFAULT EXPORT
+// MAIN PAGE EXPORT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function NotificationServicePage({ token, serviceUrl = "http://localhost:3001", userId }) {
+  const { isDarkMode } = useAppTheme();
+  const C = useMemo(() => getColors(isDarkMode), [isDarkMode]);
+  const CATEGORIES = useMemo(() => getCategories(C), [C]);
+
   const [tab, setTab] = useState("center");
   const TABS = [
     { key: "center",      label: "Notification center", icon: Bell },
@@ -1066,26 +1105,67 @@ export default function NotificationServicePage({ token, serviceUrl = "http://lo
         @keyframes nbadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}} 
         *{box-sizing:border-box}
       `}</style>
-      <div style={{ display: "flex", gap: 4, marginBottom: 28, borderBottom: `1px solid ${C.border}`, paddingBottom: 0 }}>
+      
+      {/* Sliding Segment Toggle */}
+      <div style={{ 
+        display: "flex", 
+        background: C.surface, 
+        padding: 4, 
+        borderRadius: 14, 
+        width: "fit-content", 
+        marginBottom: 28,
+        border: `1px solid ${C.border}`,
+        position: "relative",
+        boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.05)"
+      }}>
+        {/* Animated Background Slider */}
+        <div style={{
+          position: "absolute",
+          top: 4,
+          bottom: 4,
+          left: tab === "center" ? 4 : "50%",
+          width: "calc(50% - 4px)",
+          background: C.blue,
+          borderRadius: 10,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          zIndex: 0,
+          boxShadow: `0 4px 10px ${C.blue}44`
+        }} />
+
         {TABS.map((t) => {
           const TabIcon = t.icon;
+          const isActive = tab === t.key;
           return (
-            <button key={t.key} onClick={() => setTab(t.key)} style={{
-              display: "flex", alignItems: "center", gap: 7, padding: "10px 18px",
-              background: "none", border: "none", cursor: "pointer",
-              color: tab === t.key ? C.blue : C.text2,
-              fontWeight: tab === t.key ? 700 : 500, fontSize: 13, fontFamily: "inherit",
-              borderBottom: `2px solid ${tab === t.key ? C.blue : "transparent"}`,
-              marginBottom: -1, transition: "all .15s",
-            }}>
+            <button 
+              key={t.key} 
+              onClick={() => setTab(t.key)} 
+              style={{
+                display: "flex", 
+                alignItems: "center", 
+                gap: 8, 
+                padding: "8px 24px",
+                background: "none", 
+                border: "none", 
+                cursor: "pointer",
+                color: isActive ? "#fff" : C.text2,
+                fontWeight: 700, 
+                fontSize: 13, 
+                fontFamily: "inherit",
+                position: "relative",
+                zIndex: 1,
+                transition: "color 0.3s",
+                whiteSpace: "nowrap"
+              }}
+            >
               <TabIcon size={16} />
               {t.label}
             </button>
           );
         })}
       </div>
-      {tab === "center"      && <NotificationCenter      token={token} serviceUrl={serviceUrl} userId={userId} />}
-      {tab === "preferences" && <NotificationPreferences token={token} serviceUrl={serviceUrl} />}
+
+      {tab === "center"      && <NotificationCenter      token={token} serviceUrl={serviceUrl} userId={userId} C_EXT={C} CAT_EXT={CATEGORIES} />}
+      {tab === "preferences" && <NotificationPreferences token={token} serviceUrl={serviceUrl} C_EXT={C} CAT_EXT={CATEGORIES} />}
     </div>
   );
 }

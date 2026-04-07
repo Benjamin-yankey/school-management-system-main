@@ -26,7 +26,14 @@ import ProgramsPage from "./pages/ProgramsPage";
 import CampusPage from "./pages/CampusPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import AddStudent from "./pages/AddStudent";
-import AccountPage from "./pages/AccountPage";
+import SettingsLayout from "./pages/settings/SettingsLayout";
+import ProfileSettings from "./pages/settings/ProfileSettings";
+import AccountSettings from "./pages/settings/AccountSettings";
+import BillingSettings from "./pages/settings/BillingSettings";
+import TeamSettings from "./pages/settings/TeamSettings";
+import GeneralSettings from "./pages/settings/GeneralSettings";
+import SecuritySettings from "./pages/settings/SecuritySettings";
+import SupportSettings from "./pages/settings/SupportSettings";
 import NotificationServicePage from "./lib/NotificationService";
 import { useAuth } from "./contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -111,15 +118,41 @@ export default function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/force-reset" element={<ForceResetPassword />} />
             
-            {/* Account Settings Page */}
+            {/* Nested Settings Routes */}
             <Route
-              path="/account"
+              path="/settings"
               element={
                 <ProtectedRoute>
-                  <AccountPage />
+                  <SettingsLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="profile" replace />} />
+              <Route path="profile" element={<ProfileSettings />} />
+              <Route path="account" element={<AccountSettings />} />
+              <Route path="billing" element={<BillingSettings />} />
+              <Route path="team" element={<TeamSettings />} />
+              
+              {/* General Category */}
+              <Route path="notifications" element={<GeneralSettings />} />
+              <Route path="appearance" element={<GeneralSettings />} />
+              <Route path="language" element={<GeneralSettings />} />
+              <Route path="accessibility" element={<GeneralSettings />} />
+              
+              {/* Security Category */}
+              <Route path="privacy" element={<SecuritySettings />} />
+              <Route path="connected" element={<SecuritySettings />} />
+              <Route path="activity" element={<SecuritySettings />} />
+              
+              {/* Support Category */}
+              <Route path="help" element={<SupportSettings />} />
+              <Route path="feedback" element={<SupportSettings />} />
+              <Route path="shortcuts" element={<SupportSettings />} />
+              <Route path="whats-new" element={<SupportSettings />} />
+            </Route>
+            
+            {/* Redirect old /account to /settings/profile */}
+            <Route path="/account" element={<Navigate to="/settings/profile" replace />} />
             
             {/* Add Student Page (admin only) */}
             <Route
