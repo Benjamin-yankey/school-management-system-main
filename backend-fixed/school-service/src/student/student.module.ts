@@ -7,10 +7,11 @@ import { ParentStudent } from '../parent/parent-student.entity';
 import { StudentService } from './student.service';
 import { StudentController } from './student.controller';
 import { ClassesModule } from '../classes/classes.module';
+import { UserShadow, ProfileShadow } from './user-shadow.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Student, StudentEnrollment, Application, ParentStudent]),
+    TypeOrmModule.forFeature([Student, StudentEnrollment, Application, ParentStudent, UserShadow, ProfileShadow]),
     ClassesModule,
   ],
   controllers: [StudentController],

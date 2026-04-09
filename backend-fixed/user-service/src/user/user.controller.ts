@@ -81,7 +81,7 @@ export class UserController {
   // ── Administration ─────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
-  @Roles('administration')
+  @Roles('superadmin', 'administration')
   @Post('administration/create-user')
   createUser(@CurrentUser() user: any, @Body() dto: CreateUserDto) {
     // Pass user.id — service resolves schoolId from DB (it's not in the JWT)
@@ -89,21 +89,21 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard, ScopeGuard)
-  @Roles('administration')
+  @Roles('superadmin', 'administration')
   @Post('administration/reset-password/:id')
   resetUserPassword(@Param('id') id: string, @CurrentUser() user: any) {
     return this.userService.resetUserPassword(id, user.id);
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
-  @Roles('administration')
+  @Roles('superadmin', 'administration')
   @Get('administration/users')
   listUsers(@CurrentUser() user: any) {
     return this.userService.listSchoolUsers(user.id);
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard, ScopeGuard)
-  @Roles('administration')
+  @Roles('superadmin', 'administration')
   @Patch('administration/deactivate/:id')
   deactivateUser(@Param('id') id: string, @CurrentUser() user: any) {
     return this.userService.deactivateSchoolUser(id, user.id);
@@ -117,7 +117,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard, ScopeGuard)
-  @Roles('administration')
+  @Roles('superadmin', 'administration')
   @Patch('administration/activate/:id')
   activateUser(@Param('id') id: string, @CurrentUser() user: any) {
     return this.userService.activateSchoolUser(id, user.id);

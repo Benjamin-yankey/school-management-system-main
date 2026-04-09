@@ -11,8 +11,10 @@ import { ParentStudent } from '../parent/parent-student.entity';
 import { Application, ApplicationStatus } from '../admission/application.entity';
 import { ClassesService } from '../classes/classes.service';
 import { EnrollStudentDto } from './dto/enroll-student.dto';
+import { AssignStudentSectionDto } from './dto/assign-student-section.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { UpdateStudentStatusDto } from './dto/update-student-status.dto';
+import { UserShadow, ProfileShadow } from './user-shadow.entity';
 
 @Injectable()
 export class StudentService {
@@ -25,6 +27,10 @@ export class StudentService {
     private readonly applicationRepo: Repository<Application>,
     @InjectRepository(ParentStudent)
     private readonly parentStudentRepo: Repository<ParentStudent>,
+    @InjectRepository(UserShadow)
+    private readonly userShadowRepo: Repository<UserShadow>,
+    @InjectRepository(ProfileShadow)
+    private readonly profileShadowRepo: Repository<ProfileShadow>,
     private readonly classesService: ClassesService,
   ) {}
 
@@ -111,6 +117,88 @@ export class StudentService {
 
     // 9. Update applicant status to enrolled
     await this.applicationRepo.update(applicant.id, { status: ApplicationStatus.ENROLLED });
+
+    return this.findOne(student.id);
+  }
+
+  async assignToSection(studentId: string, dto: AssignStudentSectionDto): Promise<Student> {
+    // 1. Ensure Student record exists (or create one for manual user creations)
+    let student = await this.studentRepo.findOne({
+      where: [{ id: studentId }, { email: studentId }], // Check by UUID or possibly email if passed
+    });
+
+    if (!student) {
+      // 1b. Check if this is a manual User creation from user-service
+      const user = await this.userShadowRepo.findOneBy({ id: studentId });
+      if (!user) {
+        throw new NotFoundException('Student record not found in school registry, and no corresponding user account found.');
+      }
+      if (user.role !== 'student') {
+        throw new BadRequestException(`User ${user.email} exists but has role "${user.role}". Only students can be enrolled.`);
+      }
+
+      // Fetch profile for name details
+      const profile = await this.profileShadowRepo.findOneBy({ userId: user.id });
+
+      // Generate student ID
+      const count = await this.studentRepo.count();
+      const year = new Date().getFullYear();
+      const generatedId = `STU-M-${year}-${String(count + 1).padStart(4, '0')}`;
+
+      // Create Student record lazily
+      student = await this.studentRepo.save(
+        this.studentRepo.create({
+          id: user.id, // Keep IDs synced
+          studentId: generatedId,
+          firstName: profile?.firstName || 'Unknown',
+          lastName: profile?.lastName || 'Student',
+          middleName: profile?.middleName || null,
+          email: user.email,
+          phoneNumber: profile?.phone || 'N/A',
+        }),
+      );
+    }
+
+    // 2. Validate class level and academic year
+    await this.classesService.findClassLevelById(dto.classLevelId);
+    await this.classesService.getAcademicYearOrFail(dto.academicYearId);
+
+    // 3. Section capacity enforcement
+    if (dto.sectionId) {
+      const section = await this.classesService.findSectionById(dto.sectionId);
+      if (section && section.capacity) {
+        const enrolledCount = await this.enrollmentRepo.count({
+          where: { sectionId: dto.sectionId, academicYearId: dto.academicYearId },
+        });
+        if (enrolledCount >= section.capacity) {
+          throw new BadRequestException(`Section "${section.name}" is full (Capacity: ${section.capacity})`);
+        }
+      }
+    }
+
+    // 4. Check for existing enrollment in this year
+    let enrollment = await this.enrollmentRepo.findOne({
+      where: { studentId: student.id, academicYearId: dto.academicYearId },
+    });
+
+    if (enrollment) {
+      // Update existing
+      enrollment.classLevelId = dto.classLevelId;
+      enrollment.sectionId = dto.sectionId ?? null;
+      enrollment.isRepeating = dto.isRepeating ?? enrollment.isRepeating;
+      await this.enrollmentRepo.save(enrollment);
+    } else {
+      // Create new enrollment record
+      await this.enrollmentRepo.save(
+        this.enrollmentRepo.create({
+          studentId: student.id,
+          classLevelId: dto.classLevelId,
+          academicYearId: dto.academicYearId,
+          sectionId: dto.sectionId ?? null,
+          isRepeating: dto.isRepeating ?? false,
+        }),
+      );
+    }
 
     return this.findOne(student.id);
   }

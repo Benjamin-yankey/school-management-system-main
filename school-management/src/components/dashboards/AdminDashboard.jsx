@@ -736,7 +736,7 @@ function UsersListSection({ refreshTrigger, onSelectUser }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
-  const { classLevels } = useAuth();
+  const { classLevels, activeAcademicYear } = useAuth();
   const [userId, setUserId]             = useState("");
   const [loadingReset, setLoadingReset] = useState(false);
   const [loadingDeact, setLoadingDeact] = useState(false);
@@ -823,6 +823,26 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
       setFeedback({ type: "success", message: "Teacher assigned to section successfully." });
       setSelectedClassId("");
       setSelectedSectionId("");
+    } catch (e) {
+      setFeedback({ type: "error", message: e.message });
+    } finally {
+      setLoadingAssign(false);
+    }
+  };
+
+  const doEnrollStudent = async () => {
+    if (!selectedClassId || !activeAcademicYear) return;
+    setLoadingAssign(true); setFeedback(null);
+    try {
+      await api.assignStudentToSection(activeId, {
+        classLevelId: selectedClassId,
+        academicYearId: activeAcademicYear.id,
+        sectionId: selectedSectionId || undefined
+      });
+      setFeedback({ type: "success", message: "Student enrollment/section updated successfully." });
+      setSelectedClassId("");
+      setSelectedSectionId("");
+      onActionDone?.();
     } catch (e) {
       setFeedback({ type: "error", message: e.message });
     } finally {
@@ -969,7 +989,7 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
               </div>
               <div>
                 <p style={{ fontWeight: 700, margin: 0, fontSize: 14 }}>Assign to Section</p>
-                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>Step 11: Link this teacher to a specific class section.</p>
+                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>Link this teacher to a specific class section.</p>
               </div>
             </div>
  
@@ -1012,6 +1032,68 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
             </button>
           </div>
         )}
+
+        {/* Enroll student in section - Only for students */}
+        {selectedUser?.role === "student" && (
+          <div style={{ marginTop: 24, padding: 20, background: "var(--surface-muted)", borderRadius: 14, border: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#FAEEDA", color: "#854F0B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              </div>
+              <div>
+                <p style={{ fontWeight: 700, margin: 0, fontSize: 14 }}>Enroll in Class/Section</p>
+                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>Assign this student to a specific class and section for {activeAcademicYear?.year || 'active year'}.</p>
+              </div>
+            </div>
+ 
+            <div className="grid-2" style={{ marginBottom: 16 }}>
+              <AdminField label="Academic Year" required disabled>
+                <input 
+                  style={{ ...css.input, background: "#f8f9fa" }} 
+                  value={activeAcademicYear?.year || "None Active"} 
+                  disabled 
+                  readOnly 
+                />
+              </AdminField>
+              <AdminField label="Select Class" required>
+                <select 
+                  style={css.input} 
+                  value={selectedClassId} 
+                  onChange={(e) => setSelectedClassId(e.target.value)}
+                  disabled={loadingAssign || !activeAcademicYear}
+                >
+                  <option value="">-- Choose Class --</option>
+                  {classLevels?.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
+                  ))}
+                </select>
+              </AdminField>
+              <AdminField label="Select Section (Optional)">
+                <select 
+                  style={css.input} 
+                  value={selectedSectionId} 
+                  onChange={(e) => setSelectedSectionId(e.target.value)}
+                  disabled={!selectedClassId || loadingSections || loadingAssign}
+                >
+                  <option value="">{loadingSections ? "Loading..." : "-- Choose Section --"}</option>
+                  {sections.map(s => (
+                    <option key={s.id} value={s.id}>Section {s.name} (Cap: {s.capacity})</option>
+                  ))}
+                </select>
+              </AdminField>
+            </div>
+ 
+            <button 
+              style={{ ...css.btnPrimary, width: "100%", opacity: (!selectedClassId || !activeAcademicYear) ? 0.6 : 1 }} 
+              onClick={doEnrollStudent}
+              disabled={!selectedClassId || !activeAcademicYear || loadingAssign}
+            >
+              {loadingAssign && <AdminSpinner />}
+              {loadingAssign ? "Enrolling..." : "Confirm Enrollment & Section"}
+            </button>
+            {!activeAcademicYear && <p style={{ color: "#e53e3e", fontSize: 11, marginTop: 10 }}>Cannot enroll students without an active academic year defined.</p>}
+          </div>
+        )}
  
         {feedback && (
           <AdminAlert type={feedback.type} message={feedback.message} onClose={() => setFeedback(null)} />
@@ -1024,9 +1106,95 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ACADEMIC OVERVIEW COMPONENTS
-// ─────────────────────────────────────────────────────────────────────────────
+function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssigning }) {
+  const [assignedTeachers, setAssignedTeachers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchAssignments = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.listTeachersForSection(section.id);
+      // Map assignments to actual teacher names from the main teachers list
+      const results = (data || []).map(a => {
+        const t = teachers.find(ts => ts.id === a.teacherUserId);
+        return {
+          id: a.id,
+          userId: a.teacherUserId,
+          name: t ? `${t.firstName} ${t.lastName}` : "Unknown Teacher",
+          email: t?.email || ""
+        };
+      });
+      setAssignedTeachers(results);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [section.id, teachers]);
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [fetchAssignments]);
+
+  return (
+    <div style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 12, padding: "16px", position: "relative", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+        <div>
+          <p style={{ fontWeight: 800, fontSize: 15, margin: 0, color: "var(--text)" }}>Section {section.name}</p>
+          <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "4px 0 0" }}>Max Capacity: {section.capacity}</p>
+        </div>
+        <button 
+          onClick={onDelete} 
+          style={{ background: "#FCEBEB", border: "1px solid #F09595", color: "#A32D2D", cursor: "pointer", padding: "4px 8px", borderRadius: 6, fontSize: 10 }}
+          title="Delete Section"
+        >
+          Delete
+        </button>
+      </div>
+
+      <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: 8 }}>Assigned Personnel</p>
+        
+        {loading && assignedTeachers.length === 0 ? (
+          <p style={{ fontSize: 11, color: "var(--text-secondary)", fontStyle: "italic" }}>Loading assignments...</p>
+        ) : assignedTeachers.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {assignedTeachers.map(at => (
+              <div key={at.userId} style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E6F1FB", color: "#185FA5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700 }}>
+                  {at.name[0]}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{at.name}</p>
+                  <p style={{ fontSize: 9, color: "var(--text-secondary)", margin: 0 }}>{at.email}</p>
+                </div>
+                <button 
+                  onClick={() => onUnassign(at.userId)} 
+                  style={{ background: "none", border: "none", color: "#E24B4A", cursor: "pointer", padding: 4 }}
+                  title="Unassign Teacher"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontSize: 11, color: "var(--text-secondary)", fontStyle: "italic" }}>No teachers assigned.</p>
+        )}
+
+        {!isAssigning && (
+          <button 
+            onClick={onAssign} 
+            style={{ ...css.btnGhost, width: "100%", fontSize: 11, padding: "8px", marginTop: 12, borderStyle: "dashed", borderColor: "var(--accent)" }}
+          >
+            + Assign Teacher
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function ClassSectionsList({ classLevelId, onRefresh }) {
   const { activeAcademicYear } = useAuth();
@@ -1109,11 +1277,25 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
       await api.assignTeacherToSection(selectedTeacherId, assigningTo);
       setAssigningTo(null);
       setSelectedTeacherId("");
+      fetchSections(); // Refresh everything to show the new assignment
       alert("Teacher assigned successfully.");
     } catch (e) {
       alert(e.message);
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleUnassign = async (teacherUserId, sectionId) => {
+    if (!window.confirm("Unassign this teacher from the section?")) return;
+    setLoading(true);
+    try {
+      await api.unassignTeacherFromSection(teacherUserId, sectionId);
+      fetchSections();
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1167,51 +1349,17 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
         {sections.map(s => (
-          <div key={s.id} style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 10, padding: "12px", position: "relative" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>Section {s.name}</p>
-                <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "2px 0 0" }}>Capacity: {s.capacity}</p>
-              </div>
-              <button 
-                onClick={() => handleDelete(s.id)} 
-                style={{ background: "none", border: "none", color: "#e53e3e", cursor: "pointer", padding: 4 }}
-                title="Delete Section"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px dashed var(--border)" }}>
-              {assigningTo === s.id ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  <select 
-                    style={{ ...css.input, fontSize: 11, padding: "6px" }} 
-                    value={selectedTeacherId} 
-                    onChange={e => setSelectedTeacherId(e.target.value)}
-                  >
-                    <option value="">-- Select Teacher --</option>
-                    {teachers.map(t => (
-                      <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
-                    ))}
-                  </select>
-                  <div style={{ display: "flex", gap: 5 }}>
-                    <button onClick={handleAssign} style={{ ...css.btnPrimary, flex: 1, fontSize: 10, padding: "4px" }} disabled={adding || !selectedTeacherId}>Save</button>
-                    <button onClick={() => setAssigningTo(null)} style={{ ...css.btnGhost, flex: 1, fontSize: 10, padding: "4px" }}>Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <button 
-                  onClick={() => { setAssigningTo(s.id); fetchTeachers(); }} 
-                  style={{ ...css.btnGhost, width: "100%", fontSize: 11, padding: "6px" }}
-                >
-                  Assign Teacher
-                </button>
-              )}
-            </div>
-          </div>
+          <SectionCard 
+            key={s.id} 
+            section={s} 
+            teachers={teachers}
+            onDelete={() => handleDelete(s.id)}
+            onAssign={() => { setAssigningTo(s.id); fetchTeachers(); }}
+            onUnassign={(tid) => handleUnassign(tid, s.id)}
+            isAssigning={assigningTo === s.id}
+          />
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { 
@@ -39,7 +39,13 @@ const StatCard = ({ title, value, subValue, icon: Icon, color, trend }) => (
 export default function SuperAdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
+  const [activeDetailTab, setActiveDetailTab] = useState("users"); // "users" or "academic"
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Global Academic Management State
+  const [acadSchoolId, setAcadSchoolId] = useState("");
+  const [acadTeachers, setAcadTeachers] = useState([]);
+  const [acadLoading, setAcadLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState([]);
   const [stats, setStats] = useState({
@@ -157,6 +163,19 @@ export default function SuperAdminDashboard() {
       setLoading(false);
     }
   };
+
+  // Fetch teachers when school is selected in global Academic Tab
+  useEffect(() => {
+    if (activeTab === 'academic' && acadSchoolId) {
+      setAcadLoading(true);
+      api.getSchoolUsers(acadSchoolId)
+        .then(users => {
+          setAcadTeachers(users.filter(u => u.role === 'teacher'));
+        })
+        .catch(err => console.error("Failed to fetch teachers for assignments:", err))
+        .finally(() => setAcadLoading(false));
+    }
+  }, [activeTab, acadSchoolId]);
 
   const fetchAcademicData = async () => {
     try {
@@ -819,7 +838,8 @@ export default function SuperAdminDashboard() {
               <StatCard title="Current Term" value={academicYears.find(y => y.isActive)?.terms?.find(t => t.isCurrent)?.name || "None"} color="#8b5cf6" icon={Activity} />
             </div>
 
-            <div className="super-panel main-table-panel">
+            {/* Academic Years Management */}
+            <div className="super-panel main-table-panel" style={{ marginBottom: '2rem' }}>
               <div className="panel-header">
                 <h3>Academic Years Management</h3>
                 <div style={{ display: 'flex', gap: '1rem' }}>
@@ -886,6 +906,48 @@ export default function SuperAdminDashboard() {
                 </table>
               </div>
             </div>
+
+            {/* School Assignment Hub */}
+            <div className="super-panel assignment-hub-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Teacher-Section Assignments</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Select a school to manage its teaching personnel across sections.</p>
+                </div>
+                <div className="school-filter-super">
+                  <select 
+                    value={acadSchoolId} 
+                    onChange={e => setAcadSchoolId(e.target.value)}
+                    style={{ padding: '0.6rem 1rem', borderRadius: '12px', background: 'var(--glass)', color: 'var(--text)', border: '1px solid var(--border)', outline: 'none' }}
+                  >
+                    <option value="">-- Select School --</option>
+                    {schools.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {acadLoading ? (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <Activity className="spin" size={32} color="var(--accent)" />
+                  <p style={{ marginTop: '1rem', opacity: 0.6 }}>Synchronizing school data...</p>
+                </div>
+              ) : acadSchoolId ? (
+                <div className="acad-structure-container" style={{ padding: '1rem' }}>
+                  <SchoolAcademicSection 
+                    school={schools.find(s => s.id === acadSchoolId)} 
+                    schoolUsers={acadTeachers.map(t => ({ ...t, role: 'teacher' }))} 
+                    activeYear={activeYear}
+                  />
+                </div>
+              ) : (
+                <div className="super-empty-state" style={{ padding: '4rem 2rem' }}>
+                  <Users size={48} opacity={0.2} />
+                  <p style={{ marginTop: '1.5rem', opacity: 0.6 }}>Select an institution from the dropdown to manage its academic structure.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -916,51 +978,74 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            <div className="school-users-section">
-              {['administration', 'teacher', 'student', 'parent'].map(role => {
-                const users = schoolUsers.filter(u => u.role === role);
-                return (
-                  <section key={role} className="role-group">
-                    <div className="role-section-header">
-                      <h3>
-                        {role === 'administration' && <ShieldCheck size={20} color="#4338ca" />}
-                        {role === 'teacher' && <Users size={20} color="#b45309" />}
-                        {role === 'student' && <StudentIcon size={20} color="#15803d" />}
-                        {role === 'parent' && <Heart size={20} color="#be185d" />}
-                        {role === 'administration' ? 'Administrators' : (role.charAt(0).toUpperCase() + role.slice(1) + 's')}
-                      </h3>
-                      <span className="count-badge">{users.length} Total</span>
-                    </div>
-                    {loadingUsers ? (
-                      <div className="loading-row">Synchronizing users...</div>
-                    ) : users.length > 0 ? (
-                      <div className="user-grid-super">
-                        {users.map(user => {
-                          const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ") || user.name;
-                          return (
-                            <div key={user.id} className="user-card-super">
-                              <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
-                              <div className="user-info-super">
-                                <strong>{fullName || user.email.split("@")[0]}</strong>
-                                <span>{user.email}</span>
-                                <div className={`role-badge-super ${role}`}>
-                                  {role === 'administration' ? 'Administration' : role.charAt(0).toUpperCase() + role.slice(1)}
-                                </div>
-                              </div>
-                              <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="super-empty-state-small">No {role}s registered.</div>
-                    )}
-                  </section>
-                );
-              })}
+            <div className="detail-view-tabs" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+              <button 
+                className={`detail-tab ${activeDetailTab === 'users' ? 'active' : ''}`} 
+                onClick={() => setActiveDetailTab('users')}
+                style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeDetailTab === 'users' ? '2px solid var(--accent)' : 'none', color: activeDetailTab === 'users' ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Identities
+              </button>
+              <button 
+                className={`detail-tab ${activeDetailTab === 'academic' ? 'active' : ''}`} 
+                onClick={() => setActiveDetailTab('academic')}
+                style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeDetailTab === 'academic' ? '2px solid var(--accent)' : 'none', color: activeDetailTab === 'academic' ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Academic Structure
+              </button>
             </div>
+
+            {activeDetailTab === 'users' && (
+              <div className="school-users-section">
+                {['administration', 'teacher', 'student', 'parent'].map(role => {
+                  const users = schoolUsers.filter(u => u.role === role);
+                  return (
+                    <section key={role} className="role-group">
+                      <div className="role-section-header">
+                        <h3>
+                          {role === 'administration' && <ShieldCheck size={20} color="#4338ca" />}
+                          {role === 'teacher' && <Users size={20} color="#b45309" />}
+                          {role === 'student' && <StudentIcon size={20} color="#15803d" />}
+                          {role === 'parent' && <Heart size={20} color="#be185d" />}
+                          {role === 'administration' ? 'Administrators' : (role.charAt(0).toUpperCase() + role.slice(1) + 's')}
+                        </h3>
+                        <span className="count-badge">{users.length} Total</span>
+                      </div>
+                      {loadingUsers ? (
+                        <div className="loading-row">Synchronizing users...</div>
+                      ) : users.length > 0 ? (
+                        <div className="user-grid-super">
+                          {users.map(user => {
+                            const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ") || user.name;
+                            return (
+                              <div key={user.id} className="user-card-super">
+                                <div className="user-avatar-super">{user.firstName?.[0] || user.email[0].toUpperCase()}</div>
+                                <div className="user-info-super">
+                                  <strong>{fullName || user.email.split("@")[0]}</strong>
+                                  <span>{user.email}</span>
+                                  <div className={`role-badge-super ${role}`}>
+                                    {role === 'administration' ? 'Administration' : role.charAt(0).toUpperCase() + role.slice(1)}
+                                  </div>
+                                </div>
+                                <button className="btn-user-action" onClick={() => handleDeleteUser(user.id)}>
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="super-empty-state-small">No {role}s registered.</div>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
+            )}
+
+            {activeDetailTab === 'academic' && (
+              <SchoolAcademicSection school={selectedSchool} schoolUsers={schoolUsers} activeYear={activeYear} />
+            )}
           </div>
         )}
       </main>
@@ -1143,6 +1228,375 @@ export default function SuperAdminDashboard() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+function SchoolAcademicSection({ school, schoolUsers, activeYear }) {
+  const [classLevels, setClassLevels] = useState([]);
+  const [expandedClass, setExpandedClass] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    api.getClassLevels()
+      .then(setClassLevels)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const teachers = schoolUsers.filter(u => u.role === 'teacher');
+
+  return (
+    <div className="school-academic-section">
+      <div className="section-header-modern" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ background: 'var(--accent)', padding: '0.75rem', borderRadius: '14px', color: '#fff' }}>
+            <Calendar size={24} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Academic Structure & Assignments</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+              Assigning personnel for <strong style={{ color: 'var(--text)' }}>{school.name}</strong> • {teachers.length} Teachers available
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '4rem' }}>
+          <Activity className="spin" size={32} color="var(--accent)" />
+          <p style={{ marginTop: '1rem', opacity: 0.6 }}>Loading class structure...</p>
+        </div>
+      ) : (
+        <div className="modern-class-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '1.5rem' }}>
+          {classLevels.map(cl => (
+            <div 
+              key={cl.id} 
+              className={`modern-class-card ${expandedClass === cl.id ? 'expanded' : ''}`}
+              style={{ 
+                background: 'var(--glass)', 
+                border: '1px solid var(--border)', 
+                borderRadius: '24px', 
+                padding: '1.5rem',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: expandedClass === cl.id ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' : 'none'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedClass === cl.id ? '1.5rem' : '0' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                   <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', border: '1px solid var(--border)' }}>
+                     {cl.name.charAt(0)}
+                   </div>
+                   <div>
+                     <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{cl.name}</h4>
+                     <span className="level-badge" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.6 }}>{cl.level}</span>
+                   </div>
+                 </div>
+                 <button 
+                  className={`btn-manage-sections ${expandedClass === cl.id ? 'active' : ''}`}
+                  onClick={() => setExpandedClass(expandedClass === cl.id ? null : cl.id)}
+                  style={{ 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '12px', 
+                    fontSize: '0.8rem', 
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: expandedClass === cl.id ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                    color: expandedClass === cl.id ? '#fff' : 'var(--text)',
+                    border: '1px solid var(--border)',
+                    transition: 'all 0.2s'
+                  }}
+                 >
+                   {expandedClass === cl.id ? 'Close' : 'Manage Sections'}
+                 </button>
+              </div>
+              
+              {expandedClass === cl.id && (
+                <div className="sections-expansion-area" style={{ animation: 'slideDown 0.3s ease-out' }}>
+                  <SchoolSectionList classLevelId={cl.id} teachers={teachers} activeYear={activeYear} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SchoolSectionList({ classLevelId, teachers, activeYear }) {
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [assigningTo, setAssigningTo] = useState(null);
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
+  
+  const [isCreating, setIsCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newCapacity, setNewCapacity] = useState("40");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const fetchSections = useCallback(() => {
+    setLoading(true);
+    api.getClassSections(classLevelId)
+      .then(setSections)
+      .catch(err => console.error("Error fetching sections:", err))
+      .finally(() => setLoading(false));
+  }, [classLevelId]);
+
+  useEffect(() => {
+    fetchSections();
+  }, [fetchSections]);
+
+  const handleCreateSection = async (e) => {
+    e.preventDefault();
+    if (!newName) return;
+    if (!activeYear) {
+      alert("No active academic year found. Please create/activate an academic year first.");
+      return;
+    }
+
+    try {
+      await api.createSection(classLevelId, { 
+        name: newName, 
+        capacity: parseInt(newCapacity),
+        academicYearId: activeYear.id
+      });
+      setNewName("");
+      setIsCreating(false);
+      fetchSections();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handleAssign = async (sectionId) => {
+    if (!selectedTeacherId) return;
+    try {
+      await api.assignTeacherToSection(selectedTeacherId, sectionId);
+      setAssigningTo(null);
+      setSelectedTeacherId("");
+      setRefreshKey(prev => prev + 1);
+      fetchSections();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handleUnassign = async (teacherUserId, sectionId) => {
+    if (!window.confirm("Are you sure you want to unassign this teacher?")) return;
+    try {
+      await api.unassignTeacherFromSection(teacherUserId, sectionId);
+      setRefreshKey(prev => prev + 1);
+      fetchSections();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  if (loading && !sections.length) return <div style={{ padding: '1rem', textAlign: 'center', opacity: 0.5 }}>Syncing sections...</div>;
+
+  return (
+    <div className="school-sections-modern-list" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h5 style={{ margin: 0, fontSize: '0.9rem', opacity: 0.7 }}>Active Sections</h5>
+        {!isCreating && (
+          <button 
+            onClick={() => setIsCreating(true)}
+            style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer' }}
+          >
+            + Add Section
+          </button>
+        )}
+      </div>
+
+      {isCreating && (
+        <form onSubmit={handleCreateSection} style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(var(--accent-rgb), 0.05)', borderRadius: '16px', border: '1px solid var(--accent)', animation: 'slideDown 0.2s' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px auto', gap: '0.5rem', alignItems: 'end' }}>
+            <div className="input-group-tiny">
+              <label style={{ fontSize: '0.7rem', opacity: 0.6, display: 'block', marginBottom: '4px' }}>Section Name</label>
+              <input required value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. A" style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }} />
+            </div>
+            <div className="input-group-tiny">
+              <label style={{ fontSize: '0.7rem', opacity: 0.6, display: 'block', marginBottom: '4px' }}>Cap.</label>
+              <input required type="number" value={newCapacity} onChange={e => setNewCapacity(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+               <button type="submit" style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: 'var(--accent)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>Add</button>
+               <button type="button" onClick={() => setIsCreating(false)} style={{ padding: '0.5rem', borderRadius: '8px', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+            </div>
+          </div>
+        </form>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {sections.map(s => (
+          <div key={s.id} className="modern-section-item" style={{ 
+            padding: '1rem', 
+            background: 'rgba(255,255,255,0.02)', 
+            borderRadius: '16px', 
+            border: '1px solid var(--border)',
+            transition: 'transform 0.2s'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>Section {s.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                  <Users size={12} opacity={0.5} />
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Capacity: {s.capacity} Students</span>
+                </div>
+              </div>
+              <span className={`status-dot ${s.isFull ? 'red' : 'green'}`}></span>
+            </div>
+            
+            <SchoolSectionPersonnel sectionId={s.id} teachers={teachers} onUnassign={(tid) => handleUnassign(tid, s.id)} refreshTrigger={refreshKey} />
+
+            {assigningTo === s.id ? (
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', animation: 'fadeIn 0.2s' }}>
+                <select 
+                  value={selectedTeacherId} 
+                  onChange={e => setSelectedTeacherId(e.target.value)}
+                  style={{ 
+                    flex: 1, 
+                    padding: '0.6rem', 
+                    borderRadius: '10px', 
+                    background: 'var(--surface)', 
+                    color: 'var(--text)', 
+                    border: '1.5px solid var(--border)', 
+                    fontSize: '0.85rem',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="">Choose Teacher...</option>
+                  {teachers.map(t => (
+                    <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => handleAssign(s.id)} 
+                  disabled={!selectedTeacherId}
+                  style={{ padding: '0.6rem 1.2rem', borderRadius: '10px', background: 'var(--accent)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', opacity: selectedTeacherId ? 1 : 0.5 }}
+                >
+                  Assign
+                </button>
+                <button 
+                  onClick={() => setAssigningTo(null)} 
+                  style={{ padding: '0.6rem', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="btn-add-teacher-trigger"
+                onClick={() => setAssigningTo(s.id)} 
+                style={{ 
+                  width: '100%', 
+                  padding: '0.6rem', 
+                  marginTop: '0.75rem', 
+                  borderRadius: '10px', 
+                  border: '1.5px dashed var(--border)', 
+                  color: 'var(--text-secondary)', 
+                  background: 'none', 
+                  fontSize: '0.8rem', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Plus size={14} /> Assign New Teacher
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      {!sections.length && !isCreating && (
+        <div style={{ textAlign: 'center', padding: '2.5rem', opacity: 0.6, background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
+          <ShieldCheck size={32} style={{ marginBottom: '0.75rem', opacity: 0.3 }} />
+          <p style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>No established sections for this level.</p>
+          <button 
+            onClick={() => setIsCreating(true)}
+            style={{ padding: '0.6rem 1.25rem', borderRadius: '12px', background: 'var(--accent)', color: '#fff', border: 'none', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+          >
+            Create First Section
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SchoolSectionPersonnel({ sectionId, teachers, onUnassign, refreshTrigger }) {
+  const [assigned, setAssigned] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchAssigned = useCallback(() => {
+    setLoading(true);
+    api.listTeachersForSection(sectionId)
+      .then(setAssigned)
+      .finally(() => setLoading(false));
+  }, [sectionId, refreshTrigger]);
+
+  useEffect(() => {
+    fetchAssigned();
+  }, [fetchAssigned, refreshTrigger]);
+
+  if (loading && !assigned.length) return <div style={{ fontSize: '0.75rem', opacity: 0.4, padding: '4px 0' }}>Updating personnel...</div>;
+
+  return (
+    <div className="personnel-list-modern" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      {assigned.map(a => {
+        const t = teachers.find(ts => ts.id === a.teacherUserId);
+        return (
+          <div 
+            key={a.teacherUserId} 
+            className="assigned-teacher-row"
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              background: 'rgba(59, 130, 246, 0.05)', 
+              padding: '8px 12px', 
+              borderRadius: '10px', 
+              fontSize: '0.85rem',
+              border: '1px solid rgba(59, 130, 246, 0.1)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgb(59, 130, 246)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                {t?.firstName?.[0] || 'T'}
+              </div>
+              <span style={{ fontWeight: 500 }}>{t ? `${t.firstName} ${t.lastName}` : 'Teacher Account'}</span>
+            </div>
+            <button 
+              onClick={() => onUnassign(a.teacherUserId)} 
+              style={{ 
+                background: 'rgba(239, 68, 68, 0.1)', 
+                border: 'none', 
+                color: '#ef4444', 
+                width: '24px', 
+                height: '24px', 
+                borderRadius: '6px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              title="Unassign"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+        );
+      })}
+      {!assigned.length && !loading && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.5, padding: '4px 0' }}>
+          <AlertCircle size={14} />
+          <span style={{ fontSize: '0.75rem' }}>No lead teacher assigned</span>
         </div>
       )}
     </div>

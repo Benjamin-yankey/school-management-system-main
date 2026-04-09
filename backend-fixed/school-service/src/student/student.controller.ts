@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { EnrollStudentDto } from './dto/enroll-student.dto';
+import { AssignStudentSectionDto } from './dto/assign-student-section.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { UpdateStudentStatusDto } from './dto/update-student-status.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -17,6 +18,11 @@ export class StudentController {
   @Post('enroll')
   enroll(@Body() dto: EnrollStudentDto) {
     return this.studentService.enroll(dto);
+  }
+
+  @Patch(':id/enrollment')
+  assignToSection(@Param('id') id: string, @Body() dto: AssignStudentSectionDto) {
+    return this.studentService.assignToSection(id, dto);
   }
 
   @Get()

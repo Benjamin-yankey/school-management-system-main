@@ -38,10 +38,10 @@ export class Student {
   @Column()
   phoneNumber: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   dateOfBirth: string;
 
-  @Column()
+  @Column({ nullable: true })
   areaOfInterest: string;
 
   @Column({ type: 'enum', enum: StudentStatus, default: StudentStatus.ACTIVE })

@@ -374,11 +374,35 @@ export async function assignTeacherToSection(teacherUserId, sectionId) {
   return handleResponse(res);
 }
 
+export async function unassignTeacherFromSection(teacherUserId, sectionId) {
+  const res = await fetch(`${API_BASE_URL}/administration/teachers/${teacherUserId}/sections/${sectionId}`, {
+    method: "DELETE",
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
+export async function listTeachersForSection(sectionId) {
+  const res = await fetch(`${API_BASE_URL}/administration/sections/${sectionId}/teachers`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function enrollStudent(enrollmentData) {
   const res = await fetch(`${API_BASE_URL}/students/enroll`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify(enrollmentData),
+  });
+  return handleResponse(res);
+}
+
+export async function assignStudentToSection(studentId, data) {
+  const res = await fetch(`${API_BASE_URL}/students/${studentId}/enrollment`, {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(data),
   });
   return handleResponse(res);
 }
@@ -826,6 +850,8 @@ export default {
   createSchoolUser,
   getAdministrationUsers,
   assignTeacherToSection,
+  unassignTeacherFromSection,
+  listTeachersForSection,
   enrollStudent,
   getStudentsPaginated,
   createFee,
