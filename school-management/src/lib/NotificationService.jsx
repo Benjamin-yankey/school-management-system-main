@@ -185,7 +185,7 @@ function Toggle({ value, onChange, disabled, C }) {
 
 function SectionHeader({ icon: Icon, title, sub, action, C }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+    <div className="n-section-header">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{
           width: 40, height: 40, borderRadius: 11,
@@ -199,7 +199,7 @@ function SectionHeader({ icon: Icon, title, sub, action, C }) {
           {sub && <p style={{ fontSize: 12, color: C.text2, margin: "2px 0 0" }}>{sub}</p>}
         </div>
       </div>
-      {action}
+      <div>{action}</div>
     </div>
   );
 }
@@ -619,7 +619,7 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
       />
 
       {/* Category stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 10, marginBottom: 24 }}>
+      <div className="n-grid-stats">
         {summaryStats.filter((s) => s.count > 0).map((s) => {
           const CatIcon = s.icon;
           return (
@@ -652,7 +652,7 @@ export function NotificationCenter({ token, serviceUrl = "http://localhost:3001"
       </div>
 
       {/* Filters + search row */}
-      <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+      <div className="n-filters-row">
         <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
           <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.text3 }} />
           <input
@@ -889,12 +889,12 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
       />
 
       {/* Global channel toggles */}
-      <div style={{ ...sCard, marginBottom: 20 }}>
+      <div className="n-card-padding" style={{ ...sCard, marginBottom: 20 }}>
         <p style={sCardTitle}>Delivery channels</p>
         <p style={{ fontSize: 12, color: C.text3, marginBottom: 16 }}>
           Enable or disable entire channels globally.
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 12 }} className="n-pref-cards-grid">
           {CHANNELS.map((ch) => {
             const ChanIcon = ch.icon;
             return (
@@ -920,11 +920,12 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
       </div>
 
       {/* Per-category matrix */}
-      <div style={{ ...sCard, marginBottom: 20 }}>
-        <p style={sCardTitle}>Per-category settings</p>
-        <p style={{ fontSize: 12, color: C.text3, marginBottom: 16 }}>
-          Fine-tune which channels each notification type uses.
-        </p>
+      <div className="n-prefs-matrix">
+        <div className="n-pref-grid" style={{ ...sCard, marginBottom: 0 }}>
+          <p style={sCardTitle}>Per-category settings</p>
+          <p style={{ fontSize: 12, color: C.text3, marginBottom: 16 }}>
+            Fine-tune which channels each notification type uses.
+          </p>
 
         {/* Matrix header */}
         <div style={{
@@ -970,11 +971,12 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
             </div>
           );
         })}
+        </div>
       </div>
 
       {/* Digest & Quiet settings */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 20 }}>
-        <div style={sCard}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 20 }} className="n-pref-cards-grid">
+        <div className="n-card-padding" style={sCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
             <Clock size={16} color={C.blue} />
             <p style={sCardTitle}>Digest settings</p>
@@ -1009,7 +1011,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
           )}
         </div>
 
-        <div style={sCard}>
+        <div className="n-card-padding" style={sCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
             <Moon size={16} color={C.purple} />
             <p style={sCardTitle}>Quiet hours</p>
@@ -1052,7 +1054,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
       </div>
 
       {/* Test notification */}
-      <div style={{ ...sCard, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
+      <div className="n-card-padding" style={{ ...sCard, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
         <div>
           <p style={{ fontSize: 14, fontWeight: 700, color: C.text1, margin: "0 0 4px" }}>Test settings</p>
           <p style={{ fontSize: 12, color: C.text3, margin: 0 }}>
@@ -1104,10 +1106,34 @@ export default function NotificationServicePage({ token, serviceUrl = "http://lo
         @keyframes nspin{to{transform:rotate(360deg)}} 
         @keyframes nbadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}} 
         *{box-sizing:border-box}
+
+        /* Responsive Helpers */
+        .n-section-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .n-filters-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .n-grid-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .n-prefs-matrix { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px; }
+        .n-pref-grid { min-width: 580px; }
+
+        @media (max-width: 640px) {
+          .n-section-header { flex-direction: column; gap: 16px; }
+          .n-section-header > div:last-child { width: 100%; display: flex; gap: 8px; }
+          .n-section-header button { flex: 1; justify-content: center; }
+          
+          .n-filters-row { flex-direction: column; }
+          .n-filters-row > div { width: 100% !important; }
+          .n-filters-row select, .n-filters-row button { width: 100%; height: 44px; display: flex; justify-content: center; }
+
+          .n-grid-stats { grid-template-columns: 1fr 1fr; }
+          .n-toggle-container { width: 100% !important; }
+          .n-toggle-btn { flex: 1; justify-content: center; padding: 10px 12px !important; }
+
+          .n-pref-cards-grid { grid-template-columns: 1fr !important; }
+          .n-card-padding { padding: 16px !important; }
+        }
       `}</style>
       
       {/* Sliding Segment Toggle */}
-      <div style={{ 
+      <div className="n-toggle-container" style={{ 
         display: "flex", 
         background: C.surface, 
         padding: 4, 
@@ -1139,6 +1165,7 @@ export default function NotificationServicePage({ token, serviceUrl = "http://lo
             <button 
               key={t.key} 
               onClick={() => setTab(t.key)} 
+              className="n-toggle-btn"
               style={{
                 display: "flex", 
                 alignItems: "center", 

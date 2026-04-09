@@ -143,7 +143,7 @@ const Header = () => {
                   token={localStorage.getItem("token")}
                   serviceUrl={
                     import.meta.env.VITE_NOTIFICATION_URL ||
-                    "http://localhost:3001"
+                    "http://localhost:3000"
                   }
                   onOpenCenter={() => navigate("/notifications")}
                 />

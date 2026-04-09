@@ -215,6 +215,8 @@ services:
     build: ./notification-service
     container_name: school_notification
     env_file: ./notification-service/.env
+    ports:
+      - '3004:3004'
     depends_on:
       postgres:
         condition: service_healthy

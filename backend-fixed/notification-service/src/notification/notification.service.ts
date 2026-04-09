@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MailerService } from '@nestjs-modules/mailer';
 import { EmailLog } from './email-log.entity';
+import { Notification } from './notification.entity';
 
 export interface EmailEventPayload {
   type: 'welcome' | 'password-reset';
@@ -15,8 +16,62 @@ export class NotificationService {
   constructor(
     @InjectRepository(EmailLog)
     private readonly emailLogRepo: Repository<EmailLog>,
+    @InjectRepository(Notification)
+    private readonly notificationRepo: Repository<Notification>,
     private readonly mailerService: MailerService,
   ) {}
+
+  async getHistory(userId: string, page = 1, limit = 20, category?: string, priority?: string, q?: string) {
+    const query = this.notificationRepo.createQueryBuilder('n')
+      .where('n.userId = :userId', { userId })
+      .orderBy('n.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    if (category) query.andWhere('n.category = :category', { category });
+    if (priority) query.andWhere('n.priority = :priority', { priority });
+    if (q) {
+      query.andWhere('(n.title ILIKE :q OR n.body ILIKE :q)', { q: `%${q}%` });
+    }
+
+    const [data, total] = await query.getManyAndCount();
+    return { data, total, page, limit };
+  }
+
+  async markRead(id: string) {
+    await this.notificationRepo.update(id, { read: true });
+  }
+
+  async markAllRead(userId: string) {
+    await this.notificationRepo.update({ userId }, { read: true });
+  }
+
+  async delete(id: string) {
+    await this.notificationRepo.delete(id);
+  }
+
+  async clearAll(userId: string) {
+    await this.notificationRepo.delete({ userId });
+  }
+
+  async getPreferences(userId: string) {
+    // Return default preferences for now
+    return {
+      channels: { inApp: true, email: true, sms: false, push: false },
+      categories: {
+        system: { inApp: true, email: true },
+        academic: { inApp: true, email: true },
+        billing: { inApp: true, email: true },
+        attendance: { inApp: true, email: true },
+        promotion: { inApp: true, email: true },
+      },
+      digest: { enabled: false, frequency: 'daily' },
+    };
+  }
+
+  async updatePreferences(userId: string, prefs: any) {
+    return prefs;
+  }
 
   async handleEmailEvent(data: EmailEventPayload): Promise<void> {
     const { subject, html } = this.buildEmail(data);

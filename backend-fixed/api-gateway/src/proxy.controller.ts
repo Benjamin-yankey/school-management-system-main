@@ -20,6 +20,7 @@ export class ProxyController {
       auth: this.config.get<string>("AUTH_SERVICE_URL"),
       user: this.config.get<string>("USER_SERVICE_URL"),
       school: this.config.get<string>("SCHOOL_SERVICE_URL"),
+      notification: this.config.get<string>("NOTIFICATION_SERVICE_URL") || "http://localhost:3004",
     };
   }
 
@@ -38,6 +39,14 @@ export class ProxyController {
   @All("/admissions/apply")
   proxyAdmissionsApply(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, BlacklistGuard)
+  @All("/notifications*")
+  proxyNotifications(@Req() req: Request, @Res() res: Response) {
+    return this.forward(req, res, "notification");
   }
 
   // ── Auth ──────────────────────────────────────────────────────────────────

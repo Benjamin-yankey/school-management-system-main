@@ -54,12 +54,12 @@ const TeacherDashboardRoute = () => {
 const NotificationsRoute = () => {
   const { user } = useAuth();
   const token = localStorage.getItem("token");
-  const serviceUrl = import.meta.env.VITE_NOTIFICATION_URL || "http://localhost:3001";
+  const serviceUrl = import.meta.env.VITE_NOTIFICATION_URL || "http://localhost:3000";
 
   return (
     <div className="app">
       <Navbar />
-      <div className="app-main-content" style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="app-main-content" style={{ padding: "clamp(0.5rem, 3vw, 2rem)", maxWidth: "1200px", margin: "0 auto" }}>
         <NotificationServicePage token={token} serviceUrl={serviceUrl} userId={user?.id} />
       </div>
     </div>

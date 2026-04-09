@@ -2,8 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 import { EmailLog } from './notification/email-log.entity';
-import { NotificationModule } from './notification/notification.module';
+import { Notification } from './notification.entity';
+import { NotificationModule } from './notification.module';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -15,12 +19,21 @@ import { NotificationModule } from './notification/notification.module';
         type: 'postgres',
         url: config.get('DATABASE_URL'),
         schema: 'notification',
-        entities: [EmailLog],
+        entities: [EmailLog, Notification],
         synchronize: true,
       }),
     }),
 
+    PassportModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get('JWT_SECRET'),
+      }),
+    }),
+
     MailerModule.forRootAsync({
+
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         transport: {
@@ -43,5 +56,6 @@ import { NotificationModule } from './notification/notification.module';
 
     NotificationModule,
   ],
+  providers: [JwtStrategy],
 })
 export class AppModule {}
