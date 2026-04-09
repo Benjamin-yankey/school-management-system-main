@@ -216,12 +216,13 @@ const getStyles = (isDark, isMobile = false) => ({
     background: "transparent",
   },
   logoText: {
-    display: isMobile ? "none" : "block",
-    fontSize: 15,
+    fontSize: isMobile ? 13 : 15,
     fontWeight: 800,
-    color: isDark ? C.white : C.purple900,
+    color: isDark ? C.white : C.purple500,
     letterSpacing: "-0.01em",
-    whiteSpace: "nowrap",
+    whiteSpace: isMobile ? "normal" : "nowrap",
+    maxWidth: isMobile ? "120px" : "none",
+    lineHeight: 1.2,
   },
   navLinks: {
     display: "flex",
@@ -439,9 +440,9 @@ export default function Navbar() {
   const { user: authUser, logout } = useAuth();
   const { isDarkMode } = useTheme();
   
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 960);
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    const handleResize = () => setIsMobile(window.innerWidth < 960);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

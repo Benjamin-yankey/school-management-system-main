@@ -6,6 +6,9 @@ import {
   ShieldCheck,
   Trees,
   Wifi,
+  Menu,
+  X,
+  Sparkles
 } from "lucide-react";
 import "./AcademyPages.css";
 
@@ -58,9 +61,7 @@ const CampusPage = () => {
             className="mobile-menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <span className="material-symbols-outlined">
-              {isMenuOpen ? "close" : "menu"}
-            </span>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           <nav className="academy-page-links" aria-label="Primary">
             <Link

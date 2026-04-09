@@ -8,18 +8,18 @@
   --academy-text: #e8eefc;
   --academy-text-muted: rgba(215, 226, 248, 0.84);
   --academy-border: rgba(148, 163, 184, 0.2);
-  --academy-accent: #54e9ff;
+  --academy-accent: #8B5CF6;
 
   min-height: 100vh;
   background:
     radial-gradient(
       1200px 520px at 12% -12%,
-      rgba(0, 227, 253, 0.18),
+      rgba(139, 92, 246, 0.15),
       transparent 60%
     ),
     radial-gradient(
       1000px 420px at 92% -4%,
-      rgba(144, 147, 255, 0.22),
+      rgba(124, 58, 237, 0.15),
       transparent 58%
     ),
     linear-gradient(180deg, var(--academy-bg) 0%, var(--academy-bg-alt) 100%);
@@ -79,15 +79,31 @@ body[data-theme="light"] .academy-page {
 
 .mobile-menu-toggle {
   display: flex;
-  background: none;
-  border: none;
-  color: #f4f8ff;
+  align-items: center;
+  justify-content: center;
+  background: var(--academy-surface-alt);
+  border: 1px solid var(--academy-border);
+  color: var(--academy-text);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 12px;
   z-index: 1001;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-@media (min-width: 981px) {
+.mobile-menu-toggle:hover {
+  background: var(--academy-surface);
+  border-color: var(--academy-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-menu-toggle:active {
+  transform: scale(0.95);
+}
+
+@media (min-width: 960px) {
   .mobile-menu-toggle {
     display: none;
   }
@@ -124,7 +140,7 @@ body[data-theme="light"] .academy-page {
   transform: translateY(0);
 }
 
-@media (min-width: 981px) {
+@media (min-width: 960px) {
   .academy-page-links {
     position: static;
     background: none;
@@ -154,8 +170,8 @@ body[data-theme="light"] .academy-page {
 }
 
 .academy-page-link.active {
-  color: #54e9ff;
-  border-bottom: 2px solid #54e9ff;
+  color: var(--academy-accent);
+  border-bottom: 2px solid var(--academy-accent);
 }
 
 .academy-page-actions {
@@ -172,34 +188,43 @@ body[data-theme="light"] .academy-page {
 
 .academy-page-auth {
   text-decoration: none;
-  color: rgba(229, 236, 251, 0.86);
-  border: 1px solid rgba(148, 163, 184, 0.34);
+  color: var(--academy-text-muted);
+  border: 1px solid var(--academy-border);
   border-radius: 999px;
   padding: 0.42rem 0.85rem;
   font-size: 0.86rem;
   font-weight: 700;
+  transition: all 0.2s ease;
 }
 
 .academy-page-auth:hover {
-  border-color: rgba(84, 233, 255, 0.55);
-  color: #ffffff;
+  border-color: rgba(139, 92, 246, 0.55);
+  color: var(--academy-text);
+  background: rgba(139, 92, 246, 0.05);
 }
 
 .academy-page-auth-accent {
-  color: #54e9ff;
-  border-color: rgba(84, 233, 255, 0.58);
-  background: rgba(84, 233, 255, 0.1);
+  color: var(--academy-accent);
+  border-color: rgba(139, 92, 246, 0.58);
+  background: rgba(139, 92, 246, 0.1);
 }
 
 .academy-page-apply {
   text-decoration: none;
-  color: #001720;
-  background: linear-gradient(120deg, #7bb1ff 0%, #59ecff 100%);
+  color: white;
+  background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
   border-radius: 999px;
   padding: 0.5rem 0.98rem;
   font-size: 0.86rem;
   font-weight: 800;
-  border: 1px solid rgba(84, 233, 255, 0.45);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);
+  transition: all 0.2s ease;
+}
+
+.academy-page-apply:hover {
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
 }
 
 .academy-page-main {
@@ -216,9 +241,9 @@ body[data-theme="light"] .academy-page {
   gap: 0.45rem;
   padding: 0.4rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid rgba(84, 233, 255, 0.36);
-  background: rgba(0, 227, 253, 0.08);
-  color: #93f0ff;
+  border: 1px solid rgba(139, 92, 246, 0.36);
+  background: rgba(139, 92, 246, 0.08);
+  color: #c4b5fd;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -528,11 +553,11 @@ body[data-theme="light"] .academy-page {
   color: #fecaca;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 959px) {
   .academy-page-nav-inner {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
     padding: 1rem 0;
   }
 

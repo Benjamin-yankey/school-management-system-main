@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { useTheme } from "./contexts/ThemeContext";
-import { Building2 } from "lucide-react";
+import { Building2, Menu, X } from "lucide-react";
 import "./Home.css";
 
 const Home = () => {
@@ -264,16 +264,15 @@ const Home = () => {
               GEOZIIE INTERNATIONAL SCHOOL
             </span>
           </Link>
+          <span className="navbar-badge">Enrollment Open</span>
           <button
             className="mobile-menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <span className="material-symbols-outlined">
-              {isMenuOpen ? "close" : "menu"}
-            </span>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <div className="navbar-links">
+          <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
             {navLinks.map((link, index) => (
               <Link
                 key={index}
@@ -309,7 +308,6 @@ const Home = () => {
             <div className="hero-gradient-overlay"></div>
           </div>
           <div className="hero-content">
-            <span className="hero-badge">Enrollment Open</span>
             <h1 className="hero-title">
               The Future of <br />
               <span className="gradient-text">Academic Excellence</span>
@@ -321,7 +319,7 @@ const Home = () => {
             </p>
             <div className="hero-buttons">
               <Link className="primary-btn primary-btn-lg" to="/admissions">
-                Apply for 2024
+                Apply for 2026
               </Link>
               <Link className="secondary-btn secondary-btn-lg" to="/signin">
                 Go to Portal
@@ -333,7 +331,7 @@ const Home = () => {
         {/* Stats Grid */}
         <div className="stats-grid">
           {stats.map((stat, index) => (
-            <div key={index} className="stat-card">
+            <div key={index} className="home-stat-card">
               <div className="stat-value">
                 {stat.value}
                 <span className="stat-suffix">{stat.suffix}</span>
@@ -642,7 +640,7 @@ const Home = () => {
               className="primary-btn primary-btn-lg primary-btn-neon"
               to="/admissions"
             >
-              Apply for 2024 Intake
+              Apply for 2026 Intake
             </Link>
           </div>
         </section>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import { Building2, Menu, X } from "lucide-react";
 import api from "../lib/api";
 import { generateAdmissionPDF } from "./generateAdmissionPDF";
 import "./AcademyPages.css";
@@ -115,7 +115,8 @@ const AdmissionsPage = () => {
     ) {
       setStatus({
         type: "error",
-        message: "Please complete all required child and program details, including at least one parent email.",
+        message:
+          "Please complete all required child and program details, including at least one parent email.",
       });
       return;
     }
@@ -127,15 +128,21 @@ const AdmissionsPage = () => {
       // Split name into first, middle, last if possible, or just use as first name
       const nameParts = formData.childFullName.trim().split(/\s+/);
       const firstName = nameParts[0];
-      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "Student";
-      const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "";
+      const lastName =
+        nameParts.length > 1 ? nameParts[nameParts.length - 1] : "Student";
+      const middleName =
+        nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "";
 
       await api.apply({
         firstName,
         lastName,
         middleName,
         email: formData.motherEmail || formData.fatherEmail,
-        phoneNumber: formData.childPhone || formData.motherWorkPhone || formData.fatherWorkPhone || "0000000000",
+        phoneNumber:
+          formData.childPhone ||
+          formData.motherWorkPhone ||
+          formData.fatherWorkPhone ||
+          "0000000000",
         dateOfBirth: formData.childDob,
         areaOfInterest: formData.program,
       });
@@ -146,11 +153,12 @@ const AdmissionsPage = () => {
           "Registration submitted successfully. We will contact you shortly.",
       });
       setFormData(initialState);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setStatus({
         type: "error",
-        message: err.message || "Failed to submit registration. Please try again.",
+        message:
+          err.message || "Failed to submit registration. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -186,7 +194,7 @@ const AdmissionsPage = () => {
             className="mobile-menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? "close" : "menu"}
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
           <nav className="academy-page-links" aria-label="Primary">
@@ -228,9 +236,6 @@ const AdmissionsPage = () => {
               className="academy-page-auth academy-page-auth-accent"
             >
               Portal Access
-            </Link>
-            <Link to="/admissions" className="academy-page-apply">
-              Apply Now
             </Link>
           </div>
         </div>

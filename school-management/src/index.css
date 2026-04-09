@@ -766,7 +766,7 @@ body[data-theme="dark"] {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-size: 1.15rem;
-  color: inherit; /* Inherit color from parent */
+  color: #7C3AED; /* Brand Violet */
   transition: color 0.3s ease; /* Smooth transition for color change */
   text-decoration: none; /* Ensure no underline */
 }
