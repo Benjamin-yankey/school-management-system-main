@@ -665,6 +665,13 @@ body[data-theme="light"] .home-page {
   white-space: nowrap;
 }
 
+.navbar-badge.closed {
+  background: var(--color-surface-variant);
+  color: var(--text-muted);
+  box-shadow: none;
+  animation: none;
+}
+
 @keyframes badge-pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }

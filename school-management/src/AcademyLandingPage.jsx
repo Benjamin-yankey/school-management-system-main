@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Building2, X, GraduationCap, ChevronRight, Menu, CheckCircle2, ChevronDown, Activity, Users, ShieldCheck, DollarSign } from "lucide-react";
 import "./AcademyLandingPage.css";
+import { useEnrollmentStatus } from "./hooks/useEnrollmentStatus";
 
 const AcademyLandingPage = () => {
   // State for mobile menu
@@ -8,6 +10,8 @@ const AcademyLandingPage = () => {
 
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const { isEnrollmentOpen } = useEnrollmentStatus();
 
   // State for calendar filter
   const [activeFilter, setActiveFilter] = useState("all");
@@ -349,9 +353,9 @@ const AcademyLandingPage = () => {
           </div>
 
           <div className="hero-content-modern">
-            <div className="hero-badge-modern animate-fade-in">
+            <div className={`hero-badge-modern animate-fade-in ${!isEnrollmentOpen ? "closed" : ""}`}>
               <span className="material-symbols-outlined">auto_awesome</span>
-              <span>Enrollment Phase 2026 Now Active</span>
+              <span>{isEnrollmentOpen ? "Enrollment Phase 2026 Now Active" : "Enrollment Phase Closed"}</span>
             </div>
             <h1 className="hero-title-modern animate-slide-up">
               Architecting the <br />

@@ -6,8 +6,9 @@ import {
   Plus, Search, Filter, MoreHorizontal, ShieldCheck,
   TrendingUp, Calendar, AlertCircle, CheckCircle2, ChevronRight,
   ArrowLeft, Mail, Trash2, UserPlus, UserCog, GraduationCap as StudentIcon,
-  Heart, Menu, X, Bell, CreditCard, Zap, BarChart3, ArrowUpRight
+  Heart, Menu, X, Bell, CreditCard, Zap, BarChart3, ArrowUpRight, ToggleLeft, ToggleRight
 } from "lucide-react";
+import { useEnrollmentStatus } from "../hooks/useEnrollmentStatus";
 import "./SuperAdminDashboard.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,6 +50,8 @@ export default function SuperAdminDashboard() {
     health: 100
   });
   const [alerts, setAlerts] = useState([]);
+  
+  const { isEnrollmentOpen, toggleEnrollmentStatus } = useEnrollmentStatus();
 
   // Onboarding states
   const [showOnboardModal, setShowOnboardModal] = useState(false);
@@ -451,6 +454,18 @@ export default function SuperAdminDashboard() {
             </p>
           </div>
           <div className="header-actions">
+            <button 
+              className={`btn-sync ${!isEnrollmentOpen ? "closed-state" : ""}`} 
+              onClick={toggleEnrollmentStatus}
+              style={{
+                backgroundColor: isEnrollmentOpen ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                color: isEnrollmentOpen ? "#10b981" : "#ef4444",
+                borderColor: isEnrollmentOpen ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)",
+              }}
+            >
+              {isEnrollmentOpen ? <ToggleRight size={18} /> : <ToggleLeft size={18} />} 
+              {isEnrollmentOpen ? "Enrollment Active" : "Enrollment Closed"}
+            </button>
             <button className="btn-sync" onClick={fetchGlobalData}><Activity size={16} /> Force Sync</button>
             {activeTab === 'academic' && (
               <button className="btn-primary-super" onClick={() => setShowYearModal(true)}>

@@ -9,6 +9,13 @@ import { BarChart, CheckCircle, Save } from "lucide-react";
 export default function GradesPage({ base, token, sections }) {
   const [sectionId,  setSectionId]  = useState(sections[0]?.id || "");
   const [subject,    setSubject]    = useState("");
+
+  // Sync sectionId if it's empty but sections have arrived
+  useEffect(() => {
+    if (!sectionId && sections.length > 0) {
+      setSectionId(sections[0].id);
+    }
+  }, [sections, sectionId]);
   const [assessment, setAssessment] = useState("Mid-Term Exam");
   const [totalMarks, setTotalMarks] = useState("100");
   const [students,   setStudents]   = useState([]);

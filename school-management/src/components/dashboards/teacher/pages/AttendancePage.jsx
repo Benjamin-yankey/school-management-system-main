@@ -15,6 +15,13 @@ const STATUS = [
 export default function AttendancePage({ base, token, sections }) {
   const [sectionId,  setSectionId]  = useState(sections[0]?.id || "");
   const [date,       setDate]       = useState(new Date().toISOString().split("T")[0]);
+
+  // Sync sectionId if it's empty but sections have arrived
+  useEffect(() => {
+    if (!sectionId && sections.length > 0) {
+      setSectionId(sections[0].id);
+    }
+  }, [sections, sectionId]);
   const [students,   setStudents]   = useState([]);
   const [attendance, setAttendance] = useState({});
   const [loading,    setLoading]    = useState(false);

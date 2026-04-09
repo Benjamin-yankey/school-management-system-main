@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { useTheme } from "./contexts/ThemeContext";
 import { Building2, Menu, X } from "lucide-react";
+import { useEnrollmentStatus } from "./hooks/useEnrollmentStatus";
 import "./Home.css";
 
 const Home = () => {
@@ -28,6 +29,7 @@ const Home = () => {
 
   const { user, isAuthenticated } = useAuth();
   const { theme } = useTheme();
+  const { isEnrollmentOpen } = useEnrollmentStatus();
   const navigate = useNavigate();
 
   const navLinks = [
@@ -264,7 +266,9 @@ const Home = () => {
               GEOZIIE INTERNATIONAL SCHOOL
             </span>
           </Link>
-          <span className="navbar-badge">Enrollment Open</span>
+          <span className={`navbar-badge ${!isEnrollmentOpen ? "closed" : ""}`}>
+            {isEnrollmentOpen ? "Enrollment Open" : "Enrollment Closed"}
+          </span>
           <button
             className="mobile-menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}

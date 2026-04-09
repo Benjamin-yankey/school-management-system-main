@@ -362,6 +362,12 @@ body[data-theme="light"] {
   backdrop-filter: blur(8px);
 }
 
+.hero-badge.closed, .hero-badge-modern.closed {
+  background: rgba(166, 170, 191, 0.15);
+  border-color: rgba(166, 170, 191, 0.3);
+  color: #a6aabf;
+}
+
 .hero-title {
   font-size: 3.5rem;
   font-weight: 800;

@@ -1,6 +1,6 @@
 // pages/AssignmentPage.jsx — Create and manage assignments
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { T } from "../theme";
 import { api } from "../hooks/useApi";
 import { Alert, Field, Select, Input, Textarea, Btn, Card, PageHeader } from "../components/ui";
@@ -19,6 +19,13 @@ export default function AssignmentPage({ base, token, sections }) {
     instructions: "", type: "homework", priority: "normal",
     totalMarks: "100", dueDate: "",
   });
+
+  // Sync sectionId if it's empty but sections have arrived
+  useEffect(() => {
+    if (!form.sectionId && sections.length > 0) {
+      setForm(f => ({ ...f, sectionId: sections[0].id }));
+    }
+  }, [sections, form.sectionId]);
   const [attachments, setAttachments] = useState([]);
   const [loading,     setLoading]     = useState(false);
   const [done,        setDone]        = useState(null);

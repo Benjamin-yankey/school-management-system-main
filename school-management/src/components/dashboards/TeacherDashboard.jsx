@@ -36,7 +36,16 @@ export default function TeacherDashboard({
     api(baseUrl, token, "GET", "/teacher/sections")
       .then((data) => {
         const list = Array.isArray(data) ? data : data?.data || [];
-        setSections(list);
+        // Normalize the data: The backend returns TeacherSection[] which nests Section data.
+        // We flatten it so pages (Attendance, Assignments, etc.) can use it easily.
+        const normalized = list.map(item => ({
+          ...item.section,
+          id: item.section?.id || item.sectionId, // Ensure we use the actual section ID for API calls
+          assignmentId: item.id,                  // Keep the original assignment ID if needed
+          level: item.section?.classLevel?.name || item.section?.classLevel?.level || "N/A",
+          subject: item.section?.classLevel?.name || "General", // Defaulting subject to class level name
+        }));
+        setSections(normalized);
       })
       .catch((err) => {
         console.error("Failed to load sections:", err);
