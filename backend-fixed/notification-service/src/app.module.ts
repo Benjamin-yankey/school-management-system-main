@@ -5,8 +5,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { EmailLog } from './notification/email-log.entity';
-import { Notification } from './notification.entity';
-import { NotificationModule } from './notification.module';
+import { Notification } from './notification/notification.entity';
+import { NotificationModule } from './notification/notification.module';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
