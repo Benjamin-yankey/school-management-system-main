@@ -150,11 +150,13 @@ export class StudentService {
         this.studentRepo.create({
           id: user.id, // Keep IDs synced
           studentId: generatedId,
-          firstName: profile?.firstName || 'Unknown',
-          lastName: profile?.lastName || 'Student',
-          middleName: profile?.middleName || null,
+          firstName: dto.firstName || profile?.firstName || 'Unknown',
+          lastName: dto.lastName || profile?.lastName || 'Student',
+          middleName: dto.middleName || profile?.middleName || null,
           email: user.email,
-          phoneNumber: profile?.phone || 'N/A',
+          phoneNumber: dto.phoneNumber || profile?.phone || 'N/A',
+          dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
+          areaOfInterest: dto.areaOfInterest || null,
         }),
       );
     }

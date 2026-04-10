@@ -642,6 +642,22 @@ export async function createAdministration(adminData) {
   return handleResponse(res);
 }
 
+export async function bulkLinkStudents(parentUserId, data) {
+  const res = await fetch(`${API_BASE_URL}/administration/parents/${parentUserId}/students/bulk-link`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function getAllParentAssociations() {
+  const res = await fetch(`${API_BASE_URL}/administration/associations`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function getSuperAdminStats() {
   const res = await fetch(`${API_BASE_URL}/superadmin/stats`, {
     headers: headers(),

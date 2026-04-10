@@ -72,6 +72,21 @@ export class ParentController {
   }
 
   @Roles('superadmin', 'administration')
+  @Post('administration/parents/:parentUserId/students/bulk-link')
+  bulkLinkStudentsByAdmin(
+    @Param('parentUserId') parentUserId: string,
+    @Body() dto: { studentIds: string[], relationship?: string },
+  ) {
+    return this.parentService.bulkLinkStudentsByAdmin(parentUserId, dto.studentIds, dto.relationship);
+  }
+
+  @Roles('superadmin', 'administration')
+  @Get('administration/associations')
+  getAllAssociations() {
+    return this.parentService.getAllAssociations();
+  }
+
+  @Roles('superadmin', 'administration')
   @Delete('administration/parents/:parentUserId/students/:studentId')
   unlinkStudentByAdmin(
     @Param('parentUserId') parentUserId: string,

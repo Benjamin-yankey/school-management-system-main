@@ -55,6 +55,32 @@ export class ParentService {
     return this.parentStudentRepo.save(link);
   }
 
+  async bulkLinkStudentsByAdmin(parentUserId: string, studentIds: string[], relationship?: string): Promise<ParentStudent[]> {
+    const results: ParentStudent[] = [];
+    for (const studentId of studentIds) {
+      try {
+        const link = await this.linkStudentByAdmin(parentUserId, studentId, relationship);
+        results.push(link);
+      } catch (e) {
+        // Skip duplicates or not found students during bulk operation
+        console.error(`Failed to link student ${studentId} to parent ${parentUserId}: ${e.message}`);
+      }
+    }
+    return results;
+  }
+
+  async getAllAssociations(): Promise<ParentStudent[]> {
+    return this.parentStudentRepo.find({
+      relations: [
+        'student',
+        'student.enrollments',
+        'student.enrollments.classLevel',
+        'student.enrollments.academicYear',
+      ],
+      order: { linkedAt: 'DESC' },
+    });
+  }
+
   async unlinkStudent(parentUserId: string, studentId: string): Promise<void> {
     const link = await this.parentStudentRepo.findOneBy({ parentUserId, studentId });
     if (!link) throw new NotFoundException('Link not found.');

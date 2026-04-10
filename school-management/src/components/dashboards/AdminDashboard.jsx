@@ -301,7 +301,12 @@ function RecentUsersTable({ users = [], loading }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function CreateUserSection({ onCreated }) {
-  const [form, setForm]         = useState({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
+  const { classLevels, activeAcademicYear } = useAuth();
+  const [form, setForm]         = useState({ 
+    email: "", role: "teacher", firstName: "", lastName: "", middleName: "",
+    classLevelId: "", sectionId: "", dateOfBirth: "", areaOfInterest: "", phoneNumber: ""
+  });
+  const [sections, setSections] = useState([]);
   const [loading, setLoading]   = useState(false);
   const [success, setSuccess]   = useState(null);
   const [error, setError]       = useState(null);
@@ -314,6 +319,17 @@ function CreateUserSection({ onCreated }) {
       .catch(() => setPreflight("no-school"));
   }, []);
 
+  // Fetch sections when class changes
+  useEffect(() => {
+    if (form.classLevelId) {
+      api.getClassSections(form.classLevelId)
+        .then(setSections)
+        .catch(console.error);
+    } else {
+      setSections([]);
+    }
+  }, [form.classLevelId]);
+
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const validate = () => {
@@ -321,26 +337,91 @@ function CreateUserSection({ onCreated }) {
     if (!form.lastName.trim()) return "Last name is required.";
     if (!form.email.trim()) return "Email is required.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Enter a valid email address.";
+    
+    // Academic validation
+    if ((form.role === "student" || form.role === "teacher") && !form.classLevelId) {
+      return `Please select a Class for the ${form.role}.`;
+    }
     return null;
   };
+
+  const [students, setStudents] = useState([]);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+
+  // Fetch students for the parent linking UI
+  useEffect(() => {
+    if (form.role === "parent") {
+      api.getStudentsPaginated({ limit: 1000 }).then(res => {
+        setStudents(res.data || []);
+      }).catch(console.error);
+    }
+  }, [form.role]);
+
+  const toggleStudentSelection = (id) => {
+    setSelectedStudentIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const filteredStudents = students.filter(s => 
+    s.firstName?.toLowerCase().includes(studentSearch.toLowerCase()) || 
+    s.lastName?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    s.studentId?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    s.email?.toLowerCase().includes(studentSearch.toLowerCase())
+  );
 
   const submit = async () => {
     const err = validate();
     if (err) { setError(err); return; }
     setError(null); setSuccess(null); setLoading(true);
+    let userId = null;
     try {
-      const data = await adminRequest("POST", "/administration/create-user", {
+      // 1. Create User
+      const userRes = await adminRequest("POST", "/administration/create-user", {
         email: form.email.trim(),
         role:  form.role,
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         middleName: form.middleName.trim(),
       });
-      setSuccess(`User created. A temporary password has been sent to ${data.email || form.email}.`);
-      setForm({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" });
+      userId = userRes.id;
+
+      let linkMsg = "";
+      // 2. Perform Academic Assignment or Linking
+      if (form.role === "student") {
+        await api.assignStudentToSection(userId, {
+          classLevelId: form.classLevelId,
+          academicYearId: activeAcademicYear?.id,
+          sectionId: form.sectionId || undefined,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          middleName: form.middleName.trim(),
+          dateOfBirth: form.dateOfBirth,
+          areaOfInterest: form.areaOfInterest,
+          phoneNumber: form.phoneNumber,
+        });
+      } else if (form.role === "teacher" && form.sectionId) {
+        await api.assignTeacherToSection(userId, form.sectionId);
+      } else if (form.role === "parent" && selectedStudentIds.length > 0) {
+        await api.bulkLinkStudents(userId, {
+          studentIds: selectedStudentIds,
+          relationship: "guardian" // Default relationship for bulk admin link
+        });
+        linkMsg = ` and linked to ${selectedStudentIds.length} student(s)`;
+      }
+
+      setSuccess(`User created${linkMsg}. A temporary password has been sent to ${form.email}.`);
+      setForm({ 
+        email: "", role: "teacher", firstName: "", lastName: "", middleName: "",
+        classLevelId: "", sectionId: "", dateOfBirth: "", areaOfInterest: "", phoneNumber: ""
+      });
+      setSelectedStudentIds([]);
+      setStudentSearch("");
       onCreated?.();
     } catch (e) {
-      setError(e.message);
+      const baseMsg = userId ? "User created, but assignment/linking failed: " : "";
+      setError(baseMsg + e.message);
     } finally {
       setLoading(false);
     }
@@ -374,6 +455,31 @@ function CreateUserSection({ onCreated }) {
         {`
           .create-user-names { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
           .create-user-roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 18px; }
+          .academic-section { 
+            margin-top: 24px; 
+            padding-top: 20px; 
+            border-top: 1.5px dashed var(--border); 
+            animation: fadeIn 0.3s ease-out;
+          }
+          .student-scroll-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+          }
+          .student-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+          }
+          .student-list-item:hover { background: var(--hover); }
+          .student-list-item:last-child { border-bottom: none; }
 
           @media (max-width: 600px) {
             .create-user-names { grid-template-columns: 1fr; gap: 12px; }
@@ -472,17 +578,109 @@ function CreateUserSection({ onCreated }) {
         ))}
       </div>
 
+      {/* Dynamic Academic Section */}
+      {(form.role === "student" || form.role === "teacher") && (
+        <div className="academic-section">
+          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--accent-secondary-transparent, rgba(68, 138, 255, 0.1))", color: "var(--accent-secondary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>School Placement & Info</h4>
+          </div>
+
+          <div className="grid-2">
+            <AdminField label="Assign Class" required>
+              <select style={css.input} value={form.classLevelId} onChange={update("classLevelId")}>
+                <option value="">-- Choose Class --</option>
+                {classLevels?.map(c => (
+                  <option key={c.id} value={c.id}>{c.name} ({c.level})</option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label="Assign Section">
+              <select style={css.input} value={form.sectionId} onChange={update("sectionId")} disabled={!form.classLevelId}>
+                <option value="">-- Choose Section (Optional) --</option>
+                {sections.map(s => (
+                  <option key={s.id} value={s.id}>Section {s.name} (Cap: {s.capacity})</option>
+                ))}
+              </select>
+            </AdminField>
+          </div>
+
+          {form.role === "student" && (
+            <div className="grid-3" style={{ marginTop: 10 }}>
+              <AdminField label="Date of Birth">
+                <input style={css.input} type="date" value={form.dateOfBirth} onChange={update("dateOfBirth")} />
+              </AdminField>
+              <AdminField label="Area of Interest">
+                <input style={css.input} type="text" value={form.areaOfInterest} onChange={update("areaOfInterest")} placeholder="e.g. Science, Arts" />
+              </AdminField>
+              <AdminField label="Phone/Contact">
+                <input style={css.input} type="text" value={form.phoneNumber} onChange={update("phoneNumber")} placeholder="e.g. +233..." />
+              </AdminField>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Dynamic Parent Linking Section */}
+      {form.role === "parent" && (
+        <div className="academic-section">
+          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(59, 109, 17, 0.1)", color: "#3B6D11", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>Link Students to Parent</h4>
+            <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--accent-primary)", background: "var(--accent-primary-transparent)", padding: "2px 8px", borderRadius: 12 }}>
+              {selectedStudentIds.length} Selected
+            </span>
+          </div>
+          
+          <input 
+            type="text" 
+            style={{...css.input, marginBottom: 8}} 
+            placeholder="Search students by name, email, or ID..." 
+            value={studentSearch}
+            onChange={(e) => setStudentSearch(e.target.value)}
+          />
+
+          <div className="student-scroll-list">
+            {filteredStudents.length === 0 ? (
+              <div style={{ padding: 20, textAlign: "center", fontSize: 13, color: "var(--text-secondary)" }}>
+                No students found.
+              </div>
+            ) : (
+              filteredStudents.map(student => {
+                const isSelected = selectedStudentIds.includes(student.id);
+                return (
+                  <div key={student.id} className="student-list-item" onClick={() => toggleStudentSelection(student.id)}>
+                    <input type="checkbox" checked={isSelected} readOnly style={{ cursor: "pointer" }} />
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{student.firstName} {student.lastName}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{student.email} • ID: {student.studentId}</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
       <AdminAlert type="error"   message={error}   onClose={() => setError(null)} />
       <AdminAlert type="success" message={success} onClose={() => setSuccess(null)} />
 
       <div style={{ marginTop: 16, display: "flex", gap: 10, alignItems: "center" }}>
         <button style={css.btnPrimary} onClick={submit} disabled={loading}>
           {loading && <AdminSpinner />}
-          {loading ? "Creating…" : "Create user"}
+          {loading ? "Processing…" : `Create & Assign ${form.role.charAt(0).toUpperCase() + form.role.slice(1)}`}
         </button>
         <button
           style={css.btnGhost}
-          onClick={() => { setForm({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "" }); setError(null); setSuccess(null); }}
+          onClick={() => { 
+            setForm({ email: "", role: "teacher", firstName: "", lastName: "", middleName: "", classLevelId: "", sectionId: "", dateOfBirth: "", areaOfInterest: "", phoneNumber: "" }); 
+            setError(null); setSuccess(null); setSelectedStudentIds([]); setStudentSearch(""); 
+          }}
           disabled={loading}
         >
           Clear
@@ -2823,6 +3021,120 @@ function PromotionsSection({ onBack }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PARENT ASSOCIATIONS VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ParentAssociationsSection({ onBack }) {
+  const [associations, setAssociations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetchAssociations();
+  }, []);
+
+  const fetchAssociations = () => {
+    setLoading(true);
+    api.getAllParentAssociations()
+      .then(res => setAssociations(Array.isArray(res) ? res : []))
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  };
+
+  const filteredAssoc = associations.filter(assoc => 
+    assoc.parentName?.toLowerCase().includes(search.toLowerCase()) ||
+    assoc.studentName?.toLowerCase().includes(search.toLowerCase()) ||
+    assoc.parentEmail?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", margin: 0 }}>Parent Associations</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+            Audit and manage links between parents/guardians and their enrolled students.
+          </p>
+        </div>
+        <button style={css.btnGhost} onClick={onBack}>← Back to Dashboard</button>
+      </div>
+
+      <div style={{ ...css.card, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 16 }}>
+          <AdminField label="Search Associations">
+            <input 
+              style={{ ...css.input, minWidth: 250 }} 
+              placeholder="Search by parent or student name..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </AdminField>
+          <button style={{ ...css.btnGhost, height: 44, marginTop: "auto" }} onClick={fetchAssociations} disabled={loading}>
+            {loading ? <AdminSpinner size={14} /> : "Refresh"}
+          </button>
+        </div>
+
+        {error && <div style={{ color: "#e53e3e", marginBottom: 16, fontSize: 13 }}>{error}</div>}
+
+        <div className="table-outer">
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Parent/Guardian</th>
+                <th>Linked Student</th>
+                <th>Relationship</th>
+                <th>Linked Date</th>
+              </tr>
+            </thead>
+            <tbody>
+               {loading ? (
+                 <tr>
+                   <td colSpan={4} style={{ textAlign: "center", padding: "40px 0" }}>
+                     <AdminSpinner />
+                   </td>
+                 </tr>
+               ) : filteredAssoc.length === 0 ? (
+                 <tr>
+                   <td colSpan={4} style={{ textAlign: "center", padding: "40px 0", color: "var(--text-secondary)" }}>
+                     No parent-student associations found.
+                   </td>
+                 </tr>
+               ) : (
+                 filteredAssoc.map((assoc) => (
+                   <tr key={assoc.id}>
+                     <td>
+                       <div style={{ fontWeight: 600, color: "var(--text)" }}>{assoc.parentName}</div>
+                       <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{assoc.parentEmail}</div>
+                     </td>
+                     <td>
+                       <div style={{ fontWeight: 600, color: "var(--text)" }}>{assoc.studentName}</div>
+                       <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>ID: {assoc.studentId}</div>
+                     </td>
+                     <td>
+                       <span style={{ 
+                         fontSize: 11, background: "rgba(124, 77, 255, 0.1)", color: "#7c4dff", 
+                         padding: "2px 8px", borderRadius: 12, fontWeight: 600, textTransform: "capitalize",
+                         border: "1px solid rgba(124, 77, 255, 0.2)" 
+                       }}>
+                         {assoc.relationship || "Guardian"}
+                       </span>
+                     </td>
+                     <td style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                       {new Date(assoc.linkedDate).toLocaleDateString()}
+                     </td>
+                   </tr>
+                 ))
+               )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ADMINISTRATION VIEW (full-page)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -3036,6 +3348,20 @@ export default function AdminDashboard() {
     )
   }
 
+  if (currentView === "parent-associations") {
+    return (
+       <div className="dashboard admin-dashboard-container">
+        <style>
+          {`
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
+          `}
+        </style>
+        <ParentAssociationsSection onBack={() => setCurrentView("dashboard")} />
+      </div>
+    )
+  }
+
   const teachers = users.filter((u) => u.role === "teacher").length;
   const students = users.filter((u) => u.role === "student").length;
   const parents  = users.filter((u) => u.role === "parent").length;
@@ -3172,6 +3498,15 @@ export default function AdminDashboard() {
             <polyline points="13 2 13 9 20 9"/><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="20"/>
           </svg>
           Student Promotions
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "#fff", color: "var(--accent, #7c4dff)", borderColor: "var(--accent, #7c4dff)" }}
+          onClick={() => setCurrentView("parent-associations")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Parent Associations
         </button>
         <button
           style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "var(--surface)", color: "var(--accent-secondary)", borderColor: "var(--border)" }}
