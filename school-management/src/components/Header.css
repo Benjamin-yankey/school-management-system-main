@@ -35,7 +35,7 @@
 .school-logo-icon {
   width: 44px;
   height: 44px;
-  background: var(--role-color, #8B5CF6);
+  background: var(--role-color, #5e4075);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -350,7 +350,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  background: var(--avatar-color, #8B5CF6);
+  background: var(--avatar-color, #5e4075);
   border: 2px solid #fff;
   cursor: pointer;
   overflow: hidden;

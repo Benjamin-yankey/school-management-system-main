@@ -8,7 +8,7 @@
   --academy-text: #e8eefc;
   --academy-text-muted: rgba(215, 226, 248, 0.84);
   --academy-border: rgba(148, 163, 184, 0.2);
-  --academy-accent: #8B5CF6;
+  --academy-accent: #5e4075;
 
   min-height: 100vh;
   background:
@@ -212,7 +212,7 @@ body[data-theme="light"] .academy-page {
 .academy-page-apply {
   text-decoration: none;
   color: white;
-  background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #5e4075 100%);
   border-radius: 999px;
   padding: 0.5rem 0.98rem;
   font-size: 0.86rem;
@@ -606,21 +606,21 @@ body[data-theme="light"] .academy-page {
   --color-on-secondary: #004d57;
   --color-tertiary-dim: #6063ee;
   --color-surface-container-low: #0d1323;
-  --color-primary-dim: #7C3AED;
-  --color-secondary-dim: #14B8A6;
-  --color-on-secondary-container: #e8fbff;
-  --color-surface-container-high: #181f33;
-  --color-surface-variant: #1e253b;
-  --color-outline: #707588;
-  --color-outline-variant: #434759;
-  --color-surface-container-highest: #1e253b;
-  --color-primary: #8B5CF6;
-  --color-secondary: #14B8A6;
-  --color-secondary-fixed: #5EEAD4;
-  --color-tertiary: #A78BFA;
-  --color-on-primary-fixed: #FFFFFF;
-  --color-primary-container: #A78BFA;
-  --color-secondary-container: #0D9488;
+  --color-primary-dim: #5e4075;
+  --color-secondary-dim: #d2c3f6;
+  --color-on-secondary-container: #36255c;
+  --color-surface-container-high: #2d1f47;
+  --color-surface-variant: #3d2860;
+  --color-outline: #7960a0;
+  --color-outline-variant: #5e4075;
+  --color-surface-container-highest: #36255c;
+  --color-primary: #d2c3f6;
+  --color-secondary: #e1d2ff;
+  --color-secondary-fixed: #e1d2ff;
+  --color-tertiary: #5e4075;
+  --color-on-primary-fixed: #36255c;
+  --color-primary-container: #36255c;
+  --color-secondary-container: #5e4075;
   --font-headline: "Plus Jakarta Sans", sans-serif;
   --font-body: "Plus Jakarta Sans", sans-serif;
   --font-label: "Plus Jakarta Sans", sans-serif;
@@ -642,25 +642,25 @@ body[data-theme="light"] .cohoes-registration-form {
   --color-on-surface-variant: #64748b;
   --color-outline: #cbd5e1;
   --color-outline-variant: #94a3b8;
-  --color-primary: #8B5CF6;
-  --color-secondary: #14B8A6;
-  --color-tertiary: #5EEAD4;
+  --color-primary: #d2c3f6;
+  --color-secondary: #5e4075;
+  --color-tertiary: #7C3AED;
 }
 
 @media (prefers-color-scheme: light) {
   .cohoes-registration-form {
     --color-surface: #ffffff;
-    --color-on-surface: #0f1724;
-    --color-surface-container: #f6f8fb;
-    --color-surface-container-low: #f1f3f7;
-    --color-surface-container-high: #edf0f5;
-    --color-surface-variant: #e2e8f0;
-    --color-on-surface-variant: #64748b;
-    --color-outline: #cbd5e1;
-    --color-outline-variant: #94a3b8;
-    --color-primary: #8B5CF6;
-    --color-secondary: #14B8A6;
-    --color-tertiary: #5EEAD4;
+    --color-on-surface: #36255c;
+    --color-surface-container: #f3edff;
+    --color-surface-container-low: #e1d2ff;
+    --color-surface-container-high: #ebe0fa;
+    --color-surface-variant: #d2c3f6;
+    --color-on-surface-variant: #5e4075;
+    --color-outline: #b8a8d0;
+    --color-outline-variant: #7960a0;
+    --color-primary: #5e4075;
+    --color-secondary: #36255c;
+    --color-tertiary: #7C3AED;
   }
 }
 

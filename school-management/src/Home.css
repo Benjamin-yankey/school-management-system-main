@@ -9,37 +9,38 @@
    CSS Variables - Design Tokens
    =================================== */
 :root {
-  --color-violet: #8B5CF6;
-  --color-violet-dark: #7C3AED;
-  --color-violet-light: #A78BFA;
+  --color-violet: #5e4075;
+  --color-violet-light: #d2c3f6;
+  --color-violet-lighter: #e1d2ff;
+  --color-violet-dark: #36255c;
   --color-white: #FFFFFF;
-  --color-teal: #14B8A6;
-  --color-teal-light: #5EEAD4;
+  --color-teal: #d2c3f6;
+  --color-teal-light: #e1d2ff;
   --color-teal-dark: #0D9488;
   --color-logo-purple: var(--color-violet);
-  --color-logo-blue: var(--color-teal);
-  --color-surface-tint: #85adff;
-  --color-surface-container: #13192b;
-  --color-surface: #090e1c;
-  --color-on-surface: #e1e4fa;
-  --color-on-secondary: var(--color-violet-dark);
-  --color-tertiary-dim: #6063ee;
-  --color-surface-container-low: #0d1323;
-  --color-primary-dim: var(--color-violet-dark);
-  --color-secondary-dim: var(--color-teal);
-  --color-on-secondary-container: #e8fbff;
-  --color-surface-container-high: #181f33;
-  --color-surface-variant: #1e253b;
-  --color-outline: #707588;
-  --color-outline-variant: #434759;
-  --color-surface-container-highest: #1e253b;
-  --color-primary: var(--color-violet);
-  --color-secondary: var(--color-teal);
-  --color-secondary-fixed: var(--color-teal-light);
-  --color-tertiary: #9093ff;
-  --color-on-primary-fixed: #FFFFFF;
-  --color-primary-container: var(--color-violet-light);
-  --color-secondary-container: var(--color-teal-dark);
+  --color-logo-blue: var(--color-violet-light);
+  --color-surface-tint: #d2c3f6;
+  --color-surface-container: #36255c;
+  --color-surface: #1a1430;
+  --color-on-surface: #e1d2ff;
+  --color-on-secondary: var(--color-violet-light);
+  --color-tertiary-dim: #5e4075;
+  --color-surface-container-low: #241b3f;
+  --color-primary-dim: var(--color-violet);
+  --color-secondary-dim: var(--color-violet-light);
+  --color-on-secondary-container: #36255c;
+  --color-surface-container-high: #2d1f47;
+  --color-surface-variant: #3d2860;
+  --color-outline: #7960a0;
+  --color-outline-variant: #5e4075;
+  --color-surface-container-highest: #36255c;
+  --color-primary: var(--color-violet-light);
+  --color-secondary: var(--color-violet-lighter);
+  --color-secondary-fixed: var(--color-violet-lighter);
+  --color-tertiary: var(--color-violet);
+  --color-on-primary-fixed: #36255c;
+  --color-primary-container: var(--color-violet-dark);
+  --color-secondary-container: var(--color-violet-dark);
   --font-headline: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-label: 'Plus Jakarta Sans', sans-serif;
@@ -47,34 +48,34 @@
 
 body[data-theme="light"] {
   --color-surface: #ffffff;
-  --color-on-surface: #0f1724;
-  --color-surface-container: #f6f8fb;
-  --color-surface-container-low: #f1f3f7;
-  --color-surface-container-high: #edf0f5;
-  --color-surface-variant: #e2e8f0;
-  --color-on-surface-variant: #64748b;
-  --color-outline: #cbd5e1;
-  --color-outline-variant: #94a3b8;
-  --color-primary: var(--color-violet);
-  --color-secondary: var(--color-teal);
-  --color-tertiary: var(--color-teal-light);
+  --color-on-surface: #36255c;
+  --color-surface-container: #f3edff;
+  --color-surface-container-low: #e1d2ff;
+  --color-surface-container-high: #ebe0fa;
+  --color-surface-variant: #d2c3f6;
+  --color-on-surface-variant: #5e4075;
+  --color-outline: #b8a8d0;
+  --color-outline-variant: #7960a0;
+  --color-primary: #5e4075;
+  --color-secondary: #36255c;
+  --color-tertiary: #7C3AED;
 }
 
 /* CSS-level light mode (fires before React/JS loads) */
 @media (prefers-color-scheme: light) {
   :root {
     --color-surface: #ffffff;
-    --color-on-surface: #0f1724;
-    --color-surface-container: #f6f8fb;
-    --color-surface-container-low: #f1f3f7;
-    --color-surface-container-high: #edf0f5;
-    --color-surface-variant: #e2e8f0;
-    --color-on-surface-variant: #64748b;
-    --color-outline: #cbd5e1;
-    --color-outline-variant: #94a3b8;
-    --color-primary: #8B5CF6;
-    --color-secondary: #14B8A6;
-    --color-tertiary: #5EEAD4;
+    --color-on-surface: #36255c;
+    --color-surface-container: #f3edff;
+    --color-surface-container-low: #e1d2ff;
+    --color-surface-container-high: #ebe0fa;
+    --color-surface-variant: #d2c3f6;
+    --color-on-surface-variant: #5e4075;
+    --color-outline: #b8a8d0;
+    --color-outline-variant: #7960a0;
+    --color-primary: #5e4075;
+    --color-secondary: #36255c;
+    --color-tertiary: #7C3AED;
   }
 }
 
@@ -499,7 +500,7 @@ body[data-theme="light"] .home-page {
    Buttons
    =================================== */
 .primary-btn {
-  background: linear-gradient(to right, #8B5CF6, #14B8A6);
+  background: linear-gradient(to right, #5e4075, #36255c);
   color: #FFFFFF;
   text-decoration: none;
   padding: 0.5rem 1.5rem;
@@ -514,7 +515,7 @@ body[data-theme="light"] .home-page {
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 20px rgba(94, 64, 117, 0.4);
 }
 
 @media (min-width: 960px) {
@@ -526,7 +527,7 @@ body[data-theme="light"] .home-page {
 
 .primary-btn:hover { 
   transform: scale(1.05);
-  box-shadow: 0 6px 30px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 30px rgba(94, 64, 117, 0.5);
 }
 
 .primary-btn:active { 
@@ -555,8 +556,8 @@ body[data-theme="light"] .home-page {
   font-weight: 700;
   letter-spacing: -0.01em;
   font-size: 1rem;
-  border: 2px solid rgba(139, 92, 246, 0.5);
-  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid rgba(94, 64, 117, 0.5);
+  background: rgba(94, 64, 117, 0.1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #FFFFFF;
@@ -567,7 +568,7 @@ body[data-theme="light"] .home-page {
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(94, 64, 117, 0.2);
 }
 
 .secondary-btn-lg {
@@ -583,8 +584,8 @@ body[data-theme="light"] .home-page {
 }
 
 .secondary-btn:hover {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: #8B5CF6;
+  background: rgba(94, 64, 117, 0.2);
+  border-color: #5e4075;
 }
 
 /* ===================================
@@ -707,7 +708,7 @@ body[data-theme="light"] .home-page {
   line-height: 0.95;
   margin-bottom: 1.5rem;
   animation: slide-up 1s ease-out forwards;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8), 0 0 60px rgba(139, 92, 246, 0.3);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8), 0 0 60px rgba(210, 195, 246, 0.3);
 }
 
 @media (min-width: 640px) {
@@ -731,7 +732,7 @@ body[data-theme="light"] .home-page {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #8B5CF6 0%, #14B8A6 50%, #A78BFA 100%);
+  background: linear-gradient(135deg, #e1d2ff 0%, #5e4075 50%, #d2c3f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2868,11 +2869,11 @@ body[data-theme="light"] .home-page {
 }
 
 @keyframes border-dance {
-  0% { border-color: #8B5CF6; }
-  25% { border-color: #14B8A6; }
-  50% { border-color: #A78BFA; }
-  75% { border-color: #5EEAD4; }
-  100% { border-color: #8B5CF6; }
+  0% { border-color: #5e4075; }
+  25% { border-color: #d2c3f6; }
+  50% { border-color: #d2c3f6; }
+  75% { border-color: #e1d2ff; }
+  100% { border-color: #5e4075; }
 }
 
 /* Tilt 3D Effect */
@@ -2888,9 +2889,9 @@ body[data-theme="light"] .home-page {
 @keyframes neon-flicker {
   0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { 
     text-shadow: 
-      0 0 10px #8B5CF6,
-      0 0 20px #8B5CF6,
-      0 0 40px #8B5CF6;
+      0 0 10px #5e4075,
+      0 0 20px #5e4075,
+      0 0 40px #5e4075;
     opacity: 1;
   }
   20%, 24%, 55% { 
@@ -2979,7 +2980,7 @@ body[data-theme="light"] .home-page {
 .animate-neon-flicker { animation: neon-flicker 2s infinite; }
 
 .animate-gradient-flow {
-  background: linear-gradient(-45deg, #8B5CF6, #14B8A6, #A78BFA, #5EEAD4);
+  background: linear-gradient(-45deg, #5e4075, #d2c3f6, #d2c3f6, #e1d2ff);
   background-size: 400% 400%;
   animation: gradient-flow 5s ease infinite;
 }
@@ -3436,7 +3437,7 @@ body[data-theme="light"] .home-page {
   position: fixed;
   width: 20px;
   height: 20px;
-  border: 2px solid #8B5CF6;
+  border: 2px solid #5e4075;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
@@ -3494,7 +3495,7 @@ body[data-theme="light"] .home-page {
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(90deg, #8B5CF6, #14B8A6, #A78BFA, #5EEAD4, #8B5CF6);
+  background: linear-gradient(90deg, #5e4075, #d2c3f6, #d2c3f6, #e1d2ff, #5e4075);
   background-size: 400% 100%;
   border-radius: inherit;
   z-index: -1;
@@ -3502,7 +3503,7 @@ body[data-theme="light"] .home-page {
 }
 
 .rainbow-border-teal::before {
-  background: linear-gradient(90deg, #14B8A6, #8B5CF6, #5EEAD4, #A78BFA, #14B8A6);
+  background: linear-gradient(90deg, #d2c3f6, #5e4075, #e1d2ff, #d2c3f6, #d2c3f6);
 }
 
 /* ===================================
@@ -3517,7 +3518,7 @@ body[data-theme="light"] .home-page {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: #8B5CF6;
+  background: #5e4075;
   border-radius: 50%;
   animation: sparkle-fade 2s ease-in-out infinite;
 }

@@ -113,7 +113,7 @@
 }
 
 .react-calendar__tile--active:hover {
-  background: #8B5CF6;
+  background: #5e4075;
 }
 
 .react-calendar__tile--hasActive {
@@ -164,7 +164,7 @@
 }
 
 .calendar-selected:hover {
-  background: #8B5CF6 !important;
+  background: #5e4075 !important;
 }
 
 /* Event indicators */

@@ -1,24 +1,24 @@
 :root {
-  --bg: #f6f8fb;
-  --text: #0f1724;
-  --text-secondary: #64748b;
-  --accent: #8B5CF6;
-  --accent-secondary: #14B8A6;
-  --accent-blue: #3b82f6;
+  --bg: #f3edff;
+  --text: #36255c;
+  --text-secondary: #5e4075;
+  --accent: #5e4075;
+  --accent-secondary: #d2c3f6;
+  --accent-blue: #7C3AED;
   --surface: #ffffff;
-  --surface-muted: #f7fafc;
-  --border: #e2e8f0;
-  --card-bg: linear-gradient(180deg, #ffffff, #fbfdff);
-  --card-shadow: 0 8px 30px rgba(12, 18, 34, 0.06);
+  --surface-muted: #e1d2ff;
+  --border: #d2c3f6;
+  --card-bg: linear-gradient(180deg, #ffffff, #f3edff);
+  --card-shadow: 0 8px 30px rgba(54, 37, 92, 0.1);
   --input-bg: #ffffff;
-  --input-border: #e2e8f0;
+  --input-border: #d2c3f6;
   --header-bg: rgba(255, 255, 255, 0.95);
-  --header-border: #e5e7eb;
-  --header-text: #111827;
-  --header-muted: #6b7280;
-  --header-hover: #f3f4f6;
-  --header-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
-    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --header-border: #d2c3f6;
+  --header-text: #36255c;
+  --header-muted: #5e4075;
+  --header-hover: #e1d2ff;
+  --header-shadow: 0 1px 3px 0 rgba(54, 37, 92, 0.1),
+    0 1px 2px 0 rgba(54, 37, 92, 0.06);
   --danger: #dc2626;
   --danger-bg: #fef2f2;
 }
@@ -64,20 +64,20 @@ body {
 }
 
 body[data-theme="dark"] {
-  --bg: #0b1120;
-  --text: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --accent: #8B5CF6;
-  --accent-secondary: #14B8A6;
-  --surface: #111827;
-  --surface-muted: #0f172a;
-  --border: #1f2937;
-  --card-bg: linear-gradient(180deg, #111827, #1e293b);
-  --card-shadow: 0 12px 40px rgba(2, 6, 23, 0.4);
-  --input-bg: #1f2937;
-  --input-border: #374151;
-  --header-bg: rgba(15, 23, 42, 0.9);
-  --header-border: #1f2937;
+  --bg: #1a1430;
+  --text: #e1d2ff;
+  --text-secondary: #7960a0;
+  --accent: #d2c3f6;
+  --accent-secondary: #5e4075;
+  --surface: #241b3f;
+  --surface-muted: #36255c;
+  --border: #3d2860;
+  --card-bg: linear-gradient(180deg, #2d1f47, #3d2860);
+  --card-shadow: 0 12px 40px rgba(54, 37, 92, 0.4);
+  --input-bg: #2d1f47;
+  --input-border: #5e4075;
+  --header-bg: rgba(45, 31, 71, 0.9);
+  --header-border: #3d2860;
   --header-text: #f8fafc;
   --header-muted: #94a3b8;
   --header-hover: #1f2937;
