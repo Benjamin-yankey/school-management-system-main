@@ -986,13 +986,13 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
           </p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, color: C.text1, fontWeight: 500 }}>Enable digest</span>
-            <Toggle value={prefs.digest.enabled} onChange={(v) => setPrefs((p) => ({ ...p, digest: { ...p.digest, enabled: v } }))} C={C} />
+            <Toggle value={prefs.digest?.enabled} onChange={(v) => setPrefs((p) => ({ ...p, digest: { ...p.digest, enabled: v } }))} C={C} />
           </div>
-          {prefs.digest.enabled && (
+          {prefs.digest?.enabled && (
             <>
               <label style={{ display: "block", fontSize: 12, color: C.text2, marginBottom: 6, fontWeight: 600 }}>Frequency</label>
               <select
-                value={prefs.digest.frequency}
+                value={prefs.digest?.frequency}
                 onChange={(e) => setPrefs((p) => ({ ...p, digest: { ...p.digest, frequency: e.target.value } }))}
                 style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: C.input, border: `1px solid ${C.inputBd}`, color: C.text1, fontSize: 13, outline: "none", fontFamily: "inherit", marginBottom: 12 }}
               >
@@ -1003,7 +1003,7 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
               </select>
               <label style={{ display: "block", fontSize: 12, color: C.text2, marginBottom: 6, fontWeight: 600 }}>Digest time</label>
               <input
-                type="time" value={prefs.digest.time}
+                type="time" value={prefs.digest?.time}
                 onChange={(e) => setPrefs((p) => ({ ...p, digest: { ...p.digest, time: e.target.value } }))}
                 style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: C.input, border: `1px solid ${C.inputBd}`, color: C.text1, fontSize: 13, outline: "none", fontFamily: "inherit" }}
               />
@@ -1021,15 +1021,15 @@ export function NotificationPreferences({ token, serviceUrl = "http://localhost:
           </p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, color: C.text1, fontWeight: 500 }}>Enable quiet hours</span>
-            <Toggle value={prefs.quiet.enabled} onChange={(v) => setPrefs((p) => ({ ...p, quiet: { ...p.quiet, enabled: v } }))} C={C} />
+            <Toggle value={prefs.quiet?.enabled} onChange={(v) => setPrefs((p) => ({ ...p, quiet: { ...p.quiet, enabled: v } }))} C={C} />
           </div>
-          {prefs.quiet.enabled && (
+          {prefs.quiet?.enabled && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {[["from", "From"], ["to", "Until"]].map(([k, lbl]) => (
                 <div key={k}>
                   <label style={{ display: "block", fontSize: 12, color: C.text2, marginBottom: 6, fontWeight: 600 }}>{lbl}</label>
                   <input
-                    type="time" value={prefs.quiet[k]}
+                    type="time" value={prefs.quiet?.[k]}
                     onChange={(e) => setPrefs((p) => ({ ...p, quiet: { ...p.quiet, [k]: e.target.value } }))}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: C.input, border: `1px solid ${C.inputBd}`, color: C.text1, fontSize: 13, outline: "none", fontFamily: "inherit" }}
                   />
@@ -1193,6 +1193,176 @@ export default function NotificationServicePage({ token, serviceUrl = "http://lo
 
       {tab === "center"      && <NotificationCenter      token={token} serviceUrl={serviceUrl} userId={userId} C_EXT={C} CAT_EXT={CATEGORIES} />}
       {tab === "preferences" && <NotificationPreferences token={token} serviceUrl={serviceUrl} C_EXT={C} CAT_EXT={CATEGORIES} />}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTIFICATION SEND MODAL (Admin/SuperAdmin/Teacher)
+// ─────────────────────────────────────────────────────────────────────────────
+export function NotificationSendModal({ isOpen, onClose, token, serviceUrl = "http://localhost:3001", userRole = "student" }) {
+  const { isDarkMode } = useAppTheme();
+  const C = getColors(isDarkMode);
+  
+  const [sending, setSending] = useState(false);
+  const [form, setForm] = useState({ title: "", message: "", category: "notice", targetRole: "all" });
+  const [result, setResult] = useState(null);
+  
+  const canSend = ["admin", "superadmin", "teacher"].includes(userRole?.toLowerCase());
+  
+  if (!isOpen || !canSend) return null;
+  
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!form.title || !form.message) return;
+    
+    setSending(true);
+    setResult(null);
+    
+    try {
+      await notifApi(serviceUrl, token, "POST", "/notifications/send", {
+        title: form.title,
+        message: form.message,
+        category: form.category,
+        targetRole: form.targetRole,
+        senderRole: userRole
+      });
+      setResult({ success: true, message: "Notification sent successfully!" });
+      setForm({ title: "", message: "", category: "notice", targetRole: "all" });
+      setTimeout(() => { onClose(); setResult(null); }, 1500);
+    } catch (err) {
+      setResult({ success: false, message: err.message || "Failed to send notification" });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const CATEGORIES = [
+    { value: "notice", label: "General Notice" },
+    { value: "admission", label: "Admissions" },
+    { value: "attendance", label: "Attendance" },
+    { value: "grade", label: "Grades" },
+    { value: "assignment", label: "Assignments" },
+    { value: "system", label: "System" },
+  ];
+
+  const TARGETS = [
+    { value: "all", label: "All Users" },
+    { value: "students", label: "Students Only" },
+    { value: "teachers", label: "Teachers Only" },
+    { value: "parents", label: "Parents Only" },
+  ];
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center",
+      backdropFilter: "blur(4px)"
+    }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div style={{
+        background: C.surface, borderRadius: 16, padding: 24, width: "100%", maxWidth: 480,
+        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)"
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.text1 }}>
+            Send Notification
+          </h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+            <X size={20} color={C.text2} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSend}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+              Title
+            </label>
+            <input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Enter notification title"
+              style={{
+                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
+                fontSize: 14, background: C.input, color: C.text1, outline: "none"
+              }}
+              required
+            />
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+              Category
+            </label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              style={{
+                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
+                fontSize: 14, background: C.input, color: C.text1, outline: "none"
+              }}
+            >
+              {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+              Send To
+            </label>
+            <select
+              value={form.targetRole}
+              onChange={(e) => setForm({ ...form, targetRole: e.target.value })}
+              style={{
+                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
+                fontSize: 14, background: C.input, color: C.text1, outline: "none"
+              }}
+            >
+              {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+              Message
+            </label>
+            <textarea
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              placeholder="Enter your notification message..."
+              rows={4}
+              style={{
+                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
+                fontSize: 14, background: C.input, color: C.text1, outline: "none", resize: "vertical"
+              }}
+              required
+            />
+          </div>
+
+          {result && (
+            <div style={{
+              padding: "10px 14px", borderRadius: 8, marginBottom: 16,
+              background: result.success ? C.greenBg : C.redBg,
+              color: result.success ? C.green : C.red,
+              fontSize: 13, fontWeight: 600
+            }}>
+              {result.message}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={sending || !form.title || !form.message}
+            style={{
+              width: "100%", padding: "12px", borderRadius: 8, border: "none",
+              background: sending ? C.text3 : C.blue, color: "#fff",
+              fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer",
+              transition: "background 0.2s"
+            }}
+          >
+            {sending ? "Sending..." : "Send Notification"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

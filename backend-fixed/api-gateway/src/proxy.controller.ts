@@ -41,10 +41,10 @@ export class ProxyController {
     return this.forward(req, res, "school");
   }
 
-  // ── Notifications ─────────────────────────────────────────────────────────
+  // ── Notifications & Announcements ─────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard)
-  @All("/notifications*")
+  @All(["/notifications*", "/announcements*"])
   proxyNotifications(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "notification");
   }

@@ -478,6 +478,13 @@ export async function activateUser(userId) {
   return handleResponse(res);
 }
 
+export async function getUser(userId) {
+  const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function withdrawStudent(studentId, reason) {
   const res = await fetch(`${API_BASE_URL}/students/${studentId}/withdraw`, {
     method: "PATCH",
@@ -885,6 +892,7 @@ export default {
   resetUserPassword,
   deactivateUser,
   activateUser,
+  getUser,
   withdrawStudent,
   signOut,
   getTeacherSections,

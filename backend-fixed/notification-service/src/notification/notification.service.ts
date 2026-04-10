@@ -38,6 +38,89 @@ export class NotificationService {
     return { data, total, page, limit };
   }
 
+  async sendNotification(sender: any, dto: any) {
+    const title = dto.title || dto.subject;
+    const message = dto.message || dto.body;
+    const { category, priority, targetRole, sectionId } = dto;
+    const userIds = dto.userIds || dto.studentIds || [];
+    const senderRole = sender.role.toLowerCase();
+    
+    // 1. Authorization & target user resolution
+    let finalUserIds: string[] = userIds || [];
+
+    if (targetRole && targetRole !== 'individual') {
+      if (senderRole === 'superadmin' || senderRole === 'administration') {
+        // Admin/Superadmin can send to broad roles
+        let roleFilter = '';
+        if (targetRole === 'students') roleFilter = 'student';
+        else if (targetRole === 'teachers') roleFilter = 'teacher';
+        else if (targetRole === 'parents') roleFilter = 'parent';
+        else if (targetRole === 'everyone') roleFilter = '';
+
+        const roleQuery = roleFilter ? `?role=${roleFilter}` : '';
+        const url = `http://localhost:3002/administration/users${roleQuery}`;
+        try {
+          const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${sender.token}` }
+          });
+          const users: any = await res.json();
+          finalUserIds = (Array.isArray(users) ? users : users.data || []).map(u => u.id);
+        } catch (e) {
+          console.error('Failed to fetch users from user-service:', e);
+        }
+      } else if (senderRole === 'teacher') {
+        if (targetRole === 'students' || targetRole === 'everyone') {
+           // Teacher sending to all their students
+           const url = `http://localhost:3003/teacher/students`;
+           try {
+             const res = await fetch(url, {
+               headers: { 'Authorization': `Bearer ${sender.token}` } 
+             });
+             const students: any = await res.json();
+             finalUserIds = (Array.isArray(students) ? students : students.data || []).map(s => s.userId).filter(Boolean);
+           } catch (e) {
+             console.error('Failed to fetch students from school-service:', e);
+           }
+        } else if (targetRole === 'section' && sectionId) {
+           // Teacher sending to a specific section
+           const url = `http://localhost:3003/teacher/sections/${sectionId}/students`;
+           try {
+             const res = await fetch(url, {
+               headers: { 'Authorization': `Bearer ${sender.token}` } 
+             });
+             const students: any = await res.json();
+             // These are enrolled student records, they have userId
+             finalUserIds = (Array.isArray(students) ? students : students.data || []).map(s => s.userId).filter(Boolean);
+           } catch (e) {
+             console.error('Failed to fetch section students from school-service:', e);
+           }
+        }
+      } else {
+        throw new Error('Unauthorized to send notification to this target group.');
+      }
+    }
+
+    if (finalUserIds.length === 0) {
+      return { success: false, message: 'No target users found.' };
+    }
+
+    // 2. Create notification records
+    const notifications = finalUserIds.map(uid => 
+      this.notificationRepo.create({
+        userId: uid,
+        title,
+        body: message,
+        category: category || 'system',
+        priority: priority || 'normal',
+        read: false,
+      })
+    );
+
+    await this.notificationRepo.save(notifications);
+
+    return { success: true, count: notifications.length };
+  }
+
   async markRead(id: string) {
     await this.notificationRepo.update(id, { read: true });
   }
@@ -65,7 +148,9 @@ export class NotificationService {
         attendance: { inApp: true, email: true },
         promotion: { inApp: true, email: true },
       },
-      digest: { enabled: false, frequency: 'daily' },
+      digest: { enabled: false, frequency: 'daily', time: '08:00' },
+      quiet: { enabled: false, from: '22:00', to: '07:00' },
+      minPriority: 'low',
     };
   }
 

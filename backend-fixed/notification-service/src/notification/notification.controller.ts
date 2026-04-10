@@ -31,6 +31,23 @@ export class NotificationController {
     return this.notificationService.getHistory(user.id, page, limit, category, priority, q);
   }
 
+  // NoticePage aliases
+  @Get('/announcements')
+  getAnnouncements(@CurrentUser() user: any, @Query() query: any) {
+    return this.getHistory(user, query.page, query.limit, query.category, query.priority, query.q);
+  }
+
+  @Post('/announcements')
+  sendAnnouncement(@CurrentUser() user: any, @Body() dto: any, @Req() req: any) {
+    return this.sendNotification(user, dto, req);
+  }
+
+  @Post('send')
+  sendNotification(@CurrentUser() user: any, @Body() dto: any, @Req() req: any) {
+    const token = req.headers.authorization?.split(' ')[1];
+    return this.notificationService.sendNotification({ ...user, token }, dto);
+  }
+
   @Post(':id/read')
   markRead(@Param('id') id: string) {
     return this.notificationService.markRead(id);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../lib/api";
+import { NotificationSendModal } from "../../lib/NotificationService";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
@@ -1343,7 +1344,7 @@ function UserActionsSection({ selectedUser, onClearUser, onActionDone }) {
   );
 }
 
-function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssigning }) {
+function SectionCard({ section, teachers = [], onDelete, onAssign, onUnassign, isAssigning, refreshKey = 0 }) {
   const [assignedTeachers, setAssignedTeachers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -1351,19 +1352,66 @@ function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssi
     setLoading(true);
     try {
       const data = await api.listTeachersForSection(section.id);
-      // Map assignments to actual teacher names from the main teachers list
-      const results = (data || []).map(a => {
-        const t = teachers.find(ts => ts.id === a.teacherUserId);
-        return {
-          id: a.id,
-          userId: a.teacherUserId,
-          name: t ? `${t.firstName} ${t.lastName}` : "Unknown Teacher",
-          email: t?.email || ""
-        };
-      });
+      console.log("Raw API response:", data, "section ID:", section.id);
+      
+      if (!data || data.length === 0) {
+        setAssignedTeachers([]);
+        setLoading(false);
+        return;
+      }
+      
+      const results = [];
+      
+      for (const a of data) {
+        const teacherId = a.teacherUserId || a.userId || a.id;
+        
+        // Check for full teacher info in the response first
+        let teacherName = null;
+        let teacherEmail = null;
+        
+        if (a.firstName || a.lastName) {
+          teacherName = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+        }
+        
+        if (a.email) {
+          teacherEmail = a.email;
+        }
+        
+        // If no name in response, look in local teachers list
+        if (!teacherName) {
+          // Find teacher in the passed teachers prop
+          const t = teachers.find(ts => ts.id === teacherId);
+          if (t) {
+            teacherName = `${t.firstName || ''} ${t.lastName || ''}`.trim();
+            teacherEmail = t.email;
+          } else {
+            // Try to find by email in teachers list
+            const teacherByEmail = teachers.find(ts => ts.email === (a.email || ''));
+            if (teacherByEmail) {
+              teacherName = `${teacherByEmail.firstName || ''} ${teacherByEmail.lastName || ''}`.trim();
+              teacherEmail = teacherByEmail.email;
+            }
+          }
+        }
+        
+        // If still no name, show truncated ID
+        if (!teacherName) {
+          teacherName = teacherId ? `Teacher (${String(teacherId).slice(0, 8)})` : "Unassigned";
+        }
+        
+        results.push({
+          id: a.id || teacherId,
+          userId: teacherId,
+          name: teacherName,
+          email: teacherEmail || ""
+        });
+      }
+      
       setAssignedTeachers(results);
+      console.log("Processed results:", results);
     } catch (e) {
-      console.error(e);
+      console.error("Error fetching assignments:", e);
+      setAssignedTeachers([]);
     } finally {
       setLoading(false);
     }
@@ -1371,7 +1419,7 @@ function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssi
 
   useEffect(() => {
     fetchAssignments();
-  }, [fetchAssignments]);
+  }, [fetchAssignments, isAssigning, section.id, refreshKey]);
 
   return (
     <div style={{ background: "var(--surface-muted)", border: "1px solid var(--border)", borderRadius: 12, padding: "16px", position: "relative", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
@@ -1399,7 +1447,7 @@ function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssi
             {assignedTeachers.map(at => (
               <div key={at.userId} style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border)" }}>
                 <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E6F1FB", color: "#185FA5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700 }}>
-                  {at.name[0]}
+                  {(at.name || 'T')[0]}
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{at.name}</p>
@@ -1433,11 +1481,14 @@ function SectionCard({ section, teachers, onDelete, onAssign, onUnassign, isAssi
 }
 
 
-function ClassSectionsList({ classLevelId, onRefresh }) {
-  const { activeAcademicYear } = useAuth();
-  const [sections, setSections] = useState([]);
+function ClassSectionsList({ classLevelId, onRefresh, refreshKey = 0 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [internalRefreshKey, setInternalRefreshKey] = useState(0);
+  const [sections, setSections] = useState([]);
+  
+  // Combined refresh key from prop or internal state
+  const currentRefreshKey = refreshKey || internalRefreshKey;
   
   // Create Section State
   const [showAdd, setShowAdd] = useState(false);
@@ -1461,7 +1512,8 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
 
   useEffect(() => {
     fetchSections();
-  }, [fetchSections]);
+    fetchTeachers();
+  }, [fetchSections, currentRefreshKey]);
 
   const fetchTeachers = async () => {
     setLoadingTeachers(true);
@@ -1514,7 +1566,10 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
       await api.assignTeacherToSection(selectedTeacherId, assigningTo);
       setAssigningTo(null);
       setSelectedTeacherId("");
-      fetchSections(); // Refresh everything to show the new assignment
+      fetchSections(); // Refresh sections
+      fetchTeachers(); // Refresh teachers list too
+      // Wait and then refresh
+      setInternalRefreshKey(prev => prev + 1);
       alert("Teacher assigned successfully.");
     } catch (e) {
       alert(e.message);
@@ -1525,14 +1580,11 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
 
   const handleUnassign = async (teacherUserId, sectionId) => {
     if (!window.confirm("Unassign this teacher from the section?")) return;
-    setLoading(true);
     try {
       await api.unassignTeacherFromSection(teacherUserId, sectionId);
       fetchSections();
     } catch (e) {
       alert(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -1596,6 +1648,7 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
             onAssign={() => { setAssigningTo(s.id); fetchTeachers(); }}
             onUnassign={(tid) => handleUnassign(tid, s.id)}
             isAssigning={assigningTo === s.id}
+            refreshKey={refreshKey}
           />
         ))}
       </div>
@@ -1605,6 +1658,7 @@ function ClassSectionsList({ classLevelId, onRefresh }) {
 function AcademicOverviewSection({ onBack }) {
   const { activeAcademicYear, currentTerm, classLevels, refreshActiveYear } = useAuth();
   const [expandedClass, setExpandedClass] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [terms, setTerms] = useState([]);
   const [termsLoading, setTermsLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
@@ -2013,7 +2067,7 @@ function AcademicOverviewSection({ onBack }) {
                 </div>
                 {expandedClass === cls.id && (
                   <div style={{ padding: "0 18px 18px", borderTop: "1px solid var(--border)" }}>
-                    <ClassSectionsList classLevelId={cls.id} />
+                    <ClassSectionsList classLevelId={cls.id} refreshKey={refreshKey} />
                   </div>
                 )}
               </div>
@@ -3284,12 +3338,15 @@ const css = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
-  const { activeAcademicYear } = useAuth();
+  const { activeAcademicYear, user } = useAuth();
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState("dashboard");
   const [users, setUsers]             = useState([]);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError]   = useState(null);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (currentView !== "dashboard") return;
@@ -3304,6 +3361,14 @@ export default function AdminDashboard() {
   if (currentView === "administration") {
     return (
       <div className="dashboard admin-dashboard-container">
+        {/* Modal */}
+        <NotificationSendModal
+          isOpen={showNotifModal}
+          onClose={() => setShowNotifModal(false)}
+          token={token}
+          serviceUrl={API_BASE}
+          userRole={user?.role || "admin"}
+        />
         <style>
           {`
             @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -3546,6 +3611,15 @@ export default function AdminDashboard() {
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
           Parent Associations
+        </button>
+        <button
+          style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "var(--surface)", color: "#f59e0b", borderColor: "#f59e0b" }}
+          onClick={() => setShowNotifModal(true)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          Broadcast Notification
         </button>
         <button
           style={{ ...css.btnGhost, padding: "12px 22px", fontSize: 14, gap: 10, background: "var(--surface)", color: "var(--accent-secondary)", borderColor: "var(--border)" }}
