@@ -346,14 +346,23 @@ function CreateUserSection({ onCreated }) {
   };
 
   const [students, setStudents] = useState([]);
+  const [userServiceStudents, setUserServiceStudents] = useState([]);
   const [studentSearch, setStudentSearch] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
   // Fetch students for the parent linking UI
   useEffect(() => {
     if (form.role === "parent") {
+      // Fetch school-service students (enrolled)
       api.getStudentsPaginated({ limit: 1000 }).then(res => {
         setStudents(res.data || []);
+      }).catch(console.error);
+      
+      // Also fetch user-service students for fallback
+      adminRequest("GET", "/administration/users").then(res => {
+        const allUsers = Array.isArray(res) ? res : (res?.data || []);
+        const studentsOnly = allUsers.filter(u => u.role === "student");
+        setUserServiceStudents(studentsOnly);
       }).catch(console.error);
     }
   }, [form.role]);
@@ -364,7 +373,21 @@ function CreateUserSection({ onCreated }) {
     );
   };
 
-  const filteredStudents = students.filter(s => 
+  const combinedStudents = [
+    ...students,
+    ...userServiceStudents
+      .filter(u => !students.some(s => s.userId === u.id))
+      .map(u => ({
+        id: u.id,
+        studentId: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        isNotEnrolled: true
+      }))
+  ];
+
+  const filteredStudents = combinedStudents.filter(s => 
     s.firstName?.toLowerCase().includes(studentSearch.toLowerCase()) || 
     s.lastName?.toLowerCase().includes(studentSearch.toLowerCase()) ||
     s.studentId?.toLowerCase().includes(studentSearch.toLowerCase()) ||
@@ -386,6 +409,16 @@ function CreateUserSection({ onCreated }) {
         middleName: form.middleName.trim(),
       });
       userId = userRes.id;
+
+      // 1b. Create student record in school-service for student users
+      if (form.role === "student" && !form.classLevelId) {
+        try {
+          await api.createStudentFromUser(userId);
+          linkMsg = " (student record created in school registry)";
+        } catch (e) {
+          console.error("Failed to create student record:", e);
+        }
+      }
 
       let linkMsg = "";
       // 2. Perform Academic Assignment or Linking
@@ -644,11 +677,18 @@ function CreateUserSection({ onCreated }) {
             onChange={(e) => setStudentSearch(e.target.value)}
           />
 
+
           <div className="student-scroll-list">
             {filteredStudents.length === 0 ? (
-              <div style={{ padding: 20, textAlign: "center", fontSize: 13, color: "var(--text-secondary)" }}>
-                No students found.
-              </div>
+              students.length === 0 && userServiceStudents.length > 0 ? (
+                <div style={{ padding: 20, textAlign: "center", fontSize: 13, color: "#e53e3e" }}>
+                  ⚠️ {userServiceStudents.length} student(s) exist but are not enrolled. Showing from user registry.
+                </div>
+              ) : (
+                <div style={{ padding: 20, textAlign: "center", fontSize: 13, color: "var(--text-secondary)" }}>
+                  No students found.
+                </div>
+              )
             ) : (
               filteredStudents.map(student => {
                 const isSelected = selectedStudentIds.includes(student.id);
@@ -668,7 +708,6 @@ function CreateUserSection({ onCreated }) {
       )}
 
       <AdminAlert type="error"   message={error}   onClose={() => setError(null)} />
-      <AdminAlert type="success" message={success} onClose={() => setSuccess(null)} />
 
       <div style={{ marginTop: 16, display: "flex", gap: 10, alignItems: "center" }}>
         <button style={css.btnPrimary} onClick={submit} disabled={loading}>

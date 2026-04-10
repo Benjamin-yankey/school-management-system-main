@@ -427,6 +427,15 @@ export async function getStudentsPaginated(params = {}) {
   return handleResponse(res);
 }
 
+export async function createStudentFromUser(userId) {
+  const res = await fetch(`${API_BASE_URL}/students/from-user`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ userId }),
+  });
+  return handleResponse(res);
+}
+
 export async function createFee(feeData) {
   const res = await fetch(`${API_BASE_URL}/fees`, {
     method: "POST",
@@ -870,6 +879,7 @@ export default {
   listTeachersForSection,
   enrollStudent,
   getStudentsPaginated,
+  createStudentFromUser,
   createFee,
   payFee,
   resetUserPassword,

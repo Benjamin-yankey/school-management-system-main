@@ -606,21 +606,21 @@ body[data-theme="light"] .academy-page {
   --color-on-secondary: #004d57;
   --color-tertiary-dim: #6063ee;
   --color-surface-container-low: #0d1323;
-  --color-primary-dim: #0070eb;
-  --color-secondary-dim: #00d4ec;
+  --color-primary-dim: #7C3AED;
+  --color-secondary-dim: #14B8A6;
   --color-on-secondary-container: #e8fbff;
   --color-surface-container-high: #181f33;
   --color-surface-variant: #1e253b;
   --color-outline: #707588;
   --color-outline-variant: #434759;
   --color-surface-container-highest: #1e253b;
-  --color-primary: #85adff;
-  --color-secondary: #00e3fd;
-  --color-secondary-fixed: #26e6ff;
-  --color-tertiary: #9093ff;
-  --color-on-primary-fixed: #000000;
-  --color-primary-container: #6c9fff;
-  --color-secondary-container: #006875;
+  --color-primary: #8B5CF6;
+  --color-secondary: #14B8A6;
+  --color-secondary-fixed: #5EEAD4;
+  --color-tertiary: #A78BFA;
+  --color-on-primary-fixed: #FFFFFF;
+  --color-primary-container: #A78BFA;
+  --color-secondary-container: #0D9488;
   --font-headline: "Plus Jakarta Sans", sans-serif;
   --font-body: "Plus Jakarta Sans", sans-serif;
   --font-label: "Plus Jakarta Sans", sans-serif;
@@ -642,9 +642,9 @@ body[data-theme="light"] .cohoes-registration-form {
   --color-on-surface-variant: #64748b;
   --color-outline: #cbd5e1;
   --color-outline-variant: #94a3b8;
-  --color-primary: #2563eb;
-  --color-secondary: #0ea5e9;
-  --color-tertiary: #6366f1;
+  --color-primary: #8B5CF6;
+  --color-secondary: #14B8A6;
+  --color-tertiary: #5EEAD4;
 }
 
 @media (prefers-color-scheme: light) {
@@ -658,9 +658,9 @@ body[data-theme="light"] .cohoes-registration-form {
     --color-on-surface-variant: #64748b;
     --color-outline: #cbd5e1;
     --color-outline-variant: #94a3b8;
-    --color-primary: #2563eb;
-    --color-secondary: #0ea5e9;
-    --color-tertiary: #6366f1;
+    --color-primary: #8B5CF6;
+    --color-secondary: #14B8A6;
+    --color-tertiary: #5EEAD4;
   }
 }
 

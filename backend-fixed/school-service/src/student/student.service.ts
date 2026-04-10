@@ -104,19 +104,8 @@ export class StudentService {
       }),
     );
 
-    // 10. Link to parent if provided
-    if (dto.parentUserId) {
-      await this.parentStudentRepo.save(
-        this.parentStudentRepo.create({
-          parentUserId: dto.parentUserId,
-          studentId: student.id,
-          relationship: dto.relationship || null,
-        }),
-      );
-    }
-
     // 9. Update applicant status to enrolled
-    await this.applicationRepo.update(applicant.id, { status: ApplicationStatus.ENROLLED });
+    await this.applicationRepo.update(dto.applicantId, { status: ApplicationStatus.ENROLLED });
 
     return this.findOne(student.id);
   }
@@ -155,7 +144,7 @@ export class StudentService {
           middleName: dto.middleName || profile?.middleName || null,
           email: user.email,
           phoneNumber: dto.phoneNumber || profile?.phone || 'N/A',
-          dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
+          dateOfBirth: dto.dateOfBirth || null, // entity stores date as string
           areaOfInterest: dto.areaOfInterest || null,
         }),
       );
@@ -271,5 +260,44 @@ export class StudentService {
     });
     // Optional: Log reason in a separate table or a note field if it existed
     return this.findOne(id);
+  }
+
+  async createFromUser(userId: string): Promise<Student> {
+    // 1. Check if student already exists
+    const existingStudent = await this.studentRepo.findOneBy({ userId });
+    if (existingStudent) return existingStudent;
+
+    // 2. Fetch user from user-shadow
+    const user = await this.userShadowRepo.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException('User not found in system');
+    if (user.role !== 'student') {
+      throw new BadRequestException(`User ${user.email} has role "${user.role}". Only students can be converted.`);
+    }
+
+    // 3. Fetch profile
+    const profile = await this.profileShadowRepo.findOneBy({ userId: user.id });
+
+    // 4. Generate student ID
+    const count = await this.studentRepo.count();
+    const year = new Date().getFullYear();
+    const studentId = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
+
+    // 5. Create student record
+    const student = await this.studentRepo.save(
+      this.studentRepo.create({
+        id: user.id,
+        studentId,
+        firstName: profile?.firstName || 'Unknown',
+        lastName: profile?.lastName || 'Student',
+        middleName: profile?.middleName || null,
+        email: user.email,
+        phoneNumber: profile?.phone || 'N/A',
+        dateOfBirth: null,
+        areaOfInterest: null,
+        userId: user.id,
+      }),
+    );
+
+    return this.findOne(student.id);
   }
 }

@@ -23,6 +23,9 @@ export class Student {
   @Column({ unique: true })
   studentId: string; // e.g. STU-2025-0001
 
+  @Column({ nullable: true })
+  userId: string; // Reference to user in user-service
+
   @Column()
   firstName: string;
 

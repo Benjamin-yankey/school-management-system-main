@@ -10,6 +10,8 @@ const Home = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [formData, setFormData] = useState({
     fullName: "",
     parentName: "",
@@ -26,11 +28,52 @@ const Home = () => {
   const [toast, setToast] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const galleryRef = useRef(null);
+  const heroRef = useRef(null);
 
   const { user, isAuthenticated } = useAuth();
   const { theme } = useTheme();
   const { isEnrollmentOpen } = useEnrollmentStatus();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        setMousePosition({ x, y });
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px"
+    };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-in");
+        }
+      });
+    }, observerOptions);
+    document.querySelectorAll(".mission-card, .bento-card, .gallery-item, .stat-card, .faculty-card, .event-card-horizontal, .feature-card").forEach((el) => {
+      el.classList.add("reveal");
+      observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const navLinks = [
     { label: "Home", to: "/", active: true },

@@ -167,9 +167,27 @@ export class UserService implements OnModuleInit {
     this.kafkaClient.emit('notification.email', { type: 'password-reset', to: user.email, tempPassword });
   }
 
-  async listSchoolUsers(requestingUserId: string) {
+  async listSchoolUsers(requestingUserId: string, role?: string) {
     const schoolId = await this.getSchoolIdForUser(requestingUserId);
-    return this.userRepo.findBy({ schoolId });
+    const where: any = { schoolId };
+    if (role) where.role = role;
+
+    const users = await this.userRepo.find({
+      where,
+      order: { createdAt: 'DESC' }
+    });
+
+    if (users.length === 0) return [];
+
+    const userIds = users.map(u => u.id);
+    const profiles = await this.profileRepo.find({
+      where: { userId: In(userIds) }
+    });
+
+    return users.map(user => {
+      const profile = profiles.find(p => p.userId === user.id);
+      return { ...user, ...profile };
+    });
   }
 
   async deactivateSchoolUser(id: string, requestingUserId: string) {

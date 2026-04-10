@@ -2,8 +2,8 @@
   --bg: #f6f8fb;
   --text: #0f1724;
   --text-secondary: #64748b;
-  --accent: #7c4dff;
-  --accent-secondary: #448aff;
+  --accent: #8B5CF6;
+  --accent-secondary: #14B8A6;
   --accent-blue: #3b82f6;
   --surface: #ffffff;
   --surface-muted: #f7fafc;
@@ -67,6 +67,8 @@ body[data-theme="dark"] {
   --bg: #0b1120;
   --text: #e2e8f0;
   --text-secondary: #94a3b8;
+  --accent: #8B5CF6;
+  --accent-secondary: #14B8A6;
   --surface: #111827;
   --surface-muted: #0f172a;
   --border: #1f2937;
@@ -88,9 +90,9 @@ body[data-theme="dark"] {
   --header-h: 64px;
   --glass: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --input-focus: rgba(37, 99, 235, 0.15);
+  --input-focus: rgba(139, 92, 246, 0.15);
   --text-muted: #94a3b8;
-  --card-glow: 0 0 20px rgba(37, 99, 235, 0.05);
+  --card-glow: 0 0 20px rgba(139, 92, 246, 0.05);
 }
 
 :root {

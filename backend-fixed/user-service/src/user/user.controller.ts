@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateAdministrationDto } from './dto/create-administration.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -98,8 +98,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
   @Roles('superadmin', 'administration')
   @Get('administration/users')
-  listUsers(@CurrentUser() user: any) {
-    return this.userService.listSchoolUsers(user.id);
+  listUsers(@CurrentUser() user: any, @Query('role') role?: string) {
+    return this.userService.listSchoolUsers(user.id, role);
   }
 
   @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard, ScopeGuard)
