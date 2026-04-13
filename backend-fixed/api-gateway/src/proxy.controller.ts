@@ -20,7 +20,9 @@ export class ProxyController {
       auth: this.config.get<string>("AUTH_SERVICE_URL"),
       user: this.config.get<string>("USER_SERVICE_URL"),
       school: this.config.get<string>("SCHOOL_SERVICE_URL"),
-      notification: this.config.get<string>("NOTIFICATION_SERVICE_URL") || "http://localhost:3004",
+      notification:
+        this.config.get<string>("NOTIFICATION_SERVICE_URL") ||
+        "http://localhost:3004",
     };
   }
 
@@ -60,7 +62,7 @@ export class ProxyController {
   // ── Superadmin ────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin')
+  @Roles("superadmin")
   @All("/superadmin/*")
   proxySuperadmin(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "user");
@@ -77,77 +79,77 @@ export class ProxyController {
   // ── Schools ───────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All("/schools*")
   proxySchools(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All("/admissions*")
   proxyAdmissionsProtected(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/academic-years", "/academic-years/*"])
   proxyAcademicYears(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/classes", "/classes/*"])
   proxyClasses(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/sections", "/sections/*"])
   proxySections(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/students", "/students/*"])
   proxyStudents(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/promotions", "/promotions/*"])
   proxyPromotions(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All(["/academic-terms", "/academic-terms/*"])
   proxyAcademicTerms(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration', 'teacher', 'student', 'parent')
+  @Roles("superadmin", "administration", "teacher", "student", "parent")
   @All(["/attendance", "/attendance/*"])
   proxyAttendance(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration', 'teacher', 'student', 'parent')
+  @Roles("superadmin", "administration", "teacher", "student", "parent")
   @All(["/grades", "/grades/*"])
   proxyGrades(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration', 'student', 'parent')
+  @Roles("superadmin", "administration", "student", "parent")
   @All(["/fees", "/fees/*"])
   proxyFees(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
@@ -156,14 +158,18 @@ export class ProxyController {
   // ── Teacher/Academic management (administration assigns teachers to sections) ──
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
-  @All(["/administration/teachers*", "/administration/sections*"])
+  @Roles("superadmin", "administration")
+  @All([
+    "/administration/teachers*",
+    "/administration/sections*",
+    "/administration/associations*",
+  ])
   proxyAcademicManagement(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
+  @Roles("superadmin", "administration")
   @All("/administration/parents*")
   proxyParentManagement(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
@@ -172,8 +178,8 @@ export class ProxyController {
   // ── Fallback Administration (User management, etc) ────────────────────────
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles('superadmin', 'administration')
-  @All("/administration/*")
+  @Roles("superadmin", "administration")
+  @All(["/administration/parents-associations", "/administration/users"])
   proxyAdministration(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "user");
   }
@@ -206,8 +212,6 @@ export class ProxyController {
   }
 
   // ── Helper ────────────────────────────────────────────────────────────────
-
-
 
   private forward(req: Request, res: Response, service: string): void {
     const base = this.urls[service];

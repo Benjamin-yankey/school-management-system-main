@@ -3361,14 +3361,6 @@ export default function AdminDashboard() {
   if (currentView === "administration") {
     return (
       <div className="dashboard admin-dashboard-container">
-        {/* Modal */}
-        <NotificationSendModal
-          isOpen={showNotifModal}
-          onClose={() => setShowNotifModal(false)}
-          token={token}
-          serviceUrl={API_BASE}
-          userRole={user?.role || "admin"}
-        />
         <style>
           {`
             @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -3461,7 +3453,10 @@ export default function AdminDashboard() {
             .admin-dashboard-container { animation: fadeIn 0.4s ease-out; }
           `}
         </style>
-        <ParentAssociationsSection onBack={() => setCurrentView("dashboard")} />
+        <ParentAssociationsSection 
+          onBack={() => setCurrentView("dashboard")} 
+          users={users}
+        />
       </div>
     )
   }
@@ -3498,6 +3493,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="dashboard admin-dashboard-container">
+      {/* Modal - defined once at the top level */}
+      <NotificationSendModal
+        isOpen={showNotifModal}
+        onClose={() => setShowNotifModal(false)}
+        token={token}
+        serviceUrl={API_BASE}
+        userRole={user?.role || "admin"}
+      />
       <style>
         {`
           @keyframes spin { to { transform: rotate(360deg); } }

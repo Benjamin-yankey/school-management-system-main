@@ -17,11 +17,26 @@ export class Notification {
   @Column({ default: false })
   read: boolean;
 
-  @Column({ default: 'system' })
+  @Column({ default: 'general' })
   category: string;
 
   @Column({ default: 'normal' })
   priority: string;
+
+  @Column({ default: 'inApp' })
+  channels: string;
+
+  @Column({ nullable: true })
+  groupName: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  scheduledAt: Date;
+
+  @Column({ default: false })
+  scheduled: boolean;
+
+  @Column({ default: false })
+  sent: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

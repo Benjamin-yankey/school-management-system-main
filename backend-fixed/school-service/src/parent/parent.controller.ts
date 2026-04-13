@@ -16,8 +16,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
-@Roles('parent')
-@Controller('parent')
+@Controller()
 export class ParentController {
   constructor(private readonly parentService: ParentService) { }
 
@@ -25,7 +24,8 @@ export class ParentController {
    * Link a student to this parent account.
    * POST /parent/children
    */
-  @Post('children')
+  @Roles('parent')
+  @Post('parent/children')
   linkStudent(@CurrentUser() user: any, @Body() dto: LinkStudentDto) {
     return this.parentService.linkStudent(user.id, dto);
   }
@@ -34,7 +34,8 @@ export class ParentController {
    * List all children linked to this parent with their enrollment info.
    * GET /parent/children
    */
-  @Get('children')
+  @Roles('parent')
+  @Get('parent/children')
   getMyChildren(@CurrentUser() user: any) {
     return this.parentService.getMyChildren(user.id);
   }
@@ -43,7 +44,8 @@ export class ParentController {
    * Get details for one linked child (with full enrollment history).
    * GET /parent/children/:studentId
    */
-  @Get('children/:studentId')
+  @Roles('parent')
+  @Get('parent/children/:studentId')
   getChildDetail(@CurrentUser() user: any, @Param('studentId') studentId: string) {
     return this.parentService.getChildDetail(user.id, studentId);
   }
@@ -52,17 +54,24 @@ export class ParentController {
    * Unlink a student from this parent account.
    * DELETE /parent/children/:studentId
    */
-  @Delete('children/:studentId')
+  @Roles('parent')
+  @Delete('parent/children/:studentId')
   unlinkStudent(@CurrentUser() user: any, @Param('studentId') studentId: string) {
     return this.parentService.unlinkStudent(user.id, studentId);
   }
+}
+
+@UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
+@Roles('superadmin', 'administration')
+@Controller('administration')
+export class ParentAdminController {
+  constructor(private readonly parentService: ParentService) { }
 
   /**
    * Administrative linking: link any student to any parent.
    * POST /administration/parents/:parentUserId/students/:studentId
    */
-  @Roles('superadmin', 'administration')
-  @Post('administration/parents/:parentUserId/students/:studentId')
+  @Post('parents/:parentUserId/students/:studentId')
   linkStudentByAdmin(
     @Param('parentUserId') parentUserId: string,
     @Param('studentId') studentId: string,
@@ -71,8 +80,7 @@ export class ParentController {
     return this.parentService.linkStudentByAdmin(parentUserId, studentId, relationship);
   }
 
-  @Roles('superadmin', 'administration')
-  @Post('administration/parents/:parentUserId/students/bulk-link')
+  @Post('parents/:parentUserId/students/bulk-link')
   bulkLinkStudentsByAdmin(
     @Param('parentUserId') parentUserId: string,
     @Body() dto: { studentIds: string[], relationship?: string },
@@ -80,14 +88,12 @@ export class ParentController {
     return this.parentService.bulkLinkStudentsByAdmin(parentUserId, dto.studentIds, dto.relationship);
   }
 
-  @Roles('superadmin', 'administration')
-  @Get('administration/associations')
+  @Get('associations')
   getAllAssociations() {
     return this.parentService.getAllAssociations();
   }
 
-  @Roles('superadmin', 'administration')
-  @Delete('administration/parents/:parentUserId/students/:studentId')
+  @Delete('parents/:parentUserId/students/:studentId')
   unlinkStudentByAdmin(
     @Param('parentUserId') parentUserId: string,
     @Param('studentId') studentId: string,

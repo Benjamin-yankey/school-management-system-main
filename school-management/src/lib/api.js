@@ -885,6 +885,7 @@ export default {
   unassignTeacherFromSection,
   listTeachersForSection,
   enrollStudent,
+  assignStudentToSection,
   getStudentsPaginated,
   createStudentFromUser,
   createFee,
@@ -900,13 +901,14 @@ export default {
   getSectionStudents,
   bulkRecordAttendance,
   bulkRecordGrades,
-  getStudentReportCard,
   changePassword,
   linkChild,
   getLinkedChildren,
   getLinkedChild,
   unlinkChild,
   getAcceptedApplicants,
+  getAllParentAssociations,
+  bulkLinkStudents,
   
   // Promotions
   getPromotionPreview,

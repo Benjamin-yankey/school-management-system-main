@@ -210,18 +210,34 @@ function SectionHeader({ icon: Icon, title, sub, action, C }) {
 function NotifItem({ notif, onRead, onDelete, compact = false, C, CATEGORIES }) {
   const cat = CATEGORIES[notif.category] || CATEGORIES.system;
   const Icon = cat.icon;
+  const [expanded, setExpanded] = useState(false);
+  
+  const handleClick = () => {
+    setExpanded(!expanded);
+  };
+  
+  const handleMarkRead = (e) => {
+    e.stopPropagation();
+    if (!notif.read) onRead(notif.id);
+  };
+  
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(notif.id);
+  };
+  
   return (
     <div
       style={{
         display: "flex", gap: 12, padding: compact ? "10px 14px" : "14px 16px",
-        background: notif.read ? "transparent" : `${C.blue}08`,
+        background: expanded ? C.cardHover : (notif.read ? "transparent" : `${C.blue}08`),
         borderBottom: `1px solid ${C.border}`,
         cursor: "pointer", transition: "background .15s",
         position: "relative",
       }}
-      onClick={() => !notif.read && onRead(notif.id)}
+      onClick={handleClick}
       onMouseEnter={(e) => (e.currentTarget.style.background = C.cardHover)}
-      onMouseLeave={(e) => (e.currentTarget.style.background = notif.read ? "transparent" : `${C.blue}08`)}
+      onMouseLeave={(e) => (e.currentTarget.style.background = expanded ? C.cardHover : (notif.read ? "transparent" : `${C.blue}08`))}
     >
       {/* Unread indicator */}
       {!notif.read && (
@@ -262,29 +278,47 @@ function NotifItem({ notif, onRead, onDelete, compact = false, C, CATEGORIES }) 
           </p>
         )}
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, color: C.text3 }}>{timeAgo(notif.time)}</span>
-          {!compact && <span style={{ fontSize: 11, color: C.text3 }}>·</span>}
-          {!compact && <span style={{ fontSize: 11, color: C.text3 }}>by {notif.actor || 'System'}</span>}
-          {!compact && <CategoryBadge category={notif.category} C={C} CATEGORIES={CATEGORIES} />}
+          <span style={{ fontSize: 11, color: C.text3 }}>{timeAgo(notif.createdAt || notif.time)}</span>
+          <span style={{ fontSize: 11, color: C.text3 }}>·</span>
+          <CategoryBadge category={notif.category} C={C} CATEGORIES={CATEGORIES} />
         </div>
       </div>
 
       {/* Actions */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }}
-        style={{
-          background: "none", border: "none", cursor: "pointer",
-          color: C.text3, padding: "2px 4px", borderRadius: 4,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0, alignSelf: "flex-start",
-          transition: "color .15s",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = C.red)}
-        onMouseLeave={(e) => (e.currentTarget.style.color = C.text3)}
-        title="Dismiss"
-      >
-        <X size={14} />
-      </button>
+      <div style={{ display: "flex", gap: 4 }}>
+        {!notif.read && (
+          <button
+            onClick={handleMarkRead}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: C.text3, padding: "2px 4px", borderRadius: 4,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, alignSelf: "flex-start",
+              transition: "color .15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = C.green)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = C.text3)}
+            title="Mark as read"
+          >
+            <CheckCircle2 size={14} />
+          </button>
+        )}
+        <button
+          onClick={handleDelete}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            color: C.text3, padding: "2px 4px", borderRadius: 4,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0, alignSelf: "flex-start",
+            transition: "color .15s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = C.red)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = C.text3)}
+          title="Delete"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -1198,38 +1232,149 @@ export default function NotificationServicePage({ token, serviceUrl = "http://lo
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// NOTIFICATION SEND MODAL (Admin/SuperAdmin/Teacher)
+// NOTIFICATION SEND MODAL (Admin/SuperAdmin/Teacher) — Enhanced
 // ─────────────────────────────────────────────────────────────────────────────
 export function NotificationSendModal({ isOpen, onClose, token, serviceUrl = "http://localhost:3001", userRole = "student" }) {
   const { isDarkMode } = useAppTheme();
   const C = getColors(isDarkMode);
   
+  const [step, setStep] = useState(1); // 1 = compose, 2 = preview
   const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ title: "", message: "", category: "notice", targetRole: "all" });
+  const [form, setForm] = useState({
+    title: "",
+    message: "",
+    category: "general",
+    priority: "normal",
+    targetRoles: [],
+    targetRole: "all",
+    group: "",
+    channels: ["inApp"],
+    schedule: "now",
+    scheduledDate: "",
+    scheduledTime: "",
+  });
   const [result, setResult] = useState(null);
+  const [errors, setErrors] = useState({});
   
-  const canSend = ["admin", "superadmin", "teacher"].includes(userRole?.toLowerCase());
+  const canSend = ["admin", "superadmin", "teacher", "administration"].includes(userRole?.toLowerCase());
   
   if (!isOpen || !canSend) return null;
   
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!form.title || !form.message) return;
-    
+  const CATEGORIES = [
+    { value: "general", label: "General Notice", desc: "Announcements that don't fit other categories" },
+    { value: "admission", label: "Admissions", desc: "Enrollment, applications, intake information" },
+    { value: "attendance", label: "Attendance", desc: "Absences, late arrivals, truancy alerts" },
+    { value: "grade", label: "Grades", desc: "Results, report cards, grade updates" },
+    { value: "assignment", label: "Assignments", desc: "Homework, project deadlines" },
+    { value: "payment", label: "Payments & Fees", desc: "Fee reminders, receipts, balances" },
+    { value: "event", label: "Events", desc: "School events, ceremonies, trips" },
+    { value: "emergency", label: "Emergency", desc: "Urgent safety/health alerts" },
+    { value: "system", label: "System", desc: "Platform updates, maintenance" },
+  ];
+
+  const PRIORITIES = [
+    { value: "normal", label: "Normal", desc: "Routine communication, no urgency", color: "#22c55e" },
+    { value: "urgent", label: "Urgent", desc: "Requires attention within 24 hours", color: "#f59e0b" },
+    { value: "critical", label: "Critical", desc: "Immediate action required", color: "#ef4444" },
+  ];
+
+  const RECIPIENTS = [
+    { value: "all", label: "All Users", desc: "Everyone in the system" },
+    { value: "students", label: "Students Only", desc: "All enrolled students" },
+    { value: "teachers", label: "Teachers Only", desc: "All teaching staff" },
+    { value: "parents", label: "Parents Only", desc: "All registered parents/guardians" },
+    { value: "administration", label: "Admins Only", desc: "System administrators" },
+  ];
+
+  const CHANNELS = [
+    { value: "inApp", label: "In-App", desc: "Notification inside platform" },
+    { value: "email", label: "Email", desc: "Sent to registered email" },
+    { value: "sms", label: "SMS", desc: "Text message (costs may apply)" },
+    { value: "push", label: "Push", desc: "Mobile push notification" },
+  ];
+
+  const GROUPS = [
+    { value: "", label: "All (No specific group)" },
+    { value: "Grade 10A", label: "Grade 10A" },
+    { value: "Grade 10B", label: "Grade 10B" },
+    { value: "Grade 11A", label: "Grade 11A" },
+    { value: "Grade 11B", label: "Grade 11B" },
+    { value: "Form 3", label: "Form 3" },
+    { value: "Science", label: "Science Department" },
+    { value: "Mathematics", label: "Mathematics Department" },
+  ];
+
+  const validate = () => {
+    const errs = {};
+    if (!form.title?.trim()) errs.title = "Title is required";
+    else if (form.title.length > 100) errs.title = "Title must be 100 characters or less";
+    if (!form.message?.trim()) errs.message = "Message is required";
+    if (form.targetRoles.length === 0 && form.targetRole === "all") {
+      // ok - will send to all
+    } else if (form.targetRoles.length === 0 && !form.targetRole) {
+      errs.recipients = "Select at least one recipient group";
+    }
+    if (form.channels.length === 0) errs.channels = "Select at least one delivery channel";
+    if (form.schedule === "later") {
+      if (!form.scheduledDate || !form.scheduledTime) errs.schedule = "Select date and time";
+      else {
+        const scheduled = new Date(`${form.scheduledDate}T${form.scheduledTime}`);
+        if (scheduled < new Date()) errs.schedule = "Schedule cannot be in the past";
+      }
+    }
+    if (form.priority === "critical" && !form.channels.includes("sms") && !form.channels.includes("push")) {
+      errs.warning = "Critical notifications should include SMS or Push for maximum reach";
+    }
+    if (form.message.length > 500 && form.channels.includes("sms")) {
+      errs.warning = "Message exceeds 500 chars — SMS will be truncated";
+    }
+    setErrors(errs);
+    return Object.keys(errs).filter(k => k !== "warning").length === 0;
+  };
+
+  const handleNext = (e) => {
+    e?.preventDefault();
+    if (validate()) setStep(2);
+  };
+
+  const handleBack = () => setStep(1);
+
+  const handleSend = async () => {
     setSending(true);
     setResult(null);
     
+    // Map target roles for backend
+    const targetRoleValue = form.targetRole === "custom" && form.targetRoles.length > 0 
+      ? form.targetRoles.join(",") 
+      : form.targetRole;
+
     try {
       await notifApi(serviceUrl, token, "POST", "/notifications/send", {
         title: form.title,
         message: form.message,
         category: form.category,
-        targetRole: form.targetRole,
+        priority: form.priority,
+        targetRole: targetRoleValue,
+        group: form.group,
+        channels: form.channels.join(","),
         senderRole: userRole
       });
       setResult({ success: true, message: "Notification sent successfully!" });
-      setForm({ title: "", message: "", category: "notice", targetRole: "all" });
-      setTimeout(() => { onClose(); setResult(null); }, 1500);
+      setForm({
+        title: "",
+        message: "",
+        category: "general",
+        priority: "normal",
+        targetRoles: [],
+        targetRole: "all",
+        group: "",
+        channels: ["inApp"],
+        schedule: "now",
+        scheduledDate: "",
+        scheduledTime: "",
+      });
+      setStep(1);
+      setTimeout(() => { onClose(); setResult(null); }, 2000);
     } catch (err) {
       setResult({ success: false, message: err.message || "Failed to send notification" });
     } finally {
@@ -1237,21 +1382,291 @@ export function NotificationSendModal({ isOpen, onClose, token, serviceUrl = "ht
     }
   };
 
-  const CATEGORIES = [
-    { value: "notice", label: "General Notice" },
-    { value: "admission", label: "Admissions" },
-    { value: "attendance", label: "Attendance" },
-    { value: "grade", label: "Grades" },
-    { value: "assignment", label: "Assignments" },
-    { value: "system", label: "System" },
-  ];
+  const updateForm = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const TARGETS = [
-    { value: "all", label: "All Users" },
-    { value: "students", label: "Students Only" },
-    { value: "teachers", label: "Teachers Only" },
-    { value: "parents", label: "Parents Only" },
-  ];
+  const toggleArrayItem = (field, value) => {
+    setForm(prev => {
+      const arr = prev[field] || [];
+      if (arr.includes(value)) return { ...prev, [field]: arr.filter(v => v !== value) };
+      return { ...prev, [field]: [...arr, value] };
+    });
+  };
+
+const getPriorityColor = (p) => PRIORITIES.find(pr => pr.value === p)?.color || "#22c55e";
+
+  const renderStep1 = () => (
+    <form onSubmit={handleNext}>
+      {/* Title */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Title <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <input
+          value={form.title}
+          onChange={(e) => updateForm("title", e.target.value)}
+          placeholder="Enter notification title (max 100 chars)"
+          maxLength={100}
+          style={{
+            width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${errors.title ? "#ef4444" : C.border}`,
+            fontSize: 14, background: C.input, color: C.text1, outline: "none"
+          }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.text3, marginTop: 4 }}>
+          <span style={{ color: errors.title ? "#ef4444" : C.text3 }}>{errors.title || ""}</span>
+          <span>{form.title.length}/100</span>
+        </div>
+      </div>
+
+      {/* Category */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Category <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <select
+          value={form.category}
+          onChange={(e) => updateForm("category", e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 14, background: C.input, color: C.text1, outline: "none" }}
+        >
+          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </select>
+        <div style={{ fontSize: 11, color: C.text3, marginTop: 4 }}>
+          {CATEGORIES.find(c => c.value === form.category)?.desc}
+        </div>
+      </div>
+
+      {/* Priority */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Priority <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <div style={{ display: "flex", gap: 8 }}>
+          {PRIORITIES.map(p => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => updateForm("priority", p.value)}
+              style={{
+                flex: 1, padding: "8px 4px", borderRadius: 6, border: "none",
+                background: form.priority === p.value ? p.color : "transparent",
+                color: form.priority === p.value ? "#fff" : C.text2,
+                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                border: form.priority === p.value ? "none" : `1px solid ${C.border}`
+              }}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Recipients */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Send To <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <select
+          value={form.targetRole}
+          onChange={(e) => updateForm("targetRole", e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${errors.recipients ? "#ef4444" : C.border}`, fontSize: 14, background: C.input, color: C.text1, outline: "none" }}
+        >
+          {RECIPIENTS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+        </select>
+        <div style={{ fontSize: 11, color: C.text3, marginTop: 4 }}>
+          {RECIPIENTS.find(r => r.value === form.targetRole)?.desc}
+        </div>
+      </div>
+
+      {/* Specific Group */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Specific Group (Optional)
+        </label>
+        <select
+          value={form.group}
+          onChange={(e) => updateForm("group", e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 14, background: C.input, color: C.text1, outline: "none" }}
+        >
+          {GROUPS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+        </select>
+      </div>
+
+      {/* Delivery Channels */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Delivery Channel <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {CHANNELS.map(ch => (
+            <label key={ch.value} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={form.channels.includes(ch.value)}
+                onChange={() => toggleArrayItem("channels", ch.value)}
+                style={{ accentColor: C.blue }}
+              />
+              <span style={{ fontSize: 13, color: C.text1 }}>{ch.label}</span>
+            </label>
+          ))}
+        </div>
+        {errors.channels && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{errors.channels}</div>}
+      </div>
+
+      {/* Schedule */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Schedule
+        </label>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <button
+            type="button"
+            onClick={() => updateForm("schedule", "now")}
+            style={{
+              flex: 1, padding: "8px", borderRadius: 6, border: "none",
+              background: form.schedule === "now" ? C.blue : "transparent",
+              color: form.schedule === "now" ? "#fff" : C.text2,
+              fontSize: 13, fontWeight: 600, cursor: "pointer",
+              border: form.schedule === "now" ? "none" : `1px solid ${C.border}`
+            }}
+          >
+            Send Now
+          </button>
+          <button
+            type="button"
+            onClick={() => updateForm("schedule", "later")}
+            style={{
+              flex: 1, padding: "8px", borderRadius: 6, border: "none",
+              background: form.schedule === "later" ? C.blue : "transparent",
+              color: form.schedule === "later" ? "#fff" : C.text2,
+              fontSize: 13, fontWeight: 600, cursor: "pointer",
+              border: form.schedule === "later" ? "none" : `1px solid ${C.border}`
+            }}
+          >
+            Schedule
+          </button>
+        </div>
+        {form.schedule === "later" && (
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="date"
+              value={form.scheduledDate}
+              onChange={(e) => updateForm("scheduledDate", e.target.value)}
+              style={{ flex: 1, padding: "8px", borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 13, background: C.input, color: C.text1 }}
+            />
+            <input
+              type="time"
+              value={form.scheduledTime}
+              onChange={(e) => updateForm("scheduledTime", e.target.value)}
+              style={{ flex: 1, padding: "8px", borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 13, background: C.input, color: C.text1 }}
+            />
+          </div>
+        )}
+        {errors.schedule && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{errors.schedule}</div>}
+      </div>
+
+      {/* Message */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
+          Message <span style={{ color: "#ef4444" }}>*</span>
+        </label>
+        <textarea
+          value={form.message}
+          onChange={(e) => updateForm("message", e.target.value)}
+          placeholder="Enter your notification message..."
+          rows={5}
+          style={{
+            width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${errors.message ? "#ef4444" : C.border}`,
+            fontSize: 14, background: C.input, color: C.text1, outline: "none", resize: "vertical"
+          }}
+        />
+        {errors.message && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>{errors.message}</div>}
+        {errors.warning && (
+          <div style={{ fontSize: 12, color: "#f59e0b", marginTop: 8, padding: "8px 12px", borderRadius: 6, background: "#f59e0b20", border: "1px solid #f59e0b" }}>
+            ⚠️ {errors.warning}
+          </div>
+        )}
+      </div>
+
+      {result && (
+        <div style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, background: result.success ? C.greenBg : C.redBg, color: result.success ? C.green : C.red, fontSize: 13, fontWeight: 600 }}>
+          {result.message}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={sending || !form.title || !form.message}
+        style={{ width: "100%", padding: "12px", borderRadius: 8, border: "none", background: sending ? C.text3 : C.blue, color: "#fff", fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer" }}
+      >
+        {sending ? "Sending..." : "Preview & Send →"}
+      </button>
+    </form>
+  );
+
+  const renderStep2 = () => (
+    <div>
+      <div style={{ marginBottom: 20, padding: 16, borderRadius: 12, background: C.input, border: `1px solid ${C.border}` }}>
+        <h4 style={{ margin: "0 0 12px", fontSize: 14, color: C.text2 }}>Preview</h4>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text1, marginBottom: 8 }}>{form.title}</div>
+        <div style={{ fontSize: 13, color: C.text2 }}>{form.message}</div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+          <span style={{ color: C.text2 }}>Category</span>
+          <span style={{ fontWeight: 600, color: C.text1 }}>{CATEGORIES.find(c => c.value === form.category)?.label}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+          <span style={{ color: C.text2 }}>Priority</span>
+          <span style={{ fontWeight: 600, color: getPriorityColor(form.priority) }}>{PRIORITIES.find(p => p.value === form.priority)?.label}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+          <span style={{ color: C.text2 }}>Send To</span>
+          <span style={{ fontWeight: 600, color: C.text1 }}>{RECIPIENTS.find(r => r.value === form.targetRole)?.label}</span>
+        </div>
+        {form.group && (
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+            <span style={{ color: C.text2 }}>Group</span>
+            <span style={{ fontWeight: 600, color: C.text1 }}>{form.group}</span>
+          </div>
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+          <span style={{ color: C.text2 }}>Channels</span>
+          <span style={{ fontWeight: 600, color: C.text1 }}>{form.channels.map(ch => CHANNELS.find(c => c.value === ch)?.label).join(", ")}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+          <span style={{ color: C.text2 }}>Schedule</span>
+          <span style={{ fontWeight: 600, color: C.text1 }}>
+            {form.schedule === "now" ? "Send Now" : `${form.scheduledDate} ${form.scheduledTime}`}
+          </span>
+        </div>
+      </div>
+
+      {result && (
+        <div style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, background: result.success ? C.greenBg : C.redBg, color: result.success ? C.green : C.red, fontSize: 13, fontWeight: 600 }}>
+          {result.message}
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 12 }}>
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={sending}
+          style={{ flex: 1, padding: "12px", borderRadius: 8, border: `1px solid ${C.border}`, background: "transparent", color: C.text1, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+        >
+          ← Back
+        </button>
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={sending}
+          style={{ flex: 1, padding: "12px", borderRadius: 8, border: "none", background: sending ? C.text3 : C.green, color: "#fff", fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer" }}
+        >
+          {sending ? "Sending..." : "Confirm & Send ✓"}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
@@ -1260,108 +1675,26 @@ export function NotificationSendModal({ isOpen, onClose, token, serviceUrl = "ht
       backdropFilter: "blur(4px)"
     }} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div style={{
-        background: C.surface, borderRadius: 16, padding: 24, width: "100%", maxWidth: 480,
-        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)"
+        background: C.surface, borderRadius: 16, padding: 24, width: "100%", maxWidth: 520,
+        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", maxHeight: "90vh", overflowY: "auto"
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.text1 }}>
-            Send Notification
-          </h3>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: C.text1 }}>Send Notification</h3>
+            <div style={{ fontSize: 12, color: C.text3, marginTop: 4 }}>Step {step} of 2</div>
+          </div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
             <X size={20} color={C.text2} />
           </button>
         </div>
 
-        <form onSubmit={handleSend}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
-              Title
-            </label>
-            <input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Enter notification title"
-              style={{
-                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
-                fontSize: 14, background: C.input, color: C.text1, outline: "none"
-              }}
-              required
-            />
-          </div>
+        {/* Progress bar */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 4, borderRadius: 2, background: step >= 1 ? C.blue : C.border }} />
+          <div style={{ flex: 1, height: 4, borderRadius: 2, background: step >= 2 ? C.blue : C.border }} />
+        </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
-              Category
-            </label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-              style={{
-                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
-                fontSize: 14, background: C.input, color: C.text1, outline: "none"
-              }}
-            >
-              {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
-              Send To
-            </label>
-            <select
-              value={form.targetRole}
-              onChange={(e) => setForm({ ...form, targetRole: e.target.value })}
-              style={{
-                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
-                fontSize: 14, background: C.input, color: C.text1, outline: "none"
-              }}
-            >
-              {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.text2, marginBottom: 6 }}>
-              Message
-            </label>
-            <textarea
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-              placeholder="Enter your notification message..."
-              rows={4}
-              style={{
-                width: "100%", padding: "10px 12px", borderRadius: 8, border: `1px solid ${C.border}`,
-                fontSize: 14, background: C.input, color: C.text1, outline: "none", resize: "vertical"
-              }}
-              required
-            />
-          </div>
-
-          {result && (
-            <div style={{
-              padding: "10px 14px", borderRadius: 8, marginBottom: 16,
-              background: result.success ? C.greenBg : C.redBg,
-              color: result.success ? C.green : C.red,
-              fontSize: 13, fontWeight: 600
-            }}>
-              {result.message}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={sending || !form.title || !form.message}
-            style={{
-              width: "100%", padding: "12px", borderRadius: 8, border: "none",
-              background: sending ? C.text3 : C.blue, color: "#fff",
-              fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer",
-              transition: "background 0.2s"
-            }}
-          >
-            {sending ? "Sending..." : "Send Notification"}
-          </button>
-        </form>
+        {step === 1 ? renderStep1() : renderStep2()}
       </div>
     </div>
   );

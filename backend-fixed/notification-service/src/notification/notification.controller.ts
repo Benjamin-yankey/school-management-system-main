@@ -31,6 +31,11 @@ export class NotificationController {
     return this.notificationService.getHistory(user.id, page, limit, category, priority, q);
   }
 
+  @Get()
+  getNotifications(@CurrentUser() user: any, @Query() query: any) {
+    return this.getHistory(user, query.page, query.limit, query.category, query.priority, query.q);
+  }
+
   // NoticePage aliases
   @Get('/announcements')
   getAnnouncements(@CurrentUser() user: any, @Query() query: any) {
@@ -44,6 +49,8 @@ export class NotificationController {
 
   @Post('send')
   sendNotification(@CurrentUser() user: any, @Body() dto: any, @Req() req: any) {
+    console.log(`[Controller] sendNotification called by user.id=${user?.id}, role=${user?.role}`);
+    console.log(`[Controller] dto:`, JSON.stringify(dto));
     const token = req.headers.authorization?.split(' ')[1];
     return this.notificationService.sendNotification({ ...user, token }, dto);
   }
@@ -82,5 +89,11 @@ export class NotificationController {
   sendTest(@CurrentUser() user: any, @Body() body: { channel: string }) {
     // Just a mock for the test button
     return { ok: true, message: 'Test notification sent' };
+  }
+
+  @Get('debug/all')
+  debugGetAllNotifications(@CurrentUser() user: any) {
+    console.log(`[Debug] Getting all notifications for user.id=${user?.id}`);
+    return this.notificationService.getAllForUser(user.id);
   }
 }

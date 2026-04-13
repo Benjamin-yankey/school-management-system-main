@@ -1,124 +1,232 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { MailerService } from '@nestjs-modules/mailer';
-import { EmailLog } from './email-log.entity';
-import { Notification } from './notification.entity';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { MailerService } from "@nestjs-modules/mailer";
+import { EmailLog } from "./email-log.entity";
+import { Notification } from "./notification.entity";
 
 export interface EmailEventPayload {
-  type: 'welcome' | 'password-reset';
+  type: "welcome" | "password-reset";
   to: string;
   tempPassword: string;
 }
 
 @Injectable()
 export class NotificationService {
+  private readonly apiGatewayUrl: string;
+  private readonly userServiceUrl: string;
+  private readonly schoolServiceUrl: string;
+  private readonly useGateway: boolean;
+
   constructor(
     @InjectRepository(EmailLog)
     private readonly emailLogRepo: Repository<EmailLog>,
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
     private readonly mailerService: MailerService,
-  ) {}
+    private readonly config: ConfigService,
+  ) {
+    this.apiGatewayUrl = this.config.get<string>('API_GATEWAY_URL') || 'http://localhost:3000';
+    this.userServiceUrl = this.config.get<string>('USER_SERVICE_URL') || 'http://localhost:3002';
+    this.schoolServiceUrl = this.config.get<string>('SCHOOL_SERVICE_URL') || 'http://localhost:3003';
+    this.useGateway = this.config.get<string>('USE_GATEWAY') !== 'false';
+    console.log(`[NotificationService] Config: USE_GATEWAY=${this.useGateway}, API_GATEWAY=${this.apiGatewayUrl}, USER_SERVICE=${this.userServiceUrl}`);
+  }
 
-  async getHistory(userId: string, page = 1, limit = 20, category?: string, priority?: string, q?: string) {
-    const query = this.notificationRepo.createQueryBuilder('n')
-      .where('n.userId = :userId', { userId })
-      .orderBy('n.createdAt', 'DESC')
+  async getHistory(
+    userId: string,
+    page = 1,
+    limit = 20,
+    category?: string,
+    priority?: string,
+    q?: string,
+  ) {
+    console.log(`[getHistory] userId=${userId}, page=${page}, limit=${limit}, category=${category}, priority=${priority}, q=${q}`);
+    const query = this.notificationRepo
+      .createQueryBuilder("n")
+      .where("n.userId = :userId", { userId })
+      .andWhere("(n.sent = true OR n.scheduled = false)")
+      .orderBy("n.createdAt", "DESC")
       .skip((page - 1) * limit)
       .take(limit);
 
-    if (category) query.andWhere('n.category = :category', { category });
-    if (priority) query.andWhere('n.priority = :priority', { priority });
+    if (category) query.andWhere("n.category = :category", { category });
+    if (priority) query.andWhere("n.priority = :priority", { priority });
     if (q) {
-      query.andWhere('(n.title ILIKE :q OR n.body ILIKE :q)', { q: `%${q}%` });
+      query.andWhere("(n.title ILIKE :q OR n.body ILIKE :q)", { q: `%${q}%` });
     }
 
     const [data, total] = await query.getManyAndCount();
+    console.log(`[getHistory] Found ${total} notifications for userId=${userId}, returning ${data.length} records`);
     return { data, total, page, limit };
   }
 
   async sendNotification(sender: any, dto: any) {
     const title = dto.title || dto.subject;
     const message = dto.message || dto.body;
-    const { category, priority, targetRole, sectionId } = dto;
+    const { category = "general", priority = "normal", targetRole, sectionId, group, channels, scheduledDate, scheduledTime } = dto;
     const userIds = dto.userIds || dto.studentIds || [];
     const senderRole = sender.role.toLowerCase();
-    
+    console.log(`[sendNotification] sender.id=${sender.id}, sender.role=${sender.role}, targetRole=${targetRole}, priority=${priority}, category=${category}, group=${group}, channels=${channels}`);
+
+    // Handle scheduling
+    let scheduledAt: Date | null = null;
+    if (scheduledDate && scheduledTime) {
+      scheduledAt = new Date(`${scheduledDate}T${scheduledTime}`);
+      if (scheduledAt < new Date()) {
+        return { success: false, message: "Scheduled time cannot be in the past" };
+      }
+      console.log(`[sendNotification] Notification scheduled for: ${scheduledAt.toISOString()}`);
+    }
+
     // 1. Authorization & target user resolution
     let finalUserIds: string[] = userIds || [];
 
-    if (targetRole && targetRole !== 'individual') {
-      if (senderRole === 'superadmin' || senderRole === 'administration') {
+    if (targetRole && targetRole !== "individual") {
+      if (senderRole === "superadmin" || senderRole === "administration") {
         // Admin/Superadmin can send to broad roles
-        let roleFilter = '';
-        if (targetRole === 'students') roleFilter = 'student';
-        else if (targetRole === 'teachers') roleFilter = 'teacher';
-        else if (targetRole === 'parents') roleFilter = 'parent';
-        else if (targetRole === 'everyone') roleFilter = '';
+        const normalizedTargetRole = targetRole.toLowerCase();
+        let roleFilter = "";
+        if (normalizedTargetRole === "students") roleFilter = "student";
+        else if (normalizedTargetRole === "teachers") roleFilter = "teacher";
+        else if (normalizedTargetRole === "parents") roleFilter = "parent";
+        else if (
+          normalizedTargetRole === "administration" ||
+          normalizedTargetRole === "administrators"
+        )
+          roleFilter = "administration";
+        // If it's 'all' or 'everyone', roleFilter remains '' which returns everyone in school
 
-        const roleQuery = roleFilter ? `?role=${roleFilter}` : '';
-        const url = `http://localhost:3002/administration/users${roleQuery}`;
+        const roleQuery = roleFilter ? `?role=${roleFilter}` : "";
+        console.log(
+          `[Broadcast] Fetching users with roleFilter="${roleFilter}", roleQuery="${roleQuery}"`,
+        );
+        const baseUrl = this.useGateway ? this.apiGatewayUrl : this.userServiceUrl;
+        const url = `${baseUrl}/administration/users${roleQuery}`;
+        console.log(`[Broadcast] Calling ${this.useGateway ? 'API Gateway' : 'User Service'} at: ${url}`);
         try {
           const res = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${sender.token}` }
+            headers: { Authorization: `Bearer ${sender.token}` },
           });
+          if (!res.ok) {
+            console.error(`[Broadcast] User service returned ${res.status}`);
+          }
           const users: any = await res.json();
-          finalUserIds = (Array.isArray(users) ? users : users.data || []).map(u => u.id);
+          console.log(
+            `[Broadcast] Got ${users.length || users.data?.length || 0} users from user-service`,
+          );
+          const userArray = Array.isArray(users) ? users : users.data || [];
+          console.log(`[Broadcast] Sample user IDs:`, userArray.slice(0, 5).map((u) => u.id));
+          finalUserIds = userArray.map((u) => u.id);
         } catch (e) {
-          console.error('Failed to fetch users from user-service:', e);
+          console.error(
+            "[Broadcast] Failed to fetch users from user-service:",
+            e,
+          );
         }
-      } else if (senderRole === 'teacher') {
-        if (targetRole === 'students' || targetRole === 'everyone') {
-           // Teacher sending to all their students
-           const url = `http://localhost:3003/teacher/students`;
-           try {
-             const res = await fetch(url, {
-               headers: { 'Authorization': `Bearer ${sender.token}` } 
-             });
-             const students: any = await res.json();
-             finalUserIds = (Array.isArray(students) ? students : students.data || []).map(s => s.userId).filter(Boolean);
-           } catch (e) {
-             console.error('Failed to fetch students from school-service:', e);
-           }
-        } else if (targetRole === 'section' && sectionId) {
-           // Teacher sending to a specific section
-           const url = `http://localhost:3003/teacher/sections/${sectionId}/students`;
-           try {
-             const res = await fetch(url, {
-               headers: { 'Authorization': `Bearer ${sender.token}` } 
-             });
-             const students: any = await res.json();
-             // These are enrolled student records, they have userId
-             finalUserIds = (Array.isArray(students) ? students : students.data || []).map(s => s.userId).filter(Boolean);
-           } catch (e) {
-             console.error('Failed to fetch section students from school-service:', e);
-           }
+      } else if (senderRole === "teacher") {
+        if (
+          targetRole === "students" ||
+          targetRole === "all" ||
+          targetRole === "everyone"
+        ) {
+          // Teacher sending to all their students
+          const url = `${this.schoolServiceUrl}/teacher/students`;
+          try {
+            const res = await fetch(url, {
+              headers: { Authorization: `Bearer ${sender.token}` },
+            });
+            const students: any = await res.json();
+            finalUserIds = (
+              Array.isArray(students) ? students : students.data || []
+            )
+              .map((s) => s.userId)
+              .filter(Boolean);
+          } catch (e) {
+            console.error("Failed to fetch students from school-service:", e);
+          }
+        } else if (targetRole === "section" && sectionId) {
+          // Teacher sending to a specific section
+          const url = `${this.schoolServiceUrl}/teacher/sections/${sectionId}/students`;
+          try {
+            const res = await fetch(url, {
+              headers: { Authorization: `Bearer ${sender.token}` },
+            });
+            const students: any = await res.json();
+            // These are enrolled student records, they have userId
+            finalUserIds = (
+              Array.isArray(students) ? students : students.data || []
+            )
+              .map((s) => s.userId)
+              .filter(Boolean);
+          } catch (e) {
+            console.error(
+              "Failed to fetch section students from school-service:",
+              e,
+            );
+          }
         }
       } else {
-        throw new Error('Unauthorized to send notification to this target group.');
+        throw new Error(
+          "Unauthorized to send notification to this target group.",
+        );
       }
     }
 
     if (finalUserIds.length === 0) {
-      return { success: false, message: 'No target users found.' };
+      return { success: false, message: "No target users found." };
     }
 
+    // Handle scheduled notifications
+    const isScheduled = !!scheduledAt;
+
     // 2. Create notification records
-    const notifications = finalUserIds.map(uid => 
+    console.log(
+      `[Broadcast] Creating notifications for ${finalUserIds.length} users, scheduled=${isScheduled}, channels=${channels || 'inApp'}`,
+    );
+    const notifications = finalUserIds.map((uid) =>
       this.notificationRepo.create({
         userId: uid,
         title,
         body: message,
-        category: category || 'system',
-        priority: priority || 'normal',
+        category,
+        priority,
+        channels: channels || "inApp",
+        groupName: group || null,
+        scheduledAt: scheduledAt || null,
+        scheduled: isScheduled,
+        sent: !isScheduled,
         read: false,
-      })
+      }),
     );
 
-    await this.notificationRepo.save(notifications);
+    const saved = await this.notificationRepo.save(notifications);
+    console.log(
+      `[Broadcast] Saved ${saved.length} notifications. Sample IDs:`,
+      saved.slice(0, 3).map((n) => n.id),
+    );
 
-    return { success: true, count: notifications.length };
+    return { 
+      success: true, 
+      count: saved.length,
+      scheduled: isScheduled,
+      scheduledAt: isScheduled ? scheduledAt.toISOString() : null
+    };
+  }
+
+  async processScheduledNotifications() {
+    const now = new Date();
+    const pending = await this.notificationRepo.find({
+      where: { scheduled: true, sent: false },
+    });
+    
+    for (const notification of pending) {
+      if (notification.scheduledAt && new Date(notification.scheduledAt) <= now) {
+        await this.notificationRepo.update(notification.id, { sent: true });
+        console.log(`[Scheduler] Sent scheduled notification: ${notification.id}`);
+      }
+    }
   }
 
   async markRead(id: string) {
@@ -137,6 +245,18 @@ export class NotificationService {
     await this.notificationRepo.delete({ userId });
   }
 
+  async getAllForUser(userId: string) {
+    console.log(`[getAllForUser] Fetching all notifications for userId=${userId}`);
+    const all = await this.notificationRepo.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+      take: 100,
+    });
+    console.log(`[getAllForUser] Found ${all.length} notifications`);
+    console.log(`[getAllForUser] Sample userIds:`, all.slice(0, 5).map(n => n.userId));
+    return all.filter(n => n.sent || !n.scheduled);
+  }
+
   async getPreferences(userId: string) {
     // Return default preferences for now
     return {
@@ -148,9 +268,9 @@ export class NotificationService {
         attendance: { inApp: true, email: true },
         promotion: { inApp: true, email: true },
       },
-      digest: { enabled: false, frequency: 'daily', time: '08:00' },
-      quiet: { enabled: false, from: '22:00', to: '07:00' },
-      minPriority: 'low',
+      digest: { enabled: false, frequency: "daily", time: "08:00" },
+      quiet: { enabled: false, from: "22:00", to: "07:00" },
+      minPriority: "low",
     };
   }
 
@@ -164,39 +284,50 @@ export class NotificationService {
     try {
       await this.mailerService.sendMail({ to: data.to, subject, html });
       await this.emailLogRepo.save(
-        this.emailLogRepo.create({ to: data.to, subject, status: 'sent' }),
+        this.emailLogRepo.create({ to: data.to, subject, status: "sent" }),
       );
     } catch (err) {
       await this.emailLogRepo.save(
-        this.emailLogRepo.create({ to: data.to, subject, status: 'failed', error: err.message }),
+        this.emailLogRepo.create({
+          to: data.to,
+          subject,
+          status: "failed",
+          error: err.message,
+        }),
       );
       throw err;
     }
   }
 
-  private buildEmail(data: EmailEventPayload): { subject: string; html: string } {
-    if (data.type === 'welcome') {
+  private buildEmail(data: EmailEventPayload): {
+    subject: string;
+    html: string;
+  } {
+    if (data.type === "welcome") {
       return {
-        subject: 'Welcome — Your Account Has Been Created',
+        subject: "Welcome — Your Account Has Been Created",
         html: this.template({
-          title: 'Welcome aboard!',
-          intro: 'Your account has been created. Use the temporary password below to sign in for the first time.',
-          label: 'Temporary Password',
+          title: "Welcome aboard!",
+          intro:
+            "Your account has been created. Use the temporary password below to sign in for the first time.",
+          label: "Temporary Password",
           value: data.tempPassword,
-          warning: 'You will be required to change this password immediately after your first login.',
-          color: '#4F46E5',
+          warning:
+            "You will be required to change this password immediately after your first login.",
+          color: "#4F46E5",
         }),
       };
     }
     return {
-      subject: 'Your Password Has Been Reset',
+      subject: "Your Password Has Been Reset",
       html: this.template({
-        title: 'Password Reset',
-        intro: 'An administrator has reset your password. Use the temporary password below to sign in.',
-        label: 'Temporary Password',
+        title: "Password Reset",
+        intro:
+          "An administrator has reset your password. Use the temporary password below to sign in.",
+        label: "Temporary Password",
         value: data.tempPassword,
-        warning: 'Change your password immediately after logging in.',
-        color: '#DC2626',
+        warning: "Change your password immediately after logging in.",
+        color: "#DC2626",
       }),
     };
   }
