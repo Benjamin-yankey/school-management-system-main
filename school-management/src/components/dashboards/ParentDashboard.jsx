@@ -1,12 +1,29 @@
 import React, { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { generateReportCardPDF } from "../../pages/generateReportCardPDF";
+import DashboardLayout from "./DashboardLayout";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 
+const SvgIcon = ({ d }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
+  </svg>
+);
+
+const PARENT_NAV_ITEMS = [
+  { id: "dashboard", label: "Dashboard", icon: <SvgIcon d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10" /> },
+  { id: "performance", label: "Performance", icon: <SvgIcon d={["M18 20V10", "M12 20V4", "M6 20v-6"]} /> },
+  { id: "attendance", label: "Attendance", icon: <SvgIcon d={["M22 11.08V12a10 10 0 1 1-5.93-9.14", "M22 4L12 14.01l-3-3"]} /> },
+  { id: "fees", label: "Fee History", icon: <SvgIcon d={["M12 1v22", "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]} /> },
+  { id: "meetings", label: "Meetings", icon: <SvgIcon d={["M3 4h18v18H3z", "M16 2v4", "M8 2v4", "M3 10h18"]} /> },
+  { id: "notifications", label: "Notifications", icon: <SvgIcon d={["M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9", "M13.73 21a2 2 0 0 1-3.46 0"]} />, action: "/notifications" },
+];
 const ParentDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [selectedChildIndex, setSelectedChildIndex] = useState(0);
   const [children, setChildren] = useState([]);
@@ -166,6 +183,7 @@ const ParentDashboard = () => {
 
   if (loading) {
     return (
+      <DashboardLayout navItems={PARENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Parent Dashboard" portalLabel="Parent Portal v2.0">
       <div className="dashboard">
         <div className="dashboard-header">
           <h2>Parent Dashboard</h2>
@@ -175,10 +193,12 @@ const ParentDashboard = () => {
           <div className="loading"></div>
         </div>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
+    <DashboardLayout navItems={PARENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Parent Dashboard" portalLabel="Parent Portal v2.0">
     <div className="dashboard dashboard-animate">
       <div className="dashboard-header">
         <h2>Parent Dashboard</h2>
@@ -386,6 +406,7 @@ const ParentDashboard = () => {
         </section>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 

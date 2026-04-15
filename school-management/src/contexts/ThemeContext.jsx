@@ -25,6 +25,12 @@ export const ThemeProvider = ({ children }) => {
   const [fontSize, setFontSize] = useState(() => localStorage.getItem('font-size') || 'medium');
   const [density, setDensity] = useState(() => localStorage.getItem('density') || 'comfortable');
 
+  // Localization State
+  const [region, setRegion] = useState(() => {
+    const saved = localStorage.getItem('settings-region');
+    return saved ? JSON.parse(saved) : { language: "english", timezone: "UTC", dateFormat: "MM/DD/YYYY" };
+  });
+
   // Handle Theme Preference
   useEffect(() => {
     if (themeMode === 'system') {
@@ -52,6 +58,11 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('density', density);
   }, [fontSize, density]);
 
+  // Handle Localization Persistence
+  useEffect(() => {
+    localStorage.setItem('settings-region', JSON.stringify(region));
+  }, [region]);
+
   // Listen for OS-level theme changes when in 'system' mode
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -66,6 +77,57 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [themeMode]);
 
+  // Localization Helpers
+  const timezoneMap = {
+    "UTC": "UTC",
+    "GMT-5": "America/New_York",
+    "GMT-8": "America/Los_Angeles",
+    "GMT+0": "Europe/London",
+    "GMT+1": "Africa/Lagos",
+    "GMT+3": "Africa/Nairobi",
+    "GMT+8": "Asia/Singapore",
+    "GMT+9": "Asia/Tokyo"
+  };
+
+  const getLocale = () => {
+    switch (region.language) {
+      case "french":  return "fr-FR";
+      case "spanish": return "es-ES";
+      case "german":  return "de-DE";
+      case "chinese": return "zh-CN";
+      case "arabic":  return "ar-SA";
+      case "british": return "en-GB";
+      default:        return "en-US";
+    }
+  };
+
+  const formatDate = (date, options = {}) => {
+    if (!date) return "";
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const locale = getLocale();
+    const tz = timezoneMap[region.timezone] || "UTC";
+    
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: tz,
+      ...options
+    }).format(d);
+  };
+
+  const formatTime = (date, options = {}) => {
+    if (!date) return "";
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const locale = getLocale();
+    const tz = timezoneMap[region.timezone] || "UTC";
+    
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: tz,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      ...options
+    }).format(d);
+  };
+
   const value = {
     themeMode,
     setThemeMode,
@@ -74,7 +136,12 @@ export const ThemeProvider = ({ children }) => {
     fontSize,
     setFontSize,
     density,
-    setDensity
+    setDensity,
+    region,
+    setRegion,
+    formatDate,
+    formatTime,
+    getLocale
   };
 
   return (

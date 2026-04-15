@@ -162,9 +162,68 @@ export default function SettingsLayout() {
   return (
     <div style={styles.layout}>
       <Navbar />
-      <div style={styles.container}>
-        {/* Sidebar Nav */}
-        <aside style={styles.sidebar}>
+      
+      {/* Mobile Settings Header */}
+      <div className="settings-mobile-header" style={{
+        display: "none",
+        padding: "1rem",
+        background: isDark ? "rgba(17, 24, 39, 0.8)" : "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"}`,
+        position: "sticky",
+        top: 70, // Height of Navbar
+        zIndex: 40
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: C.gray500, textTransform: "uppercase", marginBottom: 6, letterSpacing: "0.05em" }}>
+              Settings Category
+            </label>
+            <select 
+              value={currentPath} 
+              onChange={(e) => navigate(`/settings/${e.target.value}`)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: 10,
+                background: isDark ? "rgba(31, 41, 55, 0.5)" : C.gray50,
+                color: isDark ? C.white : C.gray900,
+                border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : C.gray200}`,
+                fontSize: 14,
+                fontWeight: 600,
+                outline: "none"
+              }}
+            >
+              {SECTIONS.flatMap(s => s.items).map(item => (
+                <option key={item.id} value={item.id}>{item.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-container" style={styles.container}>
+        <style>{`
+          @media (max-width: 900px) {
+            .settings-container {
+              flex-direction: column !important;
+              padding: 1rem !important;
+              gap: 1.5rem !important;
+            }
+            .settings-sidebar-desktop {
+              display: none !important;
+            }
+            .settings-mobile-header {
+              display: block !important;
+            }
+            .settings-main-content {
+              padding-top: 0 !important;
+            }
+          }
+        `}</style>
+
+        {/* Sidebar Nav (Desktop) */}
+        <aside className="settings-sidebar-desktop" style={styles.sidebar}>
           {SECTIONS.map((section) => (
             <div key={section.label}>
               <div style={styles.sectionLabel}>{section.label}</div>
@@ -196,7 +255,7 @@ export default function SettingsLayout() {
         </aside>
 
         {/* Dynamic Content */}
-        <main style={styles.content}>
+        <main className="settings-main-content" style={styles.content}>
           <Outlet />
         </main>
       </div>

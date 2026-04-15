@@ -1,0 +1,171 @@
+/* ============================================================
+   DashboardTour — Premium Guided onboarding
+   ============================================================ */
+
+.dash-tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9998;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The actual spotlight effect using mask/clip-path or overlay divs */
+/* We'll use 4 overlay divs for maximum compatibility and animation flexibility */
+.dash-tour-block {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: auto;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9998;
+}
+
+/* Tooltip / Card */
+.dash-tour-card {
+  position: fixed;
+  width: 320px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  z-index: 9999;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(0);
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dash-tour-card.hidden {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  pointer-events: none;
+}
+
+.dash-tour-step-info {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin-bottom: -8px;
+}
+
+.dash-tour-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.dash-tour-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.dash-tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.dash-tour-skip {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+
+.dash-tour-skip:hover {
+  color: var(--text);
+}
+
+.dash-tour-next {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+  transition: all 0.2s ease;
+}
+
+.dash-tour-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.4);
+}
+
+.dash-tour-next:active {
+  transform: translateY(0);
+}
+
+/* Pulse animation for the target element */
+@keyframes tour-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+}
+
+.dash-tour-highlighted {
+  position: relative !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+  box-shadow: 0 0 0 4px var(--accent) !important;
+  border-radius: 8px;
+  animation: tour-pulse 2s infinite;
+}
+
+/* Arrow indicator for the tooltip */
+.dash-tour-card::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+  display: block;
+}
+
+/* Position-based arrows */
+.dash-tour-arrow-top::after { bottom: -7px; left: 24px; transform: rotate(225deg); border:none; border-right:1px solid var(--border); border-bottom:1px solid var(--border); }
+.dash-tour-arrow-bottom::after { top: -7px; left: 24px; border-left: 1px solid var(--border); border-top: 1px solid var(--border); }
+.dash-tour-arrow-left::after { right: -7px; top: 24px; transform: rotate(45deg); border-left:none; border-top:none; border-right:1px solid var(--border); border-top:1px solid var(--border); }
+.dash-tour-arrow-right::after { left: -7px; top: 24px; transform: rotate(225deg); border-right:none; border-bottom:none; border-left:1px solid var(--border); border-top:1px solid var(--border); }
+
+/* Mobile Card (no arrows) */
+.dash-tour-mobile-card::after {
+  display: none !important;
+}
+
+/* Container for events */
+.dash-tour-container {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.dash-tour-block {
+  pointer-events: auto !important;
+}
+

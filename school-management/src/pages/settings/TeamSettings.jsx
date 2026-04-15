@@ -65,37 +65,40 @@ export default function TeamSettings() {
 
   const s = {
     panel: {
-      background: isDark ? "#111827" : C.white,
+      background: "var(--surface)",
       borderRadius: 16,
-      border: `1px solid ${isDark ? "#1f2937" : C.gray200}`,
-      padding: "2rem",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+      border: "1px solid var(--border)",
+      padding: "var(--dash-padding)",
+      boxShadow: "var(--card-shadow)"
     },
-    title: { fontSize: 20, fontWeight: 700, color: isDark ? C.white : C.gray900, marginBottom: "0.5rem" },
-    desc: { fontSize: 14, color: C.gray500, marginBottom: "2rem" },
+    title: { fontSize: "1.25rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.5rem" },
+    desc: { fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "2rem" },
     btnPrimary: {
-      background: C.purple600, color: C.white, border: "none", padding: "10px 20px",
-      borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
-      display: "flex", alignItems: "center", gap: 8
+      background: "var(--accent-blue)", color: C.white, border: "none", padding: "10px 20px",
+      borderRadius: 8, fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+      display: "flex", alignItems: "center", gap: 8,
+      transition: "all 0.2s"
     },
-    label: { display: "block", fontSize: 13, fontWeight: 600, color: isDark ? "#9ca3af" : C.gray600, marginBottom: 6 },
+    label: { display: "block", fontSize: "0.8125rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 },
     input: {
-      width: "100%", background: isDark ? "#1f2937" : "#fcfcfc",
-      border: `1px solid ${isDark ? "#374151" : C.gray200}`,
-      color: isDark ? C.white : C.gray900,
-      padding: "10px 14px", borderRadius: 8, fontSize: 14, outline: "none"
+      width: "100%", background: "var(--input-bg)",
+      border: "1px solid var(--border)",
+      color: "var(--text)",
+      padding: "10px 14px", borderRadius: 8, fontSize: "0.875rem", outline: "none",
+      transition: "border-color 0.2s"
     },
     modalOverlay: {
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-      background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center",
+      background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
       zIndex: 1000, padding: "1rem"
     },
     alert: (type) => ({
-      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: 14,
+      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: "0.875rem",
       display: "flex", alignItems: "center", gap: "10px",
-      background: type === "success" ? (isDark ? "rgba(16, 185, 129, 0.1)" : "#ecfdf5") : (isDark ? "rgba(239, 68, 68, 0.1)" : "#fef2f2"),
+      background: type === "success" ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
       color: type === "success" ? C.green500 : C.red500,
-      border: `1px solid ${type === "success" ? (isDark ? "rgba(16, 185, 129, 0.2)" : "#d1fae5") : (isDark ? "rgba(239, 68, 68, 0.2)" : "#fee2e2")}`
+      border: `1px solid ${type === "success" ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"}`
     })
   };
 
@@ -161,23 +164,29 @@ export default function TeamSettings() {
         </div>
       )}
 
-      <div style={{ borderRadius: 10, border: `1px solid ${isDark ? "#1f2937" : C.gray200}`, overflow: "hidden" }}>
+      <div style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" }}>
         {team.map((user, idx) => (
           <div key={user.id} style={{ 
             display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px",
-            borderBottom: idx !== team.length - 1 ? `1px solid ${isDark ? "#1f2937" : C.gray200}` : "none",
-            background: isDark ? "#111827" : C.white
+            borderBottom: idx !== team.length - 1 ? "1px solid var(--border)" : "none",
+            background: "var(--surface)"
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.purple100, color: C.purple600, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>
+              <div style={{ 
+                width: 40, height: 40, borderRadius: "50%", 
+                background: "linear-gradient(135deg, #7c3aed, #3b82f6)", 
+                color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 
+              }}>
                 {user.firstName ? user.firstName[0].toUpperCase() : "U"}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{user.firstName} {user.lastName}</div>
-                <div style={{ fontSize: 12, color: C.gray500 }}>{user.email} • <span style={{ textTransform: "capitalize" }}>{user.role}</span></div>
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text)" }}>{user.firstName} {user.lastName}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{user.email} • <span style={{ textTransform: "capitalize" }}>{user.role}</span></div>
               </div>
             </div>
-            <button style={{ background: "none", border: "none", color: C.gray400 }}><Trash2 size={16} /></button>
+            <button style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = C.red500} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}>
+              <Trash2 size={16} />
+            </button>
           </div>
         ))}
       </div>

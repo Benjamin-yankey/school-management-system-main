@@ -108,9 +108,26 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding: 2rem;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  padding-top: 1rem;
+  padding: 2.5rem;
+  padding-top: 1.5rem;
+  font-family: "Inter", "Outfit", -apple-system, sans-serif;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+  .dashboard {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    padding: 1.25rem;
+    padding-top: 1rem;
+  }
 }
 
 /* Entry animation wrapper */

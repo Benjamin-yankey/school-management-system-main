@@ -9,9 +9,25 @@ import {
   DollarSign, 
   Bell 
 } from "lucide-react";
+import DashboardLayout from "./DashboardLayout";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 import Announcements from "../Announcements";
+
+const SvgIcon = ({ d }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
+  </svg>
+);
+
+const STUDENT_NAV_ITEMS = [
+  { id: "dashboard", label: "Dashboard", icon: <SvgIcon d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10" />, action: "/student/dashboard" },
+  { id: "assignments", label: "Assignments", icon: <SvgIcon d={["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z", "M14 2v6h6", "M16 13H8", "M16 17H8", "M10 9H8"]} />, action: "/student/assignments" },
+  { id: "grades", label: "Grades", icon: <SvgIcon d={["M18 20V10", "M12 20V4", "M6 20v-6"]} />, action: "/student/grades" },
+  { id: "timetable", label: "Timetable", icon: <SvgIcon d={["M3 4h18v18H3z", "M16 2v4", "M8 2v4", "M3 10h18"]} />, action: "/student/timetable" },
+  { id: "payments", label: "Payments", icon: <SvgIcon d={["M12 1v22", "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]} />, action: "/student/payments" },
+  { id: "notifications", label: "Notifications", icon: <SvgIcon d={["M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9", "M13.73 21a2 2 0 0 1-3.46 0"]} />, action: "/notifications" },
+];
 
 const StudentDashboard = () => {
   const { user, activeAcademicYear } = useAuth();
@@ -169,6 +185,7 @@ const StudentDashboard = () => {
 
   if (loading) {
     return (
+      <DashboardLayout navItems={STUDENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Student Dashboard" portalLabel="Student Portal v2.0">
       <div className="dashboard">
         <div className="dashboard-header">
           <h2>Student Dashboard</h2>
@@ -178,10 +195,12 @@ const StudentDashboard = () => {
           <div className="loading"></div>
         </div>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
+    <DashboardLayout navItems={STUDENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Student Dashboard" portalLabel="Student Portal v2.0">
     <div className="dashboard dashboard-animate">
       {/* Quick Actions */}
       <div className="quick-actions">
@@ -376,6 +395,7 @@ const StudentDashboard = () => {
         </section>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 

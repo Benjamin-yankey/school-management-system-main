@@ -673,40 +673,120 @@ export default function Navbar() {
     {isMobile && mobileMenuOpen && (
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-        background: isDarkMode ? "rgba(17, 24, 39, 0.95)" : "rgba(255, 255, 255, 0.95)",
-        backdropFilter: "blur(8px)",
-        zIndex: 100,
-        display: "flex", flexDirection: "column"
+        background: isDarkMode 
+          ? "rgba(10, 10, 18, 0.85)" 
+          : "rgba(255, 255, 255, 0.9)",
+        backdropFilter: "blur(20px) saturate(180%)",
+        zIndex: 1000,
+        display: "flex", flexDirection: "column",
+        animation: "mobileMenuFadeIn 0.3s ease-out"
       }}>
-        <div style={{ padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${isDarkMode ? C.gray800 : C.gray200}` }}>
+        <style>{`
+          @keyframes mobileMenuFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes linkSlideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        `}</style>
+
+        {/* Header */}
+        <div style={{ 
+          padding: "1.25rem 1.5rem", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          borderBottom: `1px solid ${isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"}` 
+        }}>
           <div style={s.logo}>
             <div style={s.logoMark}>
               <img src="/images/schoolLogo.jpeg" alt="GEOZIIE Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <span style={{ ...s.logoText, display: "block", fontSize: 13, whiteSpace: "normal" }}>GEOZIIE INTERNATIONAL SCHOOL</span>
           </div>
-          <button style={{ ...s.iconBtn, border: "none", background: "transparent" }} onClick={() => setMobileMenuOpen(false)}>
+          <button 
+            style={{ 
+              width: 40, height: 40, borderRadius: "50%", 
+              background: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+              border: "none", color: isDarkMode ? C.white : C.gray900,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer"
+            }} 
+            onClick={() => setMobileMenuOpen(false)}
+          >
             <CloseIcon />
           </button>
         </div>
-        <div style={{ padding: "2rem 1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {navLinks.map((link) => (
-            <button
-              key={link.name}
-              style={{
-                ...s.navLink,
-                fontSize: "1.1rem",
-                padding: "16px",
-                textAlign: "left",
-                background: isActive(link.path) ? (isDarkMode ? C.gray800 : C.purple50) : "transparent",
-                color: isActive(link.path) ? (isDarkMode ? C.white : C.purple600) : (isDarkMode ? C.gray300 : C.gray700),
-                fontWeight: isActive(link.path) ? 600 : "normal",
-              }}
-              onClick={() => { setMobileMenuOpen(false); navigateTo(link.path); }}
-            >
-              {link.name}
-            </button>
-          ))}
+
+        {/* Profile Summary */}
+        <div style={{ 
+          padding: "2rem 1.5rem", 
+          background: isDarkMode ? "rgba(124, 58, 237, 0.05)" : "rgba(124, 58, 237, 0.03)",
+          borderBottom: `1px solid ${isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}`
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ ...s.avatar, width: 50, height: 50, fontSize: 18 }}>
+              {authUser?.avatarUrl ? (
+                <img src={authUser.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : initials}
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? C.white : C.gray900 }}>{displayName}</div>
+              <div style={s.roleBadge}>{displayRole}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav Links */}
+        <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem", overflowY: "auto" }}>
+          {navLinks.map((link, idx) => {
+            const active = isActive(link.path);
+            return (
+              <button
+                key={link.name}
+                style={{
+                  ...s.navLink,
+                  fontSize: "1.1rem",
+                  padding: "1rem 1.25rem",
+                  textAlign: "left",
+                  background: active ? `linear-gradient(90deg, ${C.purple500}22, transparent)` : "transparent",
+                  color: active ? C.purple500 : (isDarkMode ? C.gray300 : C.gray700),
+                  fontWeight: active ? 700 : 500,
+                  borderRadius: 12,
+                  border: active ? `1px solid ${C.purple500}44` : "1px solid transparent",
+                  animation: `linkSlideIn 0.3s ease-out forwards ${idx * 0.05}s`,
+                  opacity: 0, // Controlled by animation
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+                onClick={() => { setMobileMenuOpen(false); navigateTo(link.path); }}
+              >
+                <span>{link.name}</span>
+                {active && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.purple500 }} />}
+              </button>
+            );
+          })}
+          
+          <div style={{ margin: "1rem 0", height: 1, background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)" }} />
+          
+          <button
+            style={{
+              padding: "1rem 1.25rem",
+              textAlign: "left",
+              color: isDarkMode ? C.gray400 : C.gray600,
+              fontSize: "1rem",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              fontFamily: "inherit"
+            }}
+            onClick={() => { setMobileMenuOpen(false); logout(); }}
+          >
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: isDarkMode ? "rgba(239, 68, 68, 0.1)" : "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", color: C.red500 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </div>
+            Sign Out
+          </button>
         </div>
       </div>
     )}

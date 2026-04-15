@@ -45,32 +45,34 @@ export default function AccountSettings() {
 
   const s = {
     panel: {
-      background: isDark ? "#111827" : C.white,
+      background: "var(--surface)",
       borderRadius: 16,
-      border: `1px solid ${isDark ? "#1f2937" : C.gray200}`,
-      padding: "2rem",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+      border: "1px solid var(--border)",
+      padding: "var(--dash-padding)",
+      boxShadow: "var(--card-shadow)"
     },
-    title: { fontSize: 20, fontWeight: 700, color: isDark ? C.white : C.gray900, marginBottom: "0.5rem" },
-    desc: { fontSize: 14, color: C.gray500, marginBottom: "2rem" },
-    label: { display: "block", fontSize: 13, fontWeight: 600, color: isDark ? "#9ca3af" : C.gray600, marginBottom: 6 },
+    title: { fontSize: "1.25rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.5rem" },
+    desc: { fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "2rem" },
+    label: { display: "block", fontSize: "0.8125rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 },
     input: {
-      width: "100%", background: isDark ? "#1f2937" : "#fcfcfc",
-      border: `1px solid ${isDark ? "#374151" : C.gray200}`,
-      color: isDark ? C.white : C.gray900,
-      padding: "10px 14px", borderRadius: 8, fontSize: 14, outline: "none"
+      width: "100%", background: "var(--input-bg)",
+      border: "1px solid var(--border)",
+      color: "var(--text)",
+      padding: "10px 14px", borderRadius: 8, fontSize: "0.875rem", outline: "none",
+      transition: "border-color 0.2s"
     },
     btnPrimary: {
-      background: C.purple600, color: C.white, border: "none", padding: "10px 20px",
-      borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
-      display: "flex", alignItems: "center", gap: 8
+      background: "var(--accent-blue)", color: C.white, border: "none", padding: "10px 20px",
+      borderRadius: 8, fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+      display: "flex", alignItems: "center", gap: 8,
+      transition: "all 0.2s"
     },
     alert: (type) => ({
-      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: 14,
+      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: "0.875rem",
       display: "flex", alignItems: "center", gap: "10px",
-      background: type === "success" ? (isDark ? "rgba(16, 185, 129, 0.1)" : "#ecfdf5") : (isDark ? "rgba(239, 68, 68, 0.1)" : "#fef2f2"),
+      background: type === "success" ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
       color: type === "success" ? C.green500 : C.red500,
-      border: `1px solid ${type === "success" ? (isDark ? "rgba(16, 185, 129, 0.2)" : "#d1fae5") : (isDark ? "rgba(239, 68, 68, 0.2)" : "#fee2e2")}`
+      border: `1px solid ${type === "success" ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"}`
     })
   };
 

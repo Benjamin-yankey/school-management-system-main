@@ -50,22 +50,24 @@ export default function BillingSettings() {
 
   const s = {
     panel: {
-      background: isDark ? "#111827" : C.white,
+      background: "var(--surface)",
       borderRadius: 16,
-      border: `1px solid ${isDark ? "#1f2937" : C.gray200}`,
-      padding: "2rem",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+      border: "1px solid var(--border)",
+      padding: "var(--dash-padding)",
+      boxShadow: "var(--card-shadow)"
     },
-    title: { fontSize: 20, fontWeight: 700, color: isDark ? C.white : C.gray900, marginBottom: "0.5rem" },
-    desc: { fontSize: 14, color: C.gray500, marginBottom: "2rem" },
+    title: { fontSize: "1.25rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.5rem" },
+    desc: { fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "2rem" },
     planCard: {
-      background: isDark ? "#1e293b" : C.purple50,
+      background: "linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%)",
       borderRadius: 12, padding: "1.5rem", marginBottom: "2rem",
-      border: `1px solid ${isDark ? "#334155" : C.purple100}`
+      border: "1px solid var(--border)",
+      boxShadow: "0 4px 12px rgba(124, 58, 237, 0.05)"
     },
     btnPrimary: {
-      background: C.purple600, color: C.white, border: "none", padding: "10px 20px",
-      borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer"
+      background: "var(--accent-blue)", color: C.white, border: "none", padding: "10px 20px",
+      borderRadius: 8, fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+      transition: "all 0.2s"
     }
   };
 
@@ -88,56 +90,57 @@ export default function BillingSettings() {
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
               <div>
                 <span style={{ 
-                  background: isDark ? C.purple600 : C.purple100, color: isDark ? C.white : C.purple600,
-                  padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: "uppercase"
+                  background: "var(--accent-secondary)", color: "var(--accent-blue)",
+                  padding: "4px 10px", borderRadius: 20, fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase"
                 }}>Current Plan</span>
-                <h3 style={{ fontSize: 24, fontWeight: 800, color: isDark ? C.white : C.purple900, marginTop: 12 }}>{billingData.subscriptionPlan}</h3>
-                <p style={{ fontSize: 13, color: C.gray600 }}>Includes up to 50 active users.</p>
+                <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text)", marginTop: 12 }}>{billingData.subscriptionPlan}</h3>
+                <p style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>Includes up to 50 active users.</p>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: isDark ? C.white : C.gray900 }}>${billingData.subscriptionAmount}<span style={{ fontSize: 14, color: C.gray500 }}>/mo</span></div>
-                <p style={{ fontSize: 12, color: C.gray500 }}>Next charge: {new Date(billingData.nextChargeDate).toLocaleDateString()}</p>
+                <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text)" }}>${billingData.subscriptionAmount}<span style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>/mo</span></div>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Next charge: {new Date(billingData.nextChargeDate).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
 
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: isDark ? C.white : C.gray900, marginBottom: "1rem" }}>Payment Method</h3>
+          <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text)", marginBottom: "1rem" }}>Payment Method</h3>
           <div style={{ 
-            border: `1px solid ${isDark ? "#1f2937" : C.gray200}`, borderRadius: 10, padding: "1rem", 
-            display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem"
+            border: "1px solid var(--border)", borderRadius: 10, padding: "1rem", 
+            display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem",
+            background: "var(--surface)"
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ width: 44, height: 30, background: isDark ? "#1f2937" : "#f0f0f0", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>
+              <div style={{ width: 44, height: 30, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.75rem", color: "var(--text)" }}>
                 {billingData.paymentMethod?.split(" ")[0]?.toUpperCase() || "VISA"}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{billingData.paymentMethod}</div>
-                <div style={{ fontSize: 12, color: C.gray500 }}>Expires 12/28</div>
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text)" }}>{billingData.paymentMethod}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Expires 12/28</div>
               </div>
             </div>
-            <button style={{ background: "none", border: "none", color: C.purple500, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Edit</button>
+            <button style={{ background: "none", border: "none", color: "var(--accent-blue)", fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer" }}>Edit</button>
           </div>
 
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: isDark ? C.white : C.gray900, marginBottom: "1rem" }}>Invoicing History</h3>
-          <div style={{ borderRadius: 10, border: `1px solid ${isDark ? "#1f2937" : C.gray200}`, overflow: "hidden" }}>
+          <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text)", marginBottom: "1rem" }}>Invoicing History</h3>
+          <div style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" }}>
             {(billingData.invoices || []).map((inv, idx) => (
               <div key={inv.id} style={{ 
                 display: "flex", justifyContent: "space-between", alignItems: "center", 
-                padding: "12px 16px", borderBottom: idx !== (billingData.invoices.length - 1) ? `1px solid ${isDark ? "#1f2937" : C.gray200}` : "none",
-                background: isDark ? "#111827" : C.white
+                padding: "12px 16px", borderBottom: idx !== (billingData.invoices.length - 1) ? "1px solid var(--border)" : "none",
+                background: "var(--surface)"
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <FileText size={16} color={C.gray500} />
+                  <FileText size={16} color="var(--text-secondary)" />
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{inv.id}</div>
-                    <div style={{ fontSize: 12, color: C.gray500 }}>{inv.date}</div>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text)" }}>{inv.id}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{inv.date}</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? C.white : C.gray900 }}>{inv.amount}</div>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text)" }}>{inv.amount}</div>
                   <div style={{ 
-                    background: isDark ? "rgba(16, 185, 129, 0.1)" : "#d1fae5", color: isDark ? C.green500 : "#065f46",
-                    padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600
+                    background: "rgba(16, 185, 129, 0.1)", color: "#10b981",
+                    padding: "2px 8px", borderRadius: 12, fontSize: "0.6875rem", fontWeight: 600
                   }}>{inv.status}</div>
                 </div>
               </div>

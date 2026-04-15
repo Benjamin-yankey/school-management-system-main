@@ -21,18 +21,15 @@ export default function GeneralSettings() {
     isDarkMode: isDark, 
     themeMode, setThemeMode, 
     fontSize, setFontSize, 
-    density, setDensity 
+    density, setDensity,
+    region, setRegion,
+    formatTime
   } = useTheme();
   
   // Local state for items not (yet) in backend
   const [notifs, setNotifs] = useState(() => {
     const saved = localStorage.getItem("settings-notifs");
     return saved ? JSON.parse(saved) : { emailAlerts: true, browserNotifs: false, weeklyReport: true };
-  });
-
-  const [region, setRegion] = useState(() => {
-    const saved = localStorage.getItem("settings-region");
-    return saved ? JSON.parse(saved) : { language: "english", timezone: "UTC", dateFormat: "MM/DD/YYYY" };
   });
 
   const [access, setAccess] = useState(() => {
@@ -42,7 +39,6 @@ export default function GeneralSettings() {
 
   // Persistence effects
   useEffect(() => { localStorage.setItem("settings-notifs", JSON.stringify(notifs)); }, [notifs]);
-  useEffect(() => { localStorage.setItem("settings-region", JSON.stringify(region)); }, [region]);
   useEffect(() => { 
     localStorage.setItem("settings-access", JSON.stringify(access)); 
     // Apply accessibility classes to body
@@ -85,10 +81,10 @@ export default function GeneralSettings() {
     segmented: {
       display: "flex", background: isDark ? "rgba(255,255,255,0.05)" : "#F1F5F9",
       padding: 4, borderRadius: 12, border: `1px solid ${isDark ? "#374151" : C.gray200}`,
-      width: "fit-content", position: "relative"
+      width: "100%", maxWidth: 400, position: "relative"
     },
     segmentBtn: (active) => ({
-      padding: "6px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+      flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 13, fontWeight: 700,
       border: "none", cursor: "pointer", position: "relative", zIndex: 1,
       background: "transparent", color: active ? C.white : (isDark ? C.gray400 : C.gray500),
       transition: "color 0.2s", fontFamily: "inherit"
@@ -105,9 +101,11 @@ export default function GeneralSettings() {
 
   const SegmentedControl = ({ value, options, onChange }) => {
     const activeIndex = options.findIndex(o => o.value === value);
+    const safeIndex = activeIndex === -1 ? 0 : activeIndex;
+    
     return (
       <div style={s.segmented}>
-        <div style={s.segmentBox(activeIndex, options.length)} />
+        <div style={s.segmentBox(safeIndex, options.length)} />
         {options.map((opt) => (
           <button 
             key={opt.value} 
@@ -139,47 +137,70 @@ export default function GeneralSettings() {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+    <div className="general-settings-container" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .general-settings-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .general-settings-panel {
+            padding: 1.25rem !important;
+          }
+          .segmented-control-container {
+            overflow-x: auto;
+            max-width: 100%;
+            padding-bottom: 4px;
+          }
+        }
+      `}</style>
+
       {/* Appearance */}
-      <div style={s.panel}>
+      <div className="general-settings-panel" style={s.panel}>
         <h2 style={s.title}>Appearance Settings</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <div>
             <label style={s.label}>Theme Preference</label>
-            <SegmentedControl 
-              value={themeMode} 
-              onChange={setThemeMode}
-              options={[
-                { value: "light",  label: "Light" },
-                { value: "dark",   label: "Dark" },
-                { value: "system", label: "System Default" }
-              ]}
-            />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-            <div>
-              <label style={s.label}>Font Size</label>
+            <div className="segmented-control-container">
               <SegmentedControl 
-                value={fontSize} 
-                onChange={setFontSize}
+                value={themeMode} 
+                onChange={setThemeMode}
                 options={[
-                  { value: "small",  label: "Small" },
-                  { value: "medium", label: "Medium" },
-                  { value: "large",  label: "Large" }
+                  { value: "light",  label: "Light" },
+                  { value: "dark",   label: "Dark" },
+                  { value: "system", label: "System Default" }
                 ]}
               />
             </div>
+          </div>
+          <div className="general-settings-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
+            <div>
+              <label style={s.label}>Font Size</label>
+              <div className="segmented-control-container">
+                <SegmentedControl 
+                  value={fontSize} 
+                  onChange={setFontSize}
+                  options={[
+                    { value: "small",  label: "Small" },
+                    { value: "medium", label: "Medium" },
+                    { value: "large",  label: "Large" }
+                  ]}
+                />
+              </div>
+            </div>
             <div>
               <label style={s.label}>Layout Density</label>
-              <SegmentedControl 
-                value={density} 
-                onChange={setDensity}
-                options={[
-                  { value: "compact",     label: "Compact" },
-                  { value: "comfortable", label: "Comfort" },
-                  { value: "airy",        label: "Airy" }
-                ]}
-              />
+              <div className="segmented-control-container">
+                <SegmentedControl 
+                  value={density} 
+                  onChange={setDensity}
+                  options={[
+                    { value: "compact",     label: "Compact" },
+                    { value: "comfortable", label: "Comfort" },
+                    { value: "airy",        label: "Airy" }
+                  ]}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -198,33 +219,74 @@ export default function GeneralSettings() {
         />
       </div>
 
-      {/* Language */}
+      {/* Language & Region */}
       <div style={s.panel}>
         <h2 style={s.title}>Language & Region</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div>
-            <label style={s.label}>Local Language</label>
-            <SegmentedControl 
-              value={region.language} 
-              onChange={(v) => setRegion({...region, language: v})}
-              options={[
-                { value: "english", label: "English (US)" },
-                { value: "french",  label: "Français" },
-                { value: "spanish", label: "Español" }
-              ]}
-            />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+            <div>
+              <label style={s.label}>Local Language</label>
+              <select 
+                value={region.language} 
+                onChange={(e) => setRegion({...region, language: e.target.value})}
+                style={s.input}
+              >
+                <option value="english">English (US)</option>
+                <option value="british">English (UK)</option>
+                <option value="french">Français</option>
+                <option value="spanish">Español</option>
+                <option value="german">Deutsch</option>
+                <option value="chinese">中文 (Chinese)</option>
+                <option value="arabic">العربية (Arabic)</option>
+              </select>
+            </div>
+            <div>
+              <label style={s.label}>Time Format</label>
+              <select 
+                value={region.dateFormat} 
+                onChange={(e) => setRegion({...region, dateFormat: e.target.value})}
+                style={s.input}
+              >
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              </select>
+            </div>
           </div>
+
           <div>
-            <label style={s.label}>Timezone</label>
-            <SegmentedControl 
-              value={region.timezone} 
-              onChange={(v) => setRegion({...region, timezone: v})}
-              options={[
-                { value: "UTC",   label: "UTC" },
-                { value: "EST",   label: "EST (Eastern)" },
-                { value: "GMT+1", label: "GMT+1 (WAT)" }
-              ]}
-            />
+            <label style={s.label}>Timezone & Local Time</label>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-end" }}>
+              <div style={{ flex: 1 }}>
+                <select 
+                  value={region.timezone} 
+                  onChange={(e) => setRegion({...region, timezone: e.target.value})}
+                  style={s.input}
+                >
+                  <option value="UTC">UTC (Coordinated Universal Time)</option>
+                  <option value="GMT-5">EST (Eastern Standard Time - GMT-5)</option>
+                  <option value="GMT-8">PST (Pacific Standard Time - GMT-8)</option>
+                  <option value="GMT+0">GMT (London/Lisbon - GMT+0)</option>
+                  <option value="GMT+1">WAT (West Africa Time - GMT+1)</option>
+                  <option value="GMT+3">EAT (East Africa Time - GMT+3)</option>
+                  <option value="GMT+8">SGT (Singapore Time - GMT+8)</option>
+                  <option value="GMT+9">JST (Japan Standard Time - GMT+9)</option>
+                </select>
+              </div>
+              <div style={{ 
+                background: isDark ? "rgba(124, 58, 237, 0.1)" : C.purple50,
+                padding: "10px 20px",
+                borderRadius: 8,
+                border: `1px solid ${C.purple500}33`,
+                minWidth: 120,
+                textAlign: "center"
+              }}>
+                <div style={{ fontSize: 10, color: C.purple600, fontWeight: 700, textTransform: "uppercase", marginBottom: 2 }}>Local Time</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: isDark ? C.white : C.purple600, fontFamily: "monospace" }}>
+                  {formatTime(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

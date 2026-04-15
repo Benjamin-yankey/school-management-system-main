@@ -10,6 +10,7 @@ import SignIn from "./components/SignIn";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import ForceResetPassword from "./components/ForceResetPassword";
+import SupportChat from "./components/SupportChat";
 
 import AdminDashboard from "./components/dashboards/AdminDashboard";
 import TeacherDashboard from "./components/dashboards/TeacherDashboard";
@@ -172,10 +173,7 @@ export default function App() {
               path="/admin/dashboard"
               element={
                 <ProtectedRoute requiredRole={["admin", "administration", "superadmin"]}>
-                  <div className="app">
-                    <Navbar />
-                    <AdminDashboard />
-                  </div>
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />
@@ -199,10 +197,7 @@ export default function App() {
               path="/student/dashboard"
               element={
                 <ProtectedRoute requiredRole="student">
-                  <div className="app">
-                    <Navbar />
-                    <StudentDashboard />
-                  </div>
+                  <StudentDashboard />
                 </ProtectedRoute>
               }
             />
@@ -210,10 +205,7 @@ export default function App() {
               path="/student/assignments"
               element={
                 <ProtectedRoute requiredRole="student">
-                  <div className="app">
-                    <Navbar />
-                    <StudentAssignments />
-                  </div>
+                  <StudentAssignments />
                 </ProtectedRoute>
               }
             />
@@ -221,10 +213,7 @@ export default function App() {
               path="/student/grades"
               element={
                 <ProtectedRoute requiredRole="student">
-                  <div className="app">
-                    <Navbar />
-                    <StudentGrades />
-                  </div>
+                  <StudentGrades />
                 </ProtectedRoute>
               }
             />
@@ -232,10 +221,7 @@ export default function App() {
               path="/student/timetable"
               element={
                 <ProtectedRoute requiredRole="student">
-                  <div className="app">
-                    <Navbar />
-                    <StudentTimetable />
-                  </div>
+                  <StudentTimetable />
                 </ProtectedRoute>
               }
             />
@@ -243,10 +229,7 @@ export default function App() {
               path="/student/payments"
               element={
                 <ProtectedRoute requiredRole="student">
-                  <div className="app">
-                    <Navbar />
-                    <StudentPayments />
-                  </div>
+                  <StudentPayments />
                 </ProtectedRoute>
               }
             />
@@ -256,10 +239,7 @@ export default function App() {
               path="/parent/dashboard"
               element={
                 <ProtectedRoute requiredRole="parent">
-                  <div className="app">
-                    <Navbar />
-                    <ParentDashboard />
-                  </div>
+                  <ParentDashboard />
                 </ProtectedRoute>
               }
             />
@@ -267,6 +247,7 @@ export default function App() {
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <SupportChat />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

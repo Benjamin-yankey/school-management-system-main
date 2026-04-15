@@ -88,37 +88,51 @@ export default function ProfileSettings() {
 
   const s = {
     panel: {
-      background: isDark ? "#111827" : C.white,
+      background: "var(--surface)",
       borderRadius: 16,
-      border: `1px solid ${isDark ? "#1f2937" : C.gray200}`,
-      padding: "2rem",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+      border: "1px solid var(--border)",
+      padding: "var(--dash-padding)",
+      boxShadow: "var(--card-shadow)"
     },
-    title: { fontSize: 20, fontWeight: 700, color: isDark ? C.white : C.gray900, marginBottom: "0.5rem" },
-    desc: { fontSize: 14, color: C.gray500, marginBottom: "2rem" },
-    label: { display: "block", fontSize: 13, fontWeight: 600, color: isDark ? "#9ca3af" : C.gray600, marginBottom: 6 },
+    title: { fontSize: "1.25rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.5rem" },
+    desc: { fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "2rem" },
+    label: { display: "block", fontSize: "0.8125rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 },
     input: {
-      width: "100%", background: isDark ? "#1f2937" : "#fcfcfc",
-      border: `1px solid ${isDark ? "#374151" : C.gray200}`,
-      color: isDark ? C.white : C.gray900,
-      padding: "10px 14px", borderRadius: 8, fontSize: 14, outline: "none"
+      width: "100%", background: "var(--input-bg)",
+      border: "1px solid var(--border)",
+      color: "var(--text)",
+      padding: "10px 14px", borderRadius: 8, fontSize: "0.875rem", outline: "none",
+      transition: "border-color 0.2s"
     },
     btnPrimary: {
-      background: C.purple600, color: C.white, border: "none", padding: "10px 20px",
-      borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
-      display: "flex", alignItems: "center", gap: 8
+      background: "var(--accent-blue)", color: C.white, border: "none", padding: "10px 20px",
+      borderRadius: 8, fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+      display: "flex", alignItems: "center", gap: 8,
+      transition: "all 0.2s"
     },
     alert: (type) => ({
-      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: 14,
+      padding: "12px 16px", borderRadius: 8, marginBottom: "1.5rem", fontSize: "0.875rem",
       display: "flex", alignItems: "center", gap: "10px",
-      background: type === "success" ? (isDark ? "rgba(16, 185, 129, 0.1)" : "#ecfdf5") : (isDark ? "rgba(239, 68, 68, 0.1)" : "#fef2f2"),
+      background: type === "success" ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
       color: type === "success" ? C.green500 : C.red500,
-      border: `1px solid ${type === "success" ? (isDark ? "rgba(16, 185, 129, 0.2)" : "#d1fae5") : (isDark ? "rgba(239, 68, 68, 0.2)" : "#fee2e2")}`
+      border: `1px solid ${type === "success" ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"}`
     })
   };
 
   return (
-    <div style={s.panel}>
+    <div className="profile-settings-panel" style={s.panel}>
+      <style>{`
+        @media (max-width: 768px) {
+          .profile-settings-panel {
+            padding: 1.25rem !important;
+          }
+          .profile-name-row {
+            flex-direction: column !important;
+            gap: 1rem !important;
+          }
+        }
+      `}</style>
+
       <h2 style={s.title}>My Profile</h2>
       <p style={s.desc}>Update your personal details and public profile information.</p>
       
@@ -129,12 +143,12 @@ export default function ProfileSettings() {
         </div>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2rem", flexWrap: "wrap" }}>
         <div style={{ 
           width: 80, height: 80, borderRadius: "50%", 
           background: `linear-gradient(135deg, ${C.purple500}, ${C.blue500})`,
           color: C.white, display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 28, fontWeight: 700, position: "relative"
+          fontSize: 28, fontWeight: 700, position: "relative", flexShrink: 0
         }}>
           {profile.firstName ? profile.firstName[0].toUpperCase() : "U"}
           <button style={{
@@ -148,14 +162,14 @@ export default function ProfileSettings() {
             <Camera size={14} />
           </button>
         </div>
-        <div>
+        <div style={{ minWidth: 200 }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: isDark ? C.white : C.gray900, marginBottom: 4 }}>Profile Photo</h3>
           <p style={{ fontSize: 13, color: C.gray500 }}>JPG, GIF or PNG. 1MB max.</p>
         </div>
       </div>
 
       <form onSubmit={handleUpdate}>
-        <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
+        <div className="profile-name-row" style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
           <div style={{ flex: 1 }}>
             <label style={s.label}>First Name</label>
             <input style={s.input} value={profile.firstName} onChange={(e) => setProfile({...profile, firstName: e.target.value})} />
