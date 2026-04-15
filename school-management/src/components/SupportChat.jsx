@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -125,7 +126,7 @@ export default function SupportChat() {
     return DEFAULT_RESPONSE;
   };
 
-  return (
+  const chatContent = (
     <div className={`support-chat-wrapper ${isDarkMode ? 'dark' : ''}`}>
       {/* Floating Button */}
       <button 
@@ -206,4 +207,6 @@ export default function SupportChat() {
       </div>
     </div>
   );
+
+  return createPortal(chatContent, document.body);
 }

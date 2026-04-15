@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
 
 .academy-page {
-  --academy-bg: #060b18;
-  --academy-bg-alt: #090f1f;
-  --academy-surface: rgba(16, 25, 48, 0.9);
-  --academy-surface-alt: rgba(10, 16, 35, 0.78);
-  --academy-text: #e8eefc;
-  --academy-text-muted: rgba(215, 226, 248, 0.84);
-  --academy-border: rgba(148, 163, 184, 0.2);
-  --academy-accent: #5e4075;
+  --academy-bg: var(--bg);
+  --academy-bg-alt: var(--surface-muted);
+  --academy-surface: var(--surface);
+  --academy-surface-alt: var(--glass);
+  --academy-text: var(--text);
+  --academy-text-muted: var(--text-secondary);
+  --academy-border: var(--border);
+  --academy-accent: var(--accent);
 
   min-height: 100vh;
   background:
@@ -62,10 +62,11 @@ body[data-theme="light"] .academy-page {
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: var(--academy-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--academy-surface-alt);
   border-bottom: 1px solid var(--academy-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 }
 
 .academy-page-nav-inner {
@@ -171,7 +172,9 @@ body[data-theme="light"] .academy-page {
 
 .academy-page-link.active {
   color: var(--academy-accent);
-  border-bottom: 2px solid var(--academy-accent);
+  background: var(--accent-alp);
+  border-radius: 99px;
+  padding: 0.35rem 0.8rem;
 }
 
 .academy-page-actions {
@@ -274,11 +277,17 @@ body[data-theme="light"] .academy-page {
 }
 
 .academy-page-card {
-  border-radius: 18px;
-  padding: 1.2rem;
+  border-radius: 24px;
+  padding: 1.5rem;
   border: 1px solid var(--academy-border);
   background: var(--academy-surface);
-  box-shadow: 0 18px 32px -24px rgba(4, 9, 20, 0.85);
+  box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.academy-page-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-blue);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.15);
 }
 
 .academy-page-card-icon {

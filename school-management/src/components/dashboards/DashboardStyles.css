@@ -153,7 +153,7 @@
 .attendance-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  gap: var(--dash-gap);
   margin-bottom: 1.5rem;
 }
 
@@ -347,7 +347,7 @@
 .classes-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: calc(var(--dash-gap) * 0.5);
 }
 
 .class-item {
@@ -392,7 +392,7 @@
 .schedule-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: calc(var(--dash-gap) * 0.4);
 }
 
 .schedule-item {
@@ -434,7 +434,7 @@
 .grades-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: calc(var(--dash-gap) * 0.4);
 }
 
 .grade-item {
@@ -585,7 +585,7 @@
 .assignments-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: calc(var(--dash-gap) * 0.4);
 }
 
 .assignment-item {

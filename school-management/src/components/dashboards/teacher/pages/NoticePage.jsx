@@ -17,12 +17,14 @@ import {
   PageHeader,
 } from "../components/ui";
 import { Megaphone, Send, History, User, Users, Globe, X } from "lucide-react";
+import { useTheme } from "../../../../contexts/ThemeContext";
 
 /**
  * Send Notice page.
  * Broadcast messages to sections or individual students.
  */
 export default function NoticePage({ base, token, sections }) {
+  const { formatDate } = useTheme();
   const [form, setForm] = useState({
     subject: "",
     body: "",
@@ -73,7 +75,7 @@ export default function NoticePage({ base, token, sections }) {
           subject: n.title,
           body: n.message,
           target: n.targetRole || "All",
-          sent: new Date(n.createdAt).toLocaleString(),
+          sent: formatDate(n.createdAt),
           priority: n.priority || "normal",
         })),
       );
@@ -83,7 +85,7 @@ export default function NoticePage({ base, token, sections }) {
     } finally {
       setLoadingHistory(false);
     }
-  }, [base, token]);
+  }, [base, token, formatDate]);
 
   useEffect(() => {
     loadHistory();

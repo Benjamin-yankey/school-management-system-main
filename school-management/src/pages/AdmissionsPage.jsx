@@ -258,607 +258,187 @@ const AdmissionsPage = () => {
             <div
               className={`form-notice ${status.type === "error" ? "error" : "success"}`}
               style={{
-                background:
-                  status.type === "error"
-                    ? "rgba(255, 0, 0, 0.1)"
-                    : "rgba(0, 255, 0, 0.1)",
-                borderColor: status.type === "error" ? "#ff4d4d" : "#4dff4d",
-                marginBottom: "1rem",
-                padding: "1rem",
-                borderRadius: "0.75rem",
+                background: status.type === "error" ? "var(--error-alp)" : "var(--success-alp)",
+                borderColor: status.type === "error" ? "var(--error)" : "var(--success)",
+                color: status.type === "error" ? "var(--error)" : "var(--success)",
+                marginBottom: "2rem",
+                padding: "1.25rem",
+                borderRadius: "1rem",
                 border: "1px solid",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                animation: "fadeSlideIn 0.4s ease"
               }}
             >
-              <p
-                style={{
-                  color: status.type === "error" ? "#ff4d4d" : "#4dff4d",
-                  margin: 0,
-                }}
-              >
-                {status.message}
-              </p>
+              <div style={{ fontSize: "1.2rem" }}>{status.type === "error" ? "⚠️" : "✨"}</div>
+              <p style={{ margin: 0, fontWeight: 600 }}>{status.message}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="admission-form">
-            <div className="form-grid">
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="program">
-                  PROGRAM
-                </label>
-                <select
-                  id="program"
-                  name="program"
-                  className="form-select"
-                  value={formData.program}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Program</option>
-                  <option value="daycare">Day Care</option>
-                  <option value="preschool">Preschool</option>
-                  <option value="afterschool">After School Program</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="startDate">
-                  START DATE
-                </label>
-                <input
-                  type="date"
-                  id="startDate"
-                  name="startDate"
-                  className="form-input"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="days">
-                  Days
-                </label>
-                <div className="day-selection">
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="days[]"
-                      value="Monday"
-                      checked={formData.days.includes("Monday")}
-                      onChange={handleChange}
-                    />{" "}
-                    Monday
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="days[]"
-                      value="Tuesday"
-                      checked={formData.days.includes("Tuesday")}
-                      onChange={handleChange}
-                    />{" "}
-                    Tuesday
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="days[]"
-                      value="Wednesday"
-                      checked={formData.days.includes("Wednesday")}
-                      onChange={handleChange}
-                    />{" "}
-                    Wednesday
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="days[]"
-                      value="Thursday"
-                      checked={formData.days.includes("Thursday")}
-                      onChange={handleChange}
-                    />{" "}
-                    Thursday
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="days[]"
-                      value="Friday"
-                      checked={formData.days.includes("Friday")}
-                      onChange={handleChange}
-                    />{" "}
-                    Friday
-                  </label>
+          <form onSubmit={handleSubmit} className="admission-form" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className="academy-page-card" style={{ padding: '2rem' }}>
+              <h2 className="form-section-heading" style={{ marginTop: 0 }}>Program Enrollment</h2>
+              <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group full-width-field">
+                  <label className="form-label" htmlFor="program">PROGRAM</label>
+                  <select
+                    id="program"
+                    name="program"
+                    className="admissions-select"
+                    value={formData.program}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select Program</option>
+                    <option value="daycare">Day Care</option>
+                    <option value="preschool">Preschool</option>
+                    <option value="afterschool">After School Program</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label className="form-label">Gender</label>
-                <div className="form-radio-group">
-                  <div className="form-radio-option">
-                    <input
-                      type="radio"
-                      id="genderFemale"
-                      name="gender"
-                      value="female"
-                      className="form-radio"
-                      checked={formData.gender === "female"}
-                      onChange={handleChange}
-                    />
-                    <label htmlFor="genderFemale">Female</label>
-                  </div>
-                  <div className="form-radio-option">
-                    <input
-                      type="radio"
-                      id="genderMale"
-                      name="gender"
-                      value="male"
-                      className="form-radio"
-                      checked={formData.gender === "male"}
-                      onChange={handleChange}
-                    />
-                    <label htmlFor="genderMale">Male</label>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="startDate">START DATE</label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    name="startDate"
+                    className="admissions-input"
+                    value={formData.startDate}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Days Required</label>
+                  <div className="day-selection" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.5rem' }}>
+                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(day => (
+                      <label key={day} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                        <input
+                          type="checkbox"
+                          name="days[]"
+                          value={day}
+                          checked={formData.days.includes(day)}
+                          onChange={handleChange}
+                          style={{ accentColor: 'var(--accent)' }}
+                        /> {day}
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            <h2 className="form-section-heading">Child Information</h2>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label" htmlFor="childFullName">
-                  Full Name of Child
-                </label>
-                <input
-                  type="text"
-                  id="childFullName"
-                  name="childFullName"
-                  className="form-input"
-                  value={formData.childFullName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="childDob">
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  id="childDob"
-                  name="childDob"
-                  className="form-input"
-                  value={formData.childDob}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="childImage">
-                  Child's Photo
-                </label>
-                <input
-                  type="file"
-                  id="childImage"
-                  name="childImage"
-                  className="form-input"
-                  accept="image/*"
-                  onChange={handleChange}
-                />
-                {formData.childImage && (
-                  <img
-                    src={formData.childImage}
-                    alt="Child preview"
-                    style={{
-                      marginTop: "0.5rem",
-                      maxWidth: "150px",
-                      maxHeight: "150px",
-                      borderRadius: "0.5rem",
-                      border: "1px solid rgba(148, 163, 184, 0.3)",
-                    }}
-                  />
-                )}
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="childPhone">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  id="childPhone"
-                  name="childPhone"
-                  className="form-input"
-                  value={formData.childPhone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="childAddress">
-                  Address
-                </label>
-                <textarea
-                  id="childAddress"
-                  name="childAddress"
-                  className="form-textarea"
-                  value={formData.childAddress}
-                  onChange={handleChange}
-                  required
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="childZip">
-                  Zip
-                </label>
-                <input
-                  type="text"
-                  id="childZip"
-                  name="childZip"
-                  className="form-input"
-                  value={formData.childZip}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <h2 className="form-section-heading">
-              Mother or Guardian Information
-            </h2>
-            <div className="form-grid">
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="motherGuardianName">
-                  Mother or Guardian Name
-                </label>
-                <input
-                  type="text"
-                  id="motherGuardianName"
-                  name="motherGuardianName"
-                  className="form-input"
-                  value={formData.motherGuardianName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="motherHomeAddress">
-                  Home Address
-                </label>
-                <textarea
-                  id="motherHomeAddress"
-                  name="motherHomeAddress"
-                  className="form-textarea"
-                  value={formData.motherHomeAddress}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="motherEmployment">
-                  Employment
-                </label>
-                <input
-                  type="text"
-                  id="motherEmployment"
-                  name="motherEmployment"
-                  className="form-input"
-                  value={formData.motherEmployment}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="motherWorkPhone">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  id="motherWorkPhone"
-                  name="motherWorkPhone"
-                  className="form-input"
-                  value={formData.motherWorkPhone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="motherHours">
-                  Hours
-                </label>
-                <input
-                  type="text"
-                  id="motherHours"
-                  name="motherHours"
-                  className="form-input"
-                  placeholder="e.g., 9 AM - 5 PM"
-                  value={formData.motherHours}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="motherWorkAddress">
-                  Work Address
-                </label>
-                <textarea
-                  id="motherWorkAddress"
-                  name="motherWorkAddress"
-                  className="form-textarea"
-                  value={formData.motherWorkAddress}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="motherEmail">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="motherEmail"
-                  name="motherEmail"
-                  className="form-input"
-                  value={formData.motherEmail}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <h2 className="form-section-heading">
-              Father or Guardian Information
-            </h2>
-            <div className="form-grid">
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="fatherGuardianName">
-                  Father or Guardian Name
-                </label>
-                <input
-                  type="text"
-                  id="fatherGuardianName"
-                  name="fatherGuardianName"
-                  className="form-input"
-                  value={formData.fatherGuardianName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="fatherHomeAddress">
-                  Home Address
-                </label>
-                <textarea
-                  id="fatherHomeAddress"
-                  name="fatherHomeAddress"
-                  className="form-textarea"
-                  value={formData.fatherHomeAddress}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="fatherEmployment">
-                  Employment
-                </label>
-                <input
-                  type="text"
-                  id="fatherEmployment"
-                  name="fatherEmployment"
-                  className="form-input"
-                  value={formData.fatherEmployment}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="fatherWorkPhone">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  id="fatherWorkPhone"
-                  name="fatherWorkPhone"
-                  className="form-input"
-                  value={formData.fatherWorkPhone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="fatherWorkAddress">
-                  Work Address
-                </label>
-                <textarea
-                  id="fatherWorkAddress"
-                  name="fatherWorkAddress"
-                  className="form-textarea"
-                  value={formData.fatherWorkAddress}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="form-group full-width-field">
-                <label className="form-label" htmlFor="fatherEmail">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="fatherEmail"
-                  name="fatherEmail"
-                  className="form-input"
-                  value={formData.fatherEmail}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <h2 className="form-section-heading">Authorized Pick-up Persons</h2>
-            <div className="form-group full-width-field">
-              <label className="form-label" htmlFor="authorizedPickup">
-                People Authorized to pick up your child
-              </label>
-              <textarea
-                id="authorizedPickup"
-                name="authorizedPickup"
-                className="form-textarea"
-                placeholder="List Name, Relationship, Address, Day Time Phone No, Cell Phone No for each person."
-                value={formData.authorizedPickup}
-                onChange={handleChange}
-              ></textarea>
-            </div>
-
-            <h2 className="form-section-heading">Emergency Contacts</h2>
-            <div className="form-group full-width-field">
-              <label className="form-label" htmlFor="emergencyContacts">
-                People to call in case of EMERGENCY (must list two people; do
-                not list parents of the child)
-              </label>
-              <textarea
-                id="emergencyContacts"
-                name="emergencyContacts"
-                className="form-textarea"
-                placeholder="List Name, Relationship, Address, Day Time Phone No, Cell Phone No for each person."
-                value={formData.emergencyContacts}
-                onChange={handleChange}
-              ></textarea>
-            </div>
-
-            <h2 className="form-section-heading">Medical Information</h2>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label" htmlFor="childsPhysicianName">
-                  Child's Physician
-                </label>
-                <input
-                  type="text"
-                  id="childsPhysicianName"
-                  name="childsPhysicianName"
-                  className="form-input"
-                  value={formData.childsPhysicianName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="childsPhysicianPhone">
-                  Phone No.
-                </label>
-                <input
-                  type="tel"
-                  id="childsPhysicianPhone"
-                  name="childsPhysicianPhone"
-                  className="form-input"
-                  value={formData.childsPhysicianPhone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label
-                  className="form-label"
-                  htmlFor="emergencyHospitalPreference"
-                >
-                  Emergency Hospital Preference
-                </label>
-                <input
-                  type="text"
-                  id="emergencyHospitalPreference"
-                  name="emergencyHospitalPreference"
-                  className="form-input"
-                  value={formData.emergencyHospitalPreference}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="emergencyHospitalPhone">
-                  Phone No.
-                </label>
-                <input
-                  type="tel"
-                  id="emergencyHospitalPhone"
-                  name="emergencyHospitalPhone"
-                  className="form-input"
-                  value={formData.emergencyHospitalPhone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group full-width-field">
-                <label
-                  className="form-label"
-                  htmlFor="emergencyHospitalAddress"
-                >
-                  Hospital Address
-                </label>
-                <textarea
-                  id="emergencyHospitalAddress"
-                  name="emergencyHospitalAddress"
-                  className="form-textarea"
-                  value={formData.emergencyHospitalAddress}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="dentistName">
-                  Dentist
-                </label>
-                <input
-                  type="text"
-                  id="dentistName"
-                  name="dentistName"
-                  className="form-input"
-                  value={formData.dentistName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <h2 className="form-section-heading">Payment & Administration</h2>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label" htmlFor="datePaid">
-                  Date Paid
-                </label>
-                <input
-                  type="date"
-                  id="datePaid"
-                  name="datePaid"
-                  className="form-input"
-                  value={formData.datePaid}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-group full-width-field">
-              <label className="form-label">
-                Received Parent Handbook (initial)
-              </label>
-              <div className="form-radio-group">
-                <div className="form-radio-option">
+            <div className="academy-page-card" style={{ padding: '2rem' }}>
+              <h2 className="form-section-heading" style={{ marginTop: 0 }}>Child Information</h2>
+              <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="childFullName">Full Name of Child</label>
                   <input
-                    type="radio"
-                    id="handbookYes"
-                    name="parentHandbook"
-                    value="yes"
-                    className="form-radio"
-                    checked={formData.parentHandbook === "yes"}
+                    type="text"
+                    id="childFullName"
+                    name="childFullName"
+                    className="admissions-input"
+                    value={formData.childFullName}
                     onChange={handleChange}
+                    required
                   />
-                  <label htmlFor="handbookYes">Yes</label>
                 </div>
-                <div className="form-radio-option">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="childDob">Date of Birth</label>
                   <input
-                    type="radio"
-                    id="handbookNo"
-                    name="parentHandbook"
-                    value="no"
-                    className="form-radio"
-                    checked={formData.parentHandbook === "no"}
+                    type="date"
+                    id="childDob"
+                    name="childDob"
+                    className="admissions-input"
+                    value={formData.childDob}
                     onChange={handleChange}
+                    required
                   />
-                  <label htmlFor="handbookNo">No</label>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="gender">Gender</label>
+                  <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input type="radio" name="gender" value="female" checked={formData.gender === "female"} onChange={handleChange} /> Female
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input type="radio" name="gender" value="male" checked={formData.gender === "male"} onChange={handleChange} /> Male
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="form-notice">
-              <p>
-                Please complete all required fields accurately. Upon submission,
-                a printable version of this form can be generated.
-              </p>
+            <div className="academy-page-card" style={{ padding: '2rem' }}>
+              <h2 className="form-section-heading" style={{ marginTop: 0 }}>Mother or Guardian</h2>
+              <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group full-width-field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" htmlFor="motherGuardianName">Full Name</label>
+                  <input type="text" id="motherGuardianName" name="motherGuardianName" className="admissions-input" value={formData.motherGuardianName} onChange={handleChange} required />
+                </div>
+                <div className="form-group full-width-field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" htmlFor="motherHomeAddress">Home Address</label>
+                  <textarea id="motherHomeAddress" name="motherHomeAddress" className="admissions-textarea" style={{ minHeight: '80px' }} value={formData.motherHomeAddress} onChange={handleChange}></textarea>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="motherEmail">Email Address</label>
+                  <input type="email" id="motherEmail" name="motherEmail" className="admissions-input" value={formData.motherEmail} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="motherWorkPhone">Phone Number</label>
+                  <input type="tel" id="motherWorkPhone" name="motherWorkPhone" className="admissions-input" value={formData.motherWorkPhone} onChange={handleChange} />
+                </div>
+              </div>
             </div>
 
-            <button type="submit" className="submit-btn" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit Registration"}
+            <div className="academy-page-card" style={{ padding: '2rem' }}>
+              <h2 className="form-section-heading" style={{ marginTop: 0 }}>Father or Guardian</h2>
+              <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group full-width-field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" htmlFor="fatherGuardianName">Full Name</label>
+                  <input type="text" id="fatherGuardianName" name="fatherGuardianName" className="admissions-input" value={formData.fatherGuardianName} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="fatherEmail">Email Address</label>
+                  <input type="email" id="fatherEmail" name="fatherEmail" className="admissions-input" value={formData.fatherEmail} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="fatherWorkPhone">Phone Number</label>
+                  <input type="tel" id="fatherWorkPhone" name="fatherWorkPhone" className="admissions-input" value={formData.fatherWorkPhone} onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+
+            <div className="academy-page-card" style={{ padding: '2rem' }}>
+              <h2 className="form-section-heading" style={{ marginTop: 0 }}>Safety & Medical</h2>
+              <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group full-width-field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" htmlFor="authorizedPickup">Authorized Pick-up Persons</label>
+                  <textarea id="authorizedPickup" name="authorizedPickup" className="admissions-textarea" placeholder="Name, Relationship, Phone Number..." value={formData.authorizedPickup} onChange={handleChange}></textarea>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="childsPhysicianName">Child's Physician</label>
+                  <input type="text" id="childsPhysicianName" name="childsPhysicianName" className="admissions-input" value={formData.childsPhysicianName} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="childsPhysicianPhone">Physician Phone</label>
+                  <input type="tel" id="childsPhysicianPhone" name="childsPhysicianPhone" className="admissions-input" value={formData.childsPhysicianPhone} onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="admissions-submit" disabled={submitting} style={{
+              background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 100%)',
+              color: 'white',
+              fontSize: '1.1rem',
+              padding: '1.2rem',
+              marginTop: '1rem',
+              boxShadow: '0 10px 30px var(--accent-alp)'
+            }}>
+              {submitting ? "Processing Application..." : "Submit Enrollment Application"}
             </button>
           </form>
         </div>

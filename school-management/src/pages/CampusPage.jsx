@@ -39,8 +39,14 @@ const CampusPage = () => {
         className={`academy-page-nav ${isMenuOpen ? "mobile-active" : ""}`}
       >
         <div className="academy-page-shell academy-page-nav-inner">
-          <Link to="/" className="school-logo-container">
-            <div className="school-logo-icon">
+          <Link to="/" className="school-logo-container" style={{ display: 'flex', alignItems: 'center', gap: 'var(--card-gap)', textDecoration: 'none' }}>
+            <div className="school-logo-icon" style={{ 
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '10px', 
+              overflow: 'hidden',
+              border: '1px solid var(--border)'
+            }}>
               <img
                 src="/images/schoolLogo.jpeg"
                 alt="GEOZIIE Logo"
@@ -48,13 +54,18 @@ const CampusPage = () => {
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  borderRadius: "inherit",
                 }}
               />
             </div>
 
-            <span className="school-logo-text">
-              GEOZIIE INTERNATIONAL SCHOOL
+            <span className="school-logo-text" style={{ 
+              fontFamily: 'var(--font-heading)', 
+              fontWeight: 800, 
+              letterSpacing: '-0.02em',
+              color: 'var(--text)',
+              fontSize: '1.1rem'
+            }}>
+              GEOZIIE
             </span>
           </Link>
           <button

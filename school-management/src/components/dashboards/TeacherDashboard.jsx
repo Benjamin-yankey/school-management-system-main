@@ -97,9 +97,12 @@ export default function TeacherDashboard({
 
       <main
         style={{
-          padding: "28px 32px",
+          padding: "var(--dash-padding)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--dash-gap)",
           background: T.bg,
-          minHeight: "calc(100vh - 60px)",
+          minHeight: "calc(100vh - 64px)",
           transition: "all 0.3s ease",
         }}
       >

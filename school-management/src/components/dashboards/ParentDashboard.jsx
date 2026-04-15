@@ -6,6 +6,7 @@ import { generateReportCardPDF } from "../../pages/generateReportCardPDF";
 import DashboardLayout from "./DashboardLayout";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const SvgIcon = ({ d }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -23,6 +24,7 @@ const PARENT_NAV_ITEMS = [
 ];
 const ParentDashboard = () => {
   const { user } = useAuth();
+  const { formatDate } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [selectedChildIndex, setSelectedChildIndex] = useState(0);
@@ -185,7 +187,7 @@ const ParentDashboard = () => {
     return (
       <DashboardLayout navItems={PARENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Parent Dashboard" portalLabel="Parent Portal v2.0">
       <div className="dashboard">
-        <div className="dashboard-header">
+        <div className="dashboard-header" style={{ paddingBottom: "var(--dash-gap)" }}>
           <h2>Parent Dashboard</h2>
           <div className="dashboard-sub">Loading...</div>
         </div>
@@ -199,8 +201,8 @@ const ParentDashboard = () => {
 
   return (
     <DashboardLayout navItems={PARENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Parent Dashboard" portalLabel="Parent Portal v2.0">
-    <div className="dashboard dashboard-animate">
-      <div className="dashboard-header">
+    <div className="dashboard dashboard-animate" style={{ padding: 0 }}>
+      <div className="dashboard-header" style={{ marginBottom: "var(--dash-gap)" }}>
         <h2>Parent Dashboard</h2>
         <div className="dashboard-sub">
           Welcome back, {user?.name || "Parent"}! Stay connected with your child's academic journey.

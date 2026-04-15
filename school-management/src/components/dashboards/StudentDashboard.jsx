@@ -13,6 +13,7 @@ import DashboardLayout from "./DashboardLayout";
 import "../Dashboard.css";
 import "./DashboardStyles.css";
 import Announcements from "../Announcements";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const SvgIcon = ({ d }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,6 +32,7 @@ const STUDENT_NAV_ITEMS = [
 
 const StudentDashboard = () => {
   const { user, activeAcademicYear } = useAuth();
+  const { formatDate } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([]);
@@ -115,7 +117,7 @@ const StudentDashboard = () => {
         const mappedGrades = grades.slice(0, 5).map((g) => ({
           assignment: `Final Assessment: ${g.subject}`,
           subject: g.subject,
-          date: new Date(g.createdAt).toLocaleDateString(),
+          date: formatDate(g.createdAt),
           grade:
             g.score >= 90
               ? "A"
@@ -134,7 +136,7 @@ const StudentDashboard = () => {
       }
     };
     loadData();
-  }, []);
+  }, [formatDate]);
 
   const [mySubjects, setMySubjects] = useState([]);
   const [upcomingAssignments, setUpcomingAssignments] = useState([]);

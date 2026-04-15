@@ -67,8 +67,12 @@ export default function DashboardLayout({
         className="dash-main-content"
         style={{
           marginLeft: "var(--sidebar-width)",
-          minHeight: "calc(100vh - 60px)",
-          transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          minHeight: "calc(100vh - 64px)",
+          padding: "var(--dash-padding)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--dash-gap)",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           background: "var(--bg)",
           position: "relative"
         }}
@@ -80,7 +84,7 @@ export default function DashboardLayout({
           @media (max-width: 900px) {
             .dash-main-content {
               margin-left: 0 !important;
-              padding-top: 0;
+              padding-top: 64px !important;
             }
           }
         `}</style>
