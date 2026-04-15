@@ -16,6 +16,7 @@ const StudentAssignments = () => {
     }, []);
 
     return (
+        <div className="student-portal-detail">
             <div className="detail-header">
                 <h1>Assignments</h1>
                 <p>Track and manage your academic tasks</p>
