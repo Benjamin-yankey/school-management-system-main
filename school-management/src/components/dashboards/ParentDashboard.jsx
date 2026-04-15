@@ -177,10 +177,34 @@ const ParentDashboard = () => {
   ];
 
   const quickActions = [
-    { label: "Pay Fees", icon: "💰", color: "#f59e0b" },
-    { label: "Schedule Meeting", icon: "📅", color: "#8b5cf6" },
-    { label: "View Report Card", icon: "📊", color: "#10b981", onClick: handleDownloadReportCard },
-    { label: "Contact Teacher", icon: "📞", color: "#3b82f6" },
+    {
+      id: "qa-pay",
+      label: "Pay Fees",
+      icon: <SvgIcon d={["M12 1v22", "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]} />,
+      color: "#f59e0b",
+      action: () => navigate("/student/payments")
+    },
+    {
+      id: "qa-meeting",
+      label: "Schedule Meeting",
+      icon: <SvgIcon d={["M3 4h18v18H3z", "M16 2v4", "M8 2v4", "M3 10h18"]} />,
+      color: "#8b5cf6",
+      action: () => {}
+    },
+    {
+      id: "qa-report",
+      label: "View Report Card",
+      icon: <SvgIcon d={["M18 20V10", "M12 20V4", "M6 20v-6"]} />,
+      color: "#10b981",
+      action: handleDownloadReportCard
+    },
+    {
+      id: "qa-contact",
+      label: "Contact Teacher",
+      icon: <SvgIcon d={["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"]} />,
+      color: "#3b82f6",
+      action: () => {}
+    },
   ];
 
   if (loading) {
@@ -200,7 +224,14 @@ const ParentDashboard = () => {
   }
 
   return (
-    <DashboardLayout navItems={PARENT_NAV_ITEMS} activeItem="dashboard" onNavigate={() => {}} pageTitle="Parent Dashboard" portalLabel="Parent Portal v2.0">
+    <DashboardLayout 
+      navItems={PARENT_NAV_ITEMS} 
+      activeItem="dashboard" 
+      onNavigate={() => {}} 
+      pageTitle="Parent Dashboard" 
+      portalLabel="Parent Portal v2.0"
+      quickActions={quickActions}
+    >
     <div className="dashboard dashboard-animate" style={{ padding: 0 }}>
       <div className="dashboard-header" style={{ marginBottom: "var(--dash-gap)" }}>
         <h2>Parent Dashboard</h2>
@@ -235,20 +266,6 @@ const ParentDashboard = () => {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="quick-actions">
-        {quickActions.map((action, index) => (
-          <button key={index} className="action-btn" onClick={action.onClick}>
-            <div
-              className="icon"
-              style={{ backgroundColor: `${action.color}20` }}
-            >
-              {action.icon}
-            </div>
-            <div className="text">{action.label}</div>
-          </button>
-        ))}
-      </div>
 
       {/* Stats Grid */}
       <div className="stats-grid">

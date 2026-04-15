@@ -65,9 +65,6 @@ const StudentPayments = () => {
     return (
         <div className="student-portal-detail">
             <div className="detail-header">
-                <Link to="/student/dashboard" className="back-link">
-                    <ArrowLeft size={18} /> Back to Dashboard
-                </Link>
                 <h1>Pay Fees & Finances</h1>
                 <p>Manage your tuition and school fees</p>
                 <div className="header-actions">

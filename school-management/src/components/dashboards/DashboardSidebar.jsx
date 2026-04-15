@@ -27,6 +27,7 @@ export default function DashboardSidebar({
   onToggleCollapse,
   portalLabel = "",
   primaryAction = null, // { label, icon, onClick }
+  quickActions = [], // { id, label, icon, action, color }
 }) {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
@@ -124,7 +125,7 @@ export default function DashboardSidebar({
         {!collapsed && <div className="dash-sidebar-label">Main</div>}
         {collapsed && <div style={{ height: 16 }} />}
 
-        {/* Nav items */}
+        {/* Main Nav items */}
         <nav className="dash-sidebar-nav">
           {navItems.map((item) => {
             const isActive = activeItem === item.id;
@@ -159,6 +160,49 @@ export default function DashboardSidebar({
             );
           })}
         </nav>
+
+        {/* Quick Access Section */}
+        {quickActions.length > 0 && (
+          <>
+            {!collapsed && <div className="dash-sidebar-label" style={{ marginTop: '1rem' }}>Quick Access</div>}
+            {collapsed && <div className="dash-sidebar-divider" />}
+            
+            <nav className="dash-sidebar-nav quick-access">
+              {quickActions.map((item) => {
+                const isHovered = hoveredItem === `qa-${item.id}`;
+                return (
+                  <div key={item.id} style={{ position: "relative" }}>
+                    <button
+                      className="dash-sidebar-item quick-action-item"
+                      onClick={() => handleItemClick(item)}
+                      onMouseEnter={() => setHoveredItem(`qa-${item.id}`)}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      <span 
+                        className="dash-sidebar-item-icon quick-icon"
+                        style={{ color: item.color }}
+                      >
+                        {item.icon}
+                      </span>
+                      {!collapsed && (
+                        <span className="dash-sidebar-item-label">
+                          {item.label}
+                        </span>
+                      )}
+                    </button>
+
+                    {collapsed && isHovered && (
+                      <div className="dash-sidebar-tooltip">
+                        {item.label}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+          </>
+        )}
 
         {/* Footer */}
         <div className="dash-sidebar-footer">

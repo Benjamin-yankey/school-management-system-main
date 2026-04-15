@@ -43,6 +43,30 @@ export default function TeacherDashboard({
   const [page, setPage] = useState("home");
   const [sections, setSections] = useState([]);
 
+  const quickActions = [
+    {
+      id: "qa-attendance",
+      label: "Take Attendance",
+      icon: <CheckCircle size={18} />,
+      color: "#10b981",
+      action: () => setPage("attendance")
+    },
+    {
+      id: "qa-assignment",
+      label: "New Assignment",
+      icon: <ClipboardList size={18} />,
+      color: "#8b5cf6",
+      action: () => setPage("assignment")
+    },
+    {
+      id: "qa-grades",
+      label: "Submit Grades",
+      icon: <BarChart2 size={18} />,
+      color: "#f59e0b",
+      action: () => setPage("grades")
+    },
+  ];
+
   const teacher = {
     name: user?.name || "Teacher",
     role: user?.role || "Teacher",
@@ -88,6 +112,7 @@ export default function TeacherDashboard({
       onNavigate={setPage}
       pageTitle={PAGE_TITLES[page] || "Teacher Portal"}
       portalLabel="Teacher Portal v2.0"
+      quickActions={quickActions}
     >
       <style>{`
         /* Global Reset & Utils */
@@ -95,23 +120,13 @@ export default function TeacherDashboard({
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
-      <main
-        style={{
-          padding: "var(--dash-padding)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--dash-gap)",
-          background: T.bg,
-          minHeight: "calc(100vh - 64px)",
-          transition: "all 0.3s ease",
-        }}
-      >
+      <div className="teacher-content-wrap">
         {page === "home"       && <HomePage       teacher={teacher} onNavigate={setPage} sections={sections} {...pageProps} />}
         {page === "attendance" && <AttendancePage {...pageProps} />}
         {page === "assignment" && <AssignmentPage {...pageProps} />}
         {page === "grades"     && <GradesPage     {...pageProps} />}
         {page === "notice"     && <NoticePage     {...pageProps} />}
-      </main>
+      </div>
     </DashboardLayout>
   );
 }

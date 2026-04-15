@@ -68,9 +68,6 @@ const StudentGrades = () => {
     return (
         <div className="student-portal-detail">
             <div className="detail-header">
-                <Link to="/student/dashboard" className="back-link">
-                    <ArrowLeft size={18} /> Back to Dashboard
-                </Link>
                 <h1>Check Grades</h1>
                 <div className="header-actions">
                     <p>Monitor your academic performance</p>

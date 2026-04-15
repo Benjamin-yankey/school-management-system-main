@@ -11,9 +11,6 @@ const StudentTimetable = () => {
     return (
         <div className="student-portal-detail">
             <div className="detail-header">
-                <Link to="/student/dashboard" className="back-link">
-                    <ArrowLeft size={18} /> Back to Dashboard
-                </Link>
                 <h1>Academic Timetable</h1>
                 <p>Plan your week and never miss a class</p>
                 <div className="header-actions">

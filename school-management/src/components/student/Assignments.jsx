@@ -16,11 +16,7 @@ const StudentAssignments = () => {
     }, []);
 
     return (
-        <div className="student-portal-detail">
             <div className="detail-header">
-                <Link to="/student/dashboard" className="back-link">
-                    <ArrowLeft size={18} /> Back to Dashboard
-                </Link>
                 <h1>Assignments</h1>
                 <p>Track and manage your academic tasks</p>
             </div>

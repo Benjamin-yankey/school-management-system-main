@@ -24,6 +24,7 @@ export default function DashboardLayout({
   portalLabel,
   children,
   primaryAction,
+  quickActions,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -53,6 +54,7 @@ export default function DashboardLayout({
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
         portalLabel={portalLabel}
         primaryAction={primaryAction}
+        quickActions={quickActions}
       />
 
       {/* Topbar */}
