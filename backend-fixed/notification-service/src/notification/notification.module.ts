@@ -5,10 +5,15 @@ import { Notification } from './notification.entity';
 import { NotificationService } from './notification.service';
 import { NotificationKafkaController } from './notification.kafka.controller';
 import { NotificationController } from './notification.controller';
+import { AnnouncementsController } from './announcements.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([EmailLog, Notification])],
-  controllers: [NotificationKafkaController, NotificationController],
+  controllers: [
+    NotificationKafkaController, 
+    NotificationController,
+    AnnouncementsController,
+  ],
   providers: [NotificationService],
 })
 export class NotificationModule {}

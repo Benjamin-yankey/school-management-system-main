@@ -198,22 +198,24 @@ const StudentDashboard = () => {
         );
       default:
         return (
-          <div className="dashboard dashboard-animate">
+          <div className="dashboard-animate">
             {/* Stats Grid */}
-            <div className="stats-grid">
-              {stats.map((stat, index) => (
-                <div key={index} className="stat-card" style={{ borderLeftColor: stat.color }}>
-                  <div className="stat-card-icon">{stat.icon}</div>
-                  <div className="stat-card-title">{stat.title}</div>
-                  <div className="stat-card-value">{stat.value}</div>
-                  {typeof stat.change !== "undefined" && (
-                    <div className={`stat-card-change ${stat.change >= 0 ? "positive" : "negative"}`}>
-                      {stat.change >= 0 ? "▲" : "▼"} {Math.abs(stat.change)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            {stats.length > 0 && (
+              <div className="stats-grid">
+                {stats.map((stat, index) => (
+                  <div key={index} className="stat-card" style={{ borderLeftColor: stat.color }}>
+                    <div className="stat-card-icon">{stat.icon}</div>
+                    <div className="stat-card-title">{stat.title}</div>
+                    <div className="stat-card-value">{stat.value}</div>
+                    {typeof stat.change !== "undefined" && (
+                      <div className={`stat-card-change ${stat.change >= 0 ? "positive" : "negative"}`}>
+                        {stat.change >= 0 ? "▲" : "▼"} {Math.abs(stat.change)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Main Panels */}
             <div className="panels">

@@ -4,6 +4,7 @@ import api from "../../lib/api";
 import { Link } from "react-router-dom";
 import { ArrowLeft, DollarSign, Clock, CheckCircle, AlertCircle, Calendar, CreditCard, Download, ShieldCheck, Inbox } from "lucide-react";
 import "./StudentFeatures.css";
+import { generatePaymentsPDF } from "../../pages/generatePaymentsPDF";
 
 const StudentPayments = () => {
     const { user } = useAuth();
@@ -48,6 +49,15 @@ const StudentPayments = () => {
         fetchPaymentData();
     }, []);
 
+    const handleDownloadPDF = () => {
+        generatePaymentsPDF(user, payments, balance);
+    };
+
+    const handleSecurePayment = () => {
+        // Find the main pay button and scroll slightly or trigger an alert
+        alert("Redirecting to the Secure Payment Gateway processing page...");
+    };
+
     if (loading) {
         return (
             <div className="student-portal-detail">
@@ -68,8 +78,8 @@ const StudentPayments = () => {
                 <h1>Pay Fees & Finances</h1>
                 <p>Manage your tuition and school fees</p>
                 <div className="header-actions">
-                    <button className="download-btn-header"><Download size={14} /> Fee Breakdown</button>
-                    <button className="security-link"><ShieldCheck size={14} /> Secure Payment System</button>
+                    <button className="download-btn-header" onClick={handleDownloadPDF}><Download size={14} /> Fee Breakdown</button>
+                    <button className="security-link" onClick={handleSecurePayment}><ShieldCheck size={14} /> Secure Payment System</button>
                 </div>
             </div>
 

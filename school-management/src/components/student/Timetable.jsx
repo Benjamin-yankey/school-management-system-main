@@ -1,12 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Clock, MapPin, Calendar, CheckSquare, Download, Inbox } from "lucide-react";
+import api from "../../lib/api";
 import "./StudentFeatures.css";
+import { generateTimetablePDF } from "../../pages/generateTimetablePDF";
+import { generateTimetableICS } from "../../lib/generateICS";
 
 const StudentTimetable = () => {
     const { user } = useAuth();
     const [timetable, setTimetable] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTimetable = async () => {
+            setLoading(true);
+            try {
+                if (user?.id) {
+                    const data = await api.getStudentTimetable(user.id);
+                    setTimetable(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                console.error("Failed to fetch timetable:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTimetable();
+    }, [user]);
+
+    const handleDownloadPDF = () => {
+        generateTimetablePDF(user, timetable);
+    };
+
+    const handleSyncCalendar = () => {
+        generateTimetableICS(timetable);
+    };
+
+    if (loading) {
+        return (
+            <div className="student-portal-detail">
+                <div className="loading-container">
+                    <div className="loader"></div>
+                    <p>Loading timetable...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="student-portal-detail">
@@ -14,8 +55,8 @@ const StudentTimetable = () => {
                 <h1>Academic Timetable</h1>
                 <p>Plan your week and never miss a class</p>
                 <div className="header-actions">
-                    <button className="download-btn-header"><Download size={14} /> Download PDF</button>
-                    <button className="calendar-sync-btn"><Calendar size={14} /> Sync to Google Calendar</button>
+                    <button className="download-btn-header" onClick={handleDownloadPDF}><Download size={14} /> Download PDF</button>
+                    <button className="calendar-sync-btn" onClick={handleSyncCalendar}><Calendar size={14} /> Sync to Device Calendar</button>
                 </div>
             </div>
 

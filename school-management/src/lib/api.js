@@ -707,6 +707,13 @@ export async function deleteUser(id) {
 
 
 // ==================== DASHBOARD & PORTALS ====================
+export async function getStudentTimetable(studentId) {
+  const res = await fetch(`${API_BASE_URL}/student-portal/timetable?studentId=${studentId}`, {
+    headers: headers(),
+  });
+  return handleResponse(res);
+}
+
 export async function getStudentPortalMe() {
   const res = await fetch(`${API_BASE_URL}/student-portal/me`, {
     headers: headers(),
@@ -852,6 +859,7 @@ export default {
   createUserForSchool,
   deleteUser,
   getStudentPortalMe,
+  getStudentTimetable,
   getStudentEnrollments,
   getStudentAttendanceSummary,
   getStudentReportCard,

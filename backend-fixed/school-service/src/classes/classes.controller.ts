@@ -20,11 +20,12 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 
 @UseGuards(JwtAuthGuard, MustResetGuard, RolesGuard)
-@Roles('superadmin', 'administration')
+@Roles('superadmin', 'administration', 'teacher', 'student', 'parent')
 @Controller('academic-years')
 export class AcademicYearsController {
   constructor(private readonly classesService: ClassesService) {}
 
+  @Roles('superadmin', 'administration')
   @Post()
   createAcademicYear(@Body() dto: CreateAcademicYearDto) {
     return this.classesService.createAcademicYear(dto);
@@ -40,16 +41,19 @@ export class AcademicYearsController {
     return this.classesService.getActiveAcademicYear();
   }
 
+  @Roles('superadmin', 'administration')
   @Patch(':id/activate')
   setActiveAcademicYear(@Param('id') id: string) {
     return this.classesService.setActiveAcademicYear(id);
   }
 
+  @Roles('superadmin', 'administration')
   @Patch(':id')
   updateAcademicYear(@Param('id') id: string, @Body() dto: Partial<CreateAcademicYearDto>) {
     return this.classesService.updateAcademicYear(id, dto);
   }
 
+  @Roles('superadmin', 'administration')
   @Delete(':id')
   deleteAcademicYear(@Param('id') id: string) {
     return this.classesService.deleteAcademicYear(id);

@@ -42,6 +42,68 @@
     margin: 0;
 }
 
+/* Header Action Buttons */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.download-btn-header,
+.calendar-sync-btn,
+.security-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    font-family: inherit;
+}
+
+.download-btn-header {
+    background: #8b5cf6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+.download-btn-header:hover {
+    background: #7c3aed;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+}
+
+.calendar-sync-btn,
+.security-link {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.calendar-sync-btn:hover,
+.security-link:hover {
+    background: var(--surface-muted);
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.security-link {
+    color: #10b981;
+    border-color: #d1fae5;
+    background: #ecfdf5;
+}
+
+.security-link:hover {
+    background: #d1fae5;
+    border-color: #10b981;
+}
+
 /* Assignments */
 .assignments-container {
     display: grid;

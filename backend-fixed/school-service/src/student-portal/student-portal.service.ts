@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Student } from '../student/student.entity';
 import { StudentEnrollment } from '../student/student-enrollment.entity';
+import { StudentService } from '../student/student.service';
 
 @Injectable()
 export class StudentPortalService {
@@ -11,6 +12,7 @@ export class StudentPortalService {
     private readonly studentRepo: Repository<Student>,
     @InjectRepository(StudentEnrollment)
     private readonly enrollmentRepo: Repository<StudentEnrollment>,
+    private readonly studentService: StudentService,
   ) {}
 
   /**
@@ -18,9 +20,9 @@ export class StudentPortalService {
    * When a student account is created via administration/create-user, the email
    * matches the email stored on the Student record from the admission application.
    */
-  async getMyRecord(userEmail: string): Promise<Student> {
-    const student = await this.studentRepo.findOne({
-      where: { email: userEmail },
+  async getMyRecord(userEmail: string, userId: string): Promise<Student> {
+    let student = await this.studentRepo.findOne({
+      where: [{ email: userEmail }, { id: userId }],
       relations: [
         'enrollments',
         'enrollments.classLevel',
@@ -28,6 +30,16 @@ export class StudentPortalService {
         'enrollments.section',
       ],
     });
+
+    if (!student && userId) {
+      // Lazily create student from user account
+      try {
+        student = await this.studentService.createFromUser(userId);
+      } catch (err) {
+        // Fallback to error if lazy creation fails
+      }
+    }
+
     if (!student) {
       throw new NotFoundException(
         'No student record found for your account. Contact your school administrator.',
@@ -36,8 +48,19 @@ export class StudentPortalService {
     return student;
   }
 
-  async getMyEnrollments(userEmail: string): Promise<StudentEnrollment[]> {
-    const student = await this.studentRepo.findOneBy({ email: userEmail });
+  async getMyEnrollments(userEmail: string, userId: string): Promise<StudentEnrollment[]> {
+    let student = await this.studentRepo.findOne({
+      where: [{ email: userEmail }, { id: userId }],
+    });
+
+    if (!student && userId) {
+      try {
+        student = await this.studentService.createFromUser(userId);
+      } catch (err) {
+        // Fallback
+      }
+    }
+
     if (!student) {
       throw new NotFoundException(
         'No student record found for your account. Contact your school administrator.',

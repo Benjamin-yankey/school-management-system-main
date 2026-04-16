@@ -18,7 +18,7 @@ export class StudentPortalController {
    */
   @Get('me')
   getMyRecord(@CurrentUser() user: any) {
-    return this.studentPortalService.getMyRecord(user.email);
+    return this.studentPortalService.getMyRecord(user.email, user.id);
   }
 
   /**
@@ -27,6 +27,6 @@ export class StudentPortalController {
    */
   @Get('enrollments')
   getMyEnrollments(@CurrentUser() user: any) {
-    return this.studentPortalService.getMyEnrollments(user.email);
+    return this.studentPortalService.getMyEnrollments(user.email, user.id);
   }
 }
