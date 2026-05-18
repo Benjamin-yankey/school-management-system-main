@@ -18,6 +18,7 @@ import { ParentStudent } from './parent/parent-student.entity';
 import { Attendance } from './attendance/attendance.entity';
 import { Grade } from './grade/grade.entity';
 import { Fee } from './fee/fee.entity';
+import { UserShadow, ProfileShadow } from './student/user-shadow.entity';
 
 import { SchoolModule } from './school/school.module';
 import { AdmissionModule } from './admission/admission.module';
@@ -56,6 +57,8 @@ import { FeeModule } from './fee/fee.module';
           Attendance,
           Grade,
           Fee,
+          UserShadow,
+          ProfileShadow,
         ],
         synchronize: true,
       }),

@@ -1446,7 +1446,7 @@ const getPriorityColor = (p) => PRIORITIES.find(pr => pr.value === p)?.color || 
               type="button"
               onClick={() => updateForm("priority", p.value)}
               style={{
-                flex: 1, padding: "8px 4px", borderRadius: 6, border: "none",
+                flex: 1, padding: "8px 4px", borderRadius: 6,
                 background: form.priority === p.value ? p.color : "transparent",
                 color: form.priority === p.value ? "#fff" : C.text2,
                 fontSize: 12, fontWeight: 600, cursor: "pointer",
@@ -1521,7 +1521,7 @@ const getPriorityColor = (p) => PRIORITIES.find(pr => pr.value === p)?.color || 
             type="button"
             onClick={() => updateForm("schedule", "now")}
             style={{
-              flex: 1, padding: "8px", borderRadius: 6, border: "none",
+              flex: 1, padding: "8px", borderRadius: 6,
               background: form.schedule === "now" ? C.blue : "transparent",
               color: form.schedule === "now" ? "#fff" : C.text2,
               fontSize: 13, fontWeight: 600, cursor: "pointer",
@@ -1534,7 +1534,7 @@ const getPriorityColor = (p) => PRIORITIES.find(pr => pr.value === p)?.color || 
             type="button"
             onClick={() => updateForm("schedule", "later")}
             style={{
-              flex: 1, padding: "8px", borderRadius: 6, border: "none",
+              flex: 1, padding: "8px", borderRadius: 6,
               background: form.schedule === "later" ? C.blue : "transparent",
               color: form.schedule === "later" ? "#fff" : C.text2,
               fontSize: 13, fontWeight: 600, cursor: "pointer",

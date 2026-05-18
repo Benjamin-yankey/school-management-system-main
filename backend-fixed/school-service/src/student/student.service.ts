@@ -262,14 +262,31 @@ export class StudentService {
     return this.findOne(id);
   }
 
-  async createFromUser(userId: string): Promise<Student> {
-    // 1. Check if student already exists
-    const existingStudent = await this.studentRepo.findOneBy({ userId });
-    if (existingStudent) return existingStudent;
+  async createFromUser(userId: string, email?: string): Promise<Student> {
+    console.log(`[createFromUser] Attempting to create student for userId=${userId}, email=${email}`);
+    // 1. Check if student already exists by ID or userId field or email
+    const where: any[] = [{ userId }, { id: userId }];
+    if (email) where.push({ email });
+
+    const existingStudent = await this.studentRepo.findOne({ where });
+    if (existingStudent) {
+      console.log(`[createFromUser] Existing student found for ${userId}/${email}: ${existingStudent.id}`);
+      return existingStudent;
+    }
 
     // 2. Fetch user from user-shadow
-    const user = await this.userShadowRepo.findOneBy({ id: userId });
-    if (!user) throw new NotFoundException('User not found in system');
+    let user = await this.userShadowRepo.findOneBy({ id: userId });
+    
+    if (!user && email) {
+      console.log(`[createFromUser] User not found by ID, trying email=${email}`);
+      user = await this.userShadowRepo.findOneBy({ email });
+    }
+    
+    if (!user) {
+      console.error(`[createFromUser] User not found in user-shadow for userId=${userId}, email=${email}`);
+      throw new NotFoundException('User record not found in system (shadow). Sync may be pending.');
+    }
+    
     if (user.role !== 'student') {
       throw new BadRequestException(`User ${user.email} has role "${user.role}". Only students can be converted.`);
     }
@@ -283,9 +300,10 @@ export class StudentService {
     const studentId = `STU-${year}-${String(count + 1).padStart(4, '0')}`;
 
     // 5. Create student record
+    console.log(`[createFromUser] Creating new student record for email=${user.email}, studentId=${studentId}`);
     const student = await this.studentRepo.save(
       this.studentRepo.create({
-        id: user.id,
+        id: user.id, // Keep IDs synced for easy lookup
         studentId,
         firstName: profile?.firstName || 'Unknown',
         lastName: profile?.lastName || 'Student',

@@ -100,14 +100,14 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles("superadmin", "administration")
+  @Roles("superadmin", "administration", "teacher", "student", "parent")
   @All(["/classes", "/classes/*"])
   proxyClasses(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles("superadmin", "administration")
+  @Roles("superadmin", "administration", "teacher", "student", "parent")
   @All(["/sections", "/sections/*"])
   proxySections(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");
@@ -128,7 +128,7 @@ export class ProxyController {
   }
 
   @UseGuards(JwtAuthGuard, BlacklistGuard, MustResetGuard, RolesGuard)
-  @Roles("superadmin", "administration")
+  @Roles("superadmin", "administration", "teacher", "student", "parent")
   @All(["/academic-terms", "/academic-terms/*"])
   proxyAcademicTerms(@Req() req: Request, @Res() res: Response) {
     return this.forward(req, res, "school");

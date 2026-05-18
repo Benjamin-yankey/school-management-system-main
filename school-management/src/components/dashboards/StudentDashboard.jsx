@@ -84,7 +84,7 @@ const StudentDashboard = () => {
         setStats([
           {
             title: "Current Session",
-            value: activeAcademicYear?.year || "None Set",
+            value: activeAcademicYear?.year ? activeAcademicYear.year.replace('/', ' / ') : "None Set",
             color: "#3b82f6",
           },
           {
@@ -109,7 +109,7 @@ const StudentDashboard = () => {
           },
           {
             title: "Fee Balance",
-            value: feeBalance?.balance ? `$${feeBalance.balance}` : "$0",
+            value: typeof feeBalance === 'number' ? `GHS ${feeBalance.toLocaleString()}` : "GHS 0",
             change: 0,
             color: "#ef4444",
           },
