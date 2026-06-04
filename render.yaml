@@ -1,0 +1,193 @@
+# Render Blueprint — School Management System backend
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploys the NestJS microservices in ./backend-fixed:
+#   api-gateway (public)  -> auth/user/school/notification (private) -> Postgres + Redis + Redpanda(Kafka)
+#
+# How to use:
+#   1. Push this file to the repo root.
+#   2. Render Dashboard -> New -> Blueprint -> pick this repo.
+#   3. Fill the env vars marked `sync: false` (secrets) when prompted.
+#   4. After the gateway is live, copy its URL and set VITE_API_URL on Netlify.
+#
+# Notes:
+#   - Private services (`pserv`) and disks require a paid instance (starter+).
+#     Adjust `plan:` values to fit your budget.
+#   - JWT_SECRET is shared across every service via the `school-shared` group so
+#     tokens issued by auth-service validate at the gateway and other services.
+#   - Internal networking uses the service NAME as hostname; ports are pinned via
+#     the explicit PORT env var so the hardcoded service URLs stay deterministic.
+
+databases:
+  - name: school-db
+    databaseName: school_db
+    user: postgres
+    plan: free            # `free` expires after 30 days — upgrade for production
+    region: oregon
+
+envVarGroups:
+  - name: school-shared
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true   # generated once, shared by all services below
+
+services:
+  # ─── Redis (Key Value) ────────────────────────────────────────────────────
+  - type: keyvalue
+    name: redis
+    plan: free
+    region: oregon
+    ipAllowList: []          # empty = internal network only
+    maxmemoryPolicy: noeviction
+
+  # ─── Redpanda (Kafka API) ─────────────────────────────────────────────────
+  - type: pserv
+    name: redpanda
+    runtime: image
+    image:
+      url: docker.io/redpandadata/redpanda:latest
+    plan: starter
+    region: oregon
+    dockerCommand: >
+      redpanda start
+      --smp 1 --memory 512M --reserve-memory 0M --overprovisioned
+      --kafka-addr PLAINTEXT://0.0.0.0:9092
+      --advertise-kafka-addr PLAINTEXT://redpanda:9092
+      --set redpanda.auto_create_topics_enabled=true
+    disk:
+      name: redpanda-data
+      mountPath: /var/lib/redpanda/data
+      sizeGB: 10
+
+  # ─── auth-service (private, :3001) ────────────────────────────────────────
+  - type: pserv
+    name: auth-service
+    runtime: docker
+    dockerfilePath: ./backend-fixed/auth-service/Dockerfile
+    dockerContext: ./backend-fixed/auth-service
+    plan: starter
+    region: oregon
+    envVars:
+      - fromGroup: school-shared
+      - key: PORT
+        value: "3001"
+      - key: KAFKA_BROKER
+        value: redpanda:9092
+      - key: DATABASE_URL
+        fromDatabase:
+          name: school-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: redis
+          property: connectionString
+
+  # ─── user-service (private, :3002) ────────────────────────────────────────
+  - type: pserv
+    name: user-service
+    runtime: docker
+    dockerfilePath: ./backend-fixed/user-service/Dockerfile
+    dockerContext: ./backend-fixed/user-service
+    plan: starter
+    region: oregon
+    envVars:
+      - fromGroup: school-shared
+      - key: PORT
+        value: "3002"
+      - key: KAFKA_BROKER
+        value: redpanda:9092
+      - key: DATABASE_URL
+        fromDatabase:
+          name: school-db
+          property: connectionString
+      - key: SUPERADMIN_EMAIL
+        sync: false
+      - key: SUPERADMIN_PASSWORD
+        sync: false
+
+  # ─── school-service (private, :3003) ──────────────────────────────────────
+  - type: pserv
+    name: school-service
+    runtime: docker
+    dockerfilePath: ./backend-fixed/school-service/Dockerfile
+    dockerContext: ./backend-fixed/school-service
+    plan: starter
+    region: oregon
+    envVars:
+      - fromGroup: school-shared
+      - key: PORT
+        value: "3003"
+      - key: KAFKA_BROKER
+        value: redpanda:9092
+      - key: DATABASE_URL
+        fromDatabase:
+          name: school-db
+          property: connectionString
+
+  # ─── notification-service (private, :3004) ────────────────────────────────
+  - type: pserv
+    name: notification-service
+    runtime: docker
+    dockerfilePath: ./backend-fixed/notification-service/Dockerfile
+    dockerContext: ./backend-fixed/notification-service
+    plan: starter
+    region: oregon
+    envVars:
+      - fromGroup: school-shared
+      - key: PORT
+        value: "3004"
+      - key: KAFKA_BROKER
+        value: redpanda:9092
+      - key: DATABASE_URL
+        fromDatabase:
+          name: school-db
+          property: connectionString
+      - key: USE_GATEWAY
+        value: "true"
+      - key: API_GATEWAY_URL
+        value: http://api-gateway:3000
+      - key: USER_SERVICE_URL
+        value: http://user-service:3002
+      - key: SCHOOL_SERVICE_URL
+        value: http://school-service:3003
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "465"
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+
+  # ─── api-gateway (public web service, :3000) ──────────────────────────────
+  - type: web
+    name: api-gateway
+    runtime: docker
+    dockerfilePath: ./backend-fixed/api-gateway/Dockerfile
+    dockerContext: ./backend-fixed/api-gateway
+    plan: starter
+    region: oregon
+    healthCheckPath: /
+    envVars:
+      - fromGroup: school-shared
+      - key: PORT
+        value: "3000"
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: redis
+          property: connectionString
+      - key: AUTH_SERVICE_URL
+        value: http://auth-service:3001
+      - key: USER_SERVICE_URL
+        value: http://user-service:3002
+      - key: SCHOOL_SERVICE_URL
+        value: http://school-service:3003
+      - key: NOTIFICATION_SERVICE_URL
+        value: http://notification-service:3004
+      # CORS: set this to your Netlify site URL after the frontend deploys
+      - key: FRONTEND_URL
+        sync: false

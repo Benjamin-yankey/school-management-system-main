@@ -10,7 +10,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
-      'https://2e57-196-61-44-164.ngrok-free.app',
+      // Netlify frontend URL — set FRONTEND_URL in the Render dashboard
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

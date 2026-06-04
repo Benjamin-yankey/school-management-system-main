@@ -1,0 +1,24 @@
+# Netlify config — School Management System frontend (Vite + React SPA)
+# Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
+#
+# The frontend lives in ./school-management, so `base` points there and
+# `publish` is resolved relative to that base directory.
+
+[build]
+  base = "school-management"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # The Vite app reads import.meta.env.VITE_API_URL at BUILD time.
+  # Set this to your Render api-gateway URL. Prefer setting it in the Netlify
+  # dashboard (Site settings -> Environment variables) so it isn't committed,
+  # or uncomment and edit the line below:
+  # VITE_API_URL = "https://api-gateway-XXXX.onrender.com"
+
+# SPA fallback so React Router client-side routes resolve to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
