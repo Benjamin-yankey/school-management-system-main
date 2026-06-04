@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Credential } from './credential.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { AuthKafkaController } from './auth.kafka.controller';
+import { AuthInternalController } from './auth.internal.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { TokenBlacklistService } from './token-blacklist.service';
 
@@ -22,19 +21,8 @@ import { TokenBlacklistService } from './token-blacklist.service';
         signOptions: { expiresIn: '7d' },
       }),
     }),
-
-    ClientsModule.register([
-      {
-        name: 'KAFKA_CLIENT',
-        transport: Transport.KAFKA,
-        options: {
-          client: { clientId: 'auth-service-producer', brokers: [process.env.KAFKA_BROKER] },
-          consumer: { groupId: 'auth-reply-consumer' },
-        },
-      },
-    ]),
   ],
-  controllers: [AuthController, AuthKafkaController],
+  controllers: [AuthController, AuthInternalController],
   providers: [AuthService, JwtStrategy, TokenBlacklistService],
   exports: [TokenBlacklistService],
 })

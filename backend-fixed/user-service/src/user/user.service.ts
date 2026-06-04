@@ -1,16 +1,12 @@
 import {
   BadRequestException,
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
   ServiceUnavailableException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Raw, Repository } from "typeorm";
-import { ClientKafka } from "@nestjs/microservices";
-import { timeout } from "rxjs/operators";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { User } from "./user.entity";
@@ -21,34 +17,101 @@ import { UpdateCredentialsDto } from "./dto/update-credentials.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     @InjectRepository(Profile)
     private readonly profileRepo: Repository<Profile>,
-    @Inject("KAFKA_CLIENT")
-    private readonly kafkaClient: ClientKafka,
   ) {}
 
-  async onModuleInit() {
-    this.kafkaClient.subscribeToResponseOf("auth.verify-password");
-    this.kafkaClient.subscribeToResponseOf("school.validate");
-    await this.kafkaClient.connect();
+  // ── Inter-service HTTP helpers (replace the former Kafka calls) ─────────────
+
+  private get internalHeaders() {
+    return {
+      "Content-Type": "application/json",
+      "x-internal-key": process.env.INTERNAL_KEY ?? "",
+    };
   }
 
-  // ── Kafka helpers ──────────────────────────────────────────────────────────
+  /** Confirm a school exists (was Kafka 'school.validate' request/reply). */
+  private async schoolValidate(schoolId: string): Promise<{ exists: boolean }> {
+    try {
+      const res = await fetch(
+        `${process.env.SCHOOL_SERVICE_URL}/internal/schools/${schoolId}/validate`,
+        { headers: this.internalHeaders },
+      );
+      if (!res.ok) throw new Error(`school-service responded ${res.status}`);
+      return res.json();
+    } catch (err) {
+      console.error("[UserService] school.validate failed:", err);
+      throw new ServiceUnavailableException("school-service unavailable");
+    }
+  }
 
-  private async kafkaRequest<T>(topic: string, payload: any): Promise<T> {
-    return this.kafkaClient
-      .send(topic, payload)
-      .pipe(timeout(5000))
-      .toPromise()
-      .catch((err) => {
-        if (err.name === "TimeoutError")
-          throw new ServiceUnavailableException();
-        throw err;
+  /** Verify a password against auth-service (was Kafka 'auth.verify-password'). */
+  private async authVerifyPassword(
+    userId: string,
+    plainPassword: string,
+  ): Promise<{ valid: boolean }> {
+    try {
+      const res = await fetch(`${process.env.AUTH_SERVICE_URL}/internal/verify-password`, {
+        method: "POST",
+        headers: this.internalHeaders,
+        body: JSON.stringify({ userId, plainPassword }),
       });
+      if (!res.ok) throw new Error(`auth-service responded ${res.status}`);
+      return res.json();
+    } catch (err) {
+      console.error("[UserService] auth.verify-password failed:", err);
+      throw new ServiceUnavailableException("auth-service unavailable");
+    }
+  }
+
+  /** Create login credentials in auth-service (was Kafka 'auth.credentials-create'). */
+  private async authCreateCredential(data: {
+    userId: string;
+    hashedPassword: string;
+    mustResetPassword: boolean;
+  }): Promise<void> {
+    const res = await fetch(`${process.env.AUTH_SERVICE_URL}/internal/credentials`, {
+      method: "POST",
+      headers: this.internalHeaders,
+      body: JSON.stringify(data),
+    }).catch((err) => {
+      console.error("[UserService] auth.credentials-create failed:", err);
+      throw new ServiceUnavailableException("Failed to create credentials");
+    });
+    if (!res.ok) throw new ServiceUnavailableException("Failed to create credentials");
+  }
+
+  /** Update login credentials in auth-service (was Kafka 'auth.credentials-update'). */
+  private async authUpdateCredential(data: {
+    userId: string;
+    hashedPassword?: string;
+    mustResetPassword?: boolean;
+  }): Promise<void> {
+    const res = await fetch(`${process.env.AUTH_SERVICE_URL}/internal/credentials`, {
+      method: "PATCH",
+      headers: this.internalHeaders,
+      body: JSON.stringify(data),
+    }).catch((err) => {
+      console.error("[UserService] auth.credentials-update failed:", err);
+      throw new ServiceUnavailableException("Failed to update credentials");
+    });
+    if (!res.ok) throw new ServiceUnavailableException("Failed to update credentials");
+  }
+
+  /**
+   * Send an email via notification-service (was Kafka 'notification.email').
+   * Fire-and-forget: email delivery must never block or fail user provisioning.
+   */
+  private notifyEmail(data: { type: string; to: string; tempPassword?: string }): void {
+    fetch(`${process.env.NOTIFICATION_SERVICE_URL}/internal/email`, {
+      method: "POST",
+      headers: this.internalHeaders,
+      body: JSON.stringify(data),
+    }).catch((err) => console.error("[UserService] notification.email failed:", err));
   }
 
   private generateTempPassword(): string {
@@ -66,12 +129,7 @@ export class UserService implements OnModuleInit {
   // ── Superadmin ─────────────────────────────────────────────────────────────
 
   async createAdministration(dto: CreateAdministrationDto) {
-    const { exists } = await this.kafkaRequest<{ exists: boolean }>(
-      "school.validate",
-      {
-        schoolId: dto.schoolId,
-      },
-    );
+    const { exists } = await this.schoolValidate(dto.schoolId);
     if (!exists) throw new BadRequestException("School not found.");
 
     const tempPassword = this.generateTempPassword();
@@ -94,12 +152,12 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    this.kafkaClient.emit("auth.credentials-create", {
+    await this.authCreateCredential({
       userId: user.id,
       hashedPassword,
       mustResetPassword: true,
     });
-    this.kafkaClient.emit("notification.email", {
+    this.notifyEmail({
       type: "welcome",
       to: dto.email,
       tempPassword,
@@ -115,12 +173,12 @@ export class UserService implements OnModuleInit {
     const tempPassword = this.generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    this.kafkaClient.emit("auth.credentials-update", {
+    await this.authUpdateCredential({
       userId: id,
       hashedPassword,
       mustResetPassword: true,
     });
-    this.kafkaClient.emit("notification.email", {
+    this.notifyEmail({
       type: "password-reset",
       to: user.email,
       tempPassword,
@@ -136,13 +194,7 @@ export class UserService implements OnModuleInit {
   }
 
   async updateSuperadminCredentials(userId: string, dto: UpdateCredentialsDto) {
-    const { valid } = await this.kafkaRequest<{ valid: boolean }>(
-      "auth.verify-password",
-      {
-        userId,
-        plainPassword: dto.currentPassword,
-      },
-    );
+    const { valid } = await this.authVerifyPassword(userId, dto.currentPassword);
     if (!valid) throw new ForbiddenException("Current password is incorrect.");
 
     if (dto.newEmail) {
@@ -150,7 +202,7 @@ export class UserService implements OnModuleInit {
     }
     if (dto.newPassword) {
       const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
-      this.kafkaClient.emit("auth.credentials-update", {
+      await this.authUpdateCredential({
         userId,
         hashedPassword,
       });
@@ -183,12 +235,12 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    this.kafkaClient.emit("auth.credentials-create", {
+    await this.authCreateCredential({
       userId: user.id,
       hashedPassword,
       mustResetPassword: true,
     });
-    this.kafkaClient.emit("notification.email", {
+    this.notifyEmail({
       type: "welcome",
       to: dto.email,
       tempPassword,
@@ -207,12 +259,12 @@ export class UserService implements OnModuleInit {
     const tempPassword = this.generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    this.kafkaClient.emit("auth.credentials-update", {
+    await this.authUpdateCredential({
       userId: id,
       hashedPassword,
       mustResetPassword: true,
     });
-    this.kafkaClient.emit("notification.email", {
+    this.notifyEmail({
       type: "password-reset",
       to: user.email,
       tempPassword,
@@ -339,12 +391,7 @@ export class UserService implements OnModuleInit {
   }
 
   async createUserForSchool(schoolId: string, dto: CreateUserDto) {
-    const { exists } = await this.kafkaRequest<{ exists: boolean }>(
-      "school.validate",
-      {
-        schoolId,
-      },
-    );
+    const { exists } = await this.schoolValidate(schoolId);
     if (!exists) throw new BadRequestException("School not found.");
 
     const tempPassword = this.generateTempPassword();
@@ -367,12 +414,12 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    this.kafkaClient.emit("auth.credentials-create", {
+    await this.authCreateCredential({
       userId: user.id,
       hashedPassword,
       mustResetPassword: true,
     });
-    this.kafkaClient.emit("notification.email", {
+    this.notifyEmail({
       type: "welcome",
       to: dto.email,
       tempPassword,

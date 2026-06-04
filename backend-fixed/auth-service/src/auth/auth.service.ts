@@ -1,15 +1,11 @@
 import {
-  Inject,
   Injectable,
-  OnModuleInit,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { ClientKafka } from '@nestjs/microservices';
-import { timeout } from 'rxjs/operators';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { Credential } from './credential.entity';
@@ -18,33 +14,35 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   constructor(
     @InjectRepository(Credential)
     private readonly credentialRepo: Repository<Credential>,
     private readonly jwtService: JwtService,
     private readonly blacklist: TokenBlacklistService,
-    @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientKafka,
   ) {}
 
-  async onModuleInit() {
-    this.kafkaClient.subscribeToResponseOf('user.find-by-email');
-    await this.kafkaClient.connect();
+  /** Look up a user in user-service over HTTP (replaces the Kafka request/reply). */
+  private async findUserByEmail(email: string): Promise<any> {
+    const url = `${process.env.USER_SERVICE_URL}/internal/by-email?email=${encodeURIComponent(email)}`;
+    try {
+      const res = await fetch(url, {
+        headers: { 'x-internal-key': process.env.INTERNAL_KEY ?? '' },
+      });
+      if (!res.ok) throw new Error(`user-service responded ${res.status}`);
+      const { user } = await res.json();
+      return user;
+    } catch (err) {
+      console.error(`[AuthService] user-service lookup failed for ${email}:`, err);
+      throw new ServiceUnavailableException();
+    }
   }
 
   async signIn(dto: SignInDto): Promise<{ accessToken: string }> {
     const email = dto.email.toLowerCase();
     console.log(`[AuthService] Attempting signIn for: ${email}`);
 
-    const user = await this.kafkaClient
-      .send('user.find-by-email', { email })
-      .pipe(timeout(15000))
-      .toPromise()
-      .catch((err) => {
-        console.error(`[AuthService] user-service lookup failed for ${email}:`, err);
-        if (err.name === 'TimeoutError') throw new ServiceUnavailableException();
-        throw err;
-      });
+    const user = await this.findUserByEmail(email);
 
     if (!user) {
       console.warn(`[AuthService] User not found: ${email}`);
