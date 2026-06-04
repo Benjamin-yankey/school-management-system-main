@@ -1,116 +1,64 @@
-# Render Blueprint — School Management System backend (free-tier, reusing
-# an EXISTING free Postgres + Redis instead of creating new ones).
+# Render Blueprint — School Management System (monolithic backend).
 # Docs: https://render.com/docs/blueprint-spec
 #
-# Why no `databases:` / `keyvalue` block here:
-#   Render's free tier allows only ONE free Postgres and ONE free Key Value per
-#   account. This account already has those, so instead of creating duplicates
-#   (which fails the whole sync), each service reads DATABASE_URL / REDIS_URL
-#   from the shared env group — you paste those two values once at sync time.
+# One web service runs the whole backend (auth + user + school + notification).
+# What used to be 5 Docker services talking over HTTP is now a single NestJS
+# app: the modules call each other in-process, so there is no api-gateway, no
+# INTERNAL_KEY, and no per-service URLs.
 #
-# Architecture note:
-#   Inter-service calls are plain HTTP (no Kafka/Redpanda). Services reach each
-#   other over Render's private network using the service name + port, e.g.
-#   http://auth-service:3001. Internal endpoints are guarded by INTERNAL_KEY.
+# Database:
+#   The single Postgres holds four schemas (auth / user / school / notification);
+#   the app creates them on boot if missing. Reusing an EXISTING free Postgres +
+#   Key Value (Redis): this account already has one of each on the free tier, so
+#   we don't declare a `databases:` block — paste DATABASE_URL / REDIS_URL once
+#   at sync time instead.
 #
-# Free-tier caveats:
-#   - Free web services SPIN DOWN after ~15 min idle; the first request after
-#     idle cold-starts the service (and any service it calls). Pre-warm before demos.
+# Free-tier caveat:
+#   Free web services SPIN DOWN after ~15 min idle; the first request cold-starts
+#   the service. Pre-warm before demos.
 #
 # How to use:
 #   1. Push this file to the repo root.
-#   2. In the Render dashboard, open your existing free Postgres and copy its
-#      *Internal Database URL*; open your existing Key Value and copy its
-#      *Internal* connection URL. (Both must be in the same region as below.)
-#   3. Render -> Blueprint -> Manual sync. When prompted, paste those two values
-#      into DATABASE_URL and REDIS_URL, plus the other `sync: false` secrets.
-#   4. After the gateway is live, set VITE_API_URL on Netlify to its URL, then
-#      set FRONTEND_URL on api-gateway to the Netlify site URL (CORS).
+#   2. Render -> Blueprint -> sync. When prompted, paste DATABASE_URL (existing
+#      Postgres Internal URL), REDIS_URL (existing Key Value Internal URL), the
+#      superadmin seed, the mail credentials, and CORS_ORIGINS.
+#   3. After the backend is live, point each frontend's VITE_API_URL at its URL,
+#      and put those frontend origins in CORS_ORIGINS (comma-separated).
 
 envVarGroups:
   - name: school-shared
     envVars:
       - key: JWT_SECRET
-        generateValue: true   # generated once, shared by all services below
-      - key: INTERNAL_KEY
-        generateValue: true   # shared secret guarding service-to-service HTTP calls
+        generateValue: true   # generated once on first sync
       - key: DATABASE_URL
-        sync: false           # paste your existing free Postgres Internal Database URL
+        sync: false           # paste your existing free Postgres Internal URL
       - key: REDIS_URL
         sync: false           # paste your existing free Key Value (Redis) Internal URL
 
 services:
-  # ─── auth-service (:3001) ─────────────────────────────────────────────────
+  # ─── school-backend (public web service, :3000) ───────────────────────────
   - type: web
-    name: auth-service
-    runtime: docker
+    name: school-backend
+    runtime: node
     plan: free
-    dockerfilePath: ./backend-fixed/auth-service/Dockerfile
-    dockerContext: ./backend-fixed/auth-service
     region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /metrics
     envVars:
-      - fromGroup: school-shared   # provides JWT_SECRET, INTERNAL_KEY, DATABASE_URL, REDIS_URL
+      - fromGroup: school-shared   # JWT_SECRET, DATABASE_URL, REDIS_URL
       - key: PORT
-        value: "3001"
-      - key: USER_SERVICE_URL
-        value: http://user-service:3002
-
-  # ─── user-service (:3002) ─────────────────────────────────────────────────
-  - type: web
-    name: user-service
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend-fixed/user-service/Dockerfile
-    dockerContext: ./backend-fixed/user-service
-    region: oregon
-    envVars:
-      - fromGroup: school-shared
-      - key: PORT
-        value: "3002"
+        value: "3000"
+      # Superadmin seeded on first boot if none exists
       - key: SUPERADMIN_EMAIL
         sync: false
       - key: SUPERADMIN_PASSWORD
         sync: false
-      - key: AUTH_SERVICE_URL
-        value: http://auth-service:3001
-      - key: SCHOOL_SERVICE_URL
-        value: http://school-service:3003
-      - key: NOTIFICATION_SERVICE_URL
-        value: http://notification-service:3004
-
-  # ─── school-service (:3003) ───────────────────────────────────────────────
-  - type: web
-    name: school-service
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend-fixed/school-service/Dockerfile
-    dockerContext: ./backend-fixed/school-service
-    region: oregon
-    envVars:
-      - fromGroup: school-shared
-      - key: PORT
-        value: "3003"
-
-  # ─── notification-service (:3004) ─────────────────────────────────────────
-  - type: web
-    name: notification-service
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend-fixed/notification-service/Dockerfile
-    dockerContext: ./backend-fixed/notification-service
-    region: oregon
-    envVars:
-      - fromGroup: school-shared
-      - key: PORT
-        value: "3004"
-      - key: USE_GATEWAY
-        value: "true"
-      - key: API_GATEWAY_URL
-        value: http://api-gateway:3000
-      - key: USER_SERVICE_URL
-        value: http://user-service:3002
-      - key: SCHOOL_SERVICE_URL
-        value: http://school-service:3003
+      # CORS: comma-separated list of frontend origins (Netlify site URLs)
+      - key: CORS_ORIGINS
+        sync: false
+      # Mail (notification module)
       - key: MAIL_HOST
         value: smtp.gmail.com
       - key: MAIL_PORT
@@ -120,29 +68,4 @@ services:
       - key: MAIL_USER
         sync: false
       - key: MAIL_PASS
-        sync: false
-
-  # ─── api-gateway (public web service, :3000) ──────────────────────────────
-  - type: web
-    name: api-gateway
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend-fixed/api-gateway/Dockerfile
-    dockerContext: ./backend-fixed/api-gateway
-    region: oregon
-    healthCheckPath: /
-    envVars:
-      - fromGroup: school-shared
-      - key: PORT
-        value: "3000"
-      - key: AUTH_SERVICE_URL
-        value: http://auth-service:3001
-      - key: USER_SERVICE_URL
-        value: http://user-service:3002
-      - key: SCHOOL_SERVICE_URL
-        value: http://school-service:3003
-      - key: NOTIFICATION_SERVICE_URL
-        value: http://notification-service:3004
-      # CORS: set this to your Netlify site URL after the frontend deploys
-      - key: FRONTEND_URL
         sync: false
