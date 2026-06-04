@@ -1,33 +1,31 @@
-# Render Blueprint — School Management System backend (free-tier layout)
+# Render Blueprint — School Management System backend (free-tier, reusing
+# an EXISTING free Postgres + Redis instead of creating new ones).
 # Docs: https://render.com/docs/blueprint-spec
 #
-# Deploys the NestJS services in ./backend-fixed entirely on Render's FREE tier:
-#   api-gateway (public) -> auth/user/school/notification -> Postgres + Redis
+# Why no `databases:` / `keyvalue` block here:
+#   Render's free tier allows only ONE free Postgres and ONE free Key Value per
+#   account. This account already has those, so instead of creating duplicates
+#   (which fails the whole sync), each service reads DATABASE_URL / REDIS_URL
+#   from the shared env group — you paste those two values once at sync time.
 #
 # Architecture note:
 #   Inter-service calls are plain HTTP (no Kafka/Redpanda). Services reach each
 #   other over Render's private network using the service name + port, e.g.
-#   http://auth-service:3001. The internal endpoints are guarded by a shared
-#   INTERNAL_KEY secret (see the `school-shared` env group).
+#   http://auth-service:3001. Internal endpoints are guarded by INTERNAL_KEY.
 #
 # Free-tier caveats:
 #   - Free web services SPIN DOWN after ~15 min idle; the first request after
 #     idle cold-starts the service (and any service it calls). Pre-warm before demos.
-#   - The free Postgres instance EXPIRES after 30 days — recreate or upgrade.
 #
 # How to use:
 #   1. Push this file to the repo root.
-#   2. Render Dashboard -> New -> Blueprint -> pick this repo.
-#   3. Fill the env vars marked `sync: false` (secrets) when prompted.
-#   4. After the gateway is live, copy its URL and set VITE_API_URL on Netlify,
-#      then set FRONTEND_URL on api-gateway to the Netlify site URL (CORS).
-
-databases:
-  - name: school-db
-    databaseName: school_db
-    user: school_user
-    plan: free            # `free` expires after 30 days — upgrade for production
-    region: oregon
+#   2. In the Render dashboard, open your existing free Postgres and copy its
+#      *Internal Database URL*; open your existing Key Value and copy its
+#      *Internal* connection URL. (Both must be in the same region as below.)
+#   3. Render -> Blueprint -> Manual sync. When prompted, paste those two values
+#      into DATABASE_URL and REDIS_URL, plus the other `sync: false` secrets.
+#   4. After the gateway is live, set VITE_API_URL on Netlify to its URL, then
+#      set FRONTEND_URL on api-gateway to the Netlify site URL (CORS).
 
 envVarGroups:
   - name: school-shared
@@ -36,16 +34,12 @@ envVarGroups:
         generateValue: true   # generated once, shared by all services below
       - key: INTERNAL_KEY
         generateValue: true   # shared secret guarding service-to-service HTTP calls
+      - key: DATABASE_URL
+        sync: false           # paste your existing free Postgres Internal Database URL
+      - key: REDIS_URL
+        sync: false           # paste your existing free Key Value (Redis) Internal URL
 
 services:
-  # ─── Redis (Key Value) ────────────────────────────────────────────────────
-  - type: keyvalue
-    name: redis
-    plan: free
-    region: oregon
-    ipAllowList: []          # empty = internal network only
-    maxmemoryPolicy: noeviction
-
   # ─── auth-service (:3001) ─────────────────────────────────────────────────
   - type: web
     name: auth-service
@@ -55,18 +49,9 @@ services:
     dockerContext: ./backend-fixed/auth-service
     region: oregon
     envVars:
-      - fromGroup: school-shared
+      - fromGroup: school-shared   # provides JWT_SECRET, INTERNAL_KEY, DATABASE_URL, REDIS_URL
       - key: PORT
         value: "3001"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: school-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: redis
-          property: connectionString
       - key: USER_SERVICE_URL
         value: http://user-service:3002
 
@@ -82,10 +67,6 @@ services:
       - fromGroup: school-shared
       - key: PORT
         value: "3002"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: school-db
-          property: connectionString
       - key: SUPERADMIN_EMAIL
         sync: false
       - key: SUPERADMIN_PASSWORD
@@ -109,10 +90,6 @@ services:
       - fromGroup: school-shared
       - key: PORT
         value: "3003"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: school-db
-          property: connectionString
 
   # ─── notification-service (:3004) ─────────────────────────────────────────
   - type: web
@@ -126,10 +103,6 @@ services:
       - fromGroup: school-shared
       - key: PORT
         value: "3004"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: school-db
-          property: connectionString
       - key: USE_GATEWAY
         value: "true"
       - key: API_GATEWAY_URL
@@ -162,11 +135,6 @@ services:
       - fromGroup: school-shared
       - key: PORT
         value: "3000"
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: redis
-          property: connectionString
       - key: AUTH_SERVICE_URL
         value: http://auth-service:3001
       - key: USER_SERVICE_URL
