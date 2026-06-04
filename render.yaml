@@ -21,7 +21,7 @@
 databases:
   - name: school-db
     databaseName: school_db
-    user: postgres
+    user: school_user
     plan: free            # `free` expires after 30 days — upgrade for production
     region: oregon
 
